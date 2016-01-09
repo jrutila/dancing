@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/1.9/howto/deployment/wsgi/
 
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dancing.settings")
+os.environ.setdefault("DATABASE_URL", "sqlite:///dancing.sqlite")
 
 from whitenoise.django import DjangoWhiteNoise
 from django.core.wsgi import get_wsgi_application

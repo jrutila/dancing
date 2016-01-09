@@ -1,0 +1,61 @@
+{% load cms_tags sekizai_tags staticfiles %}
+
+<html lang="fi">
+  <head>
+    <!-- Basic -->
+    <meta charset="utf-8">
+    <title>Dancing {% page_attribute "page_title" %}</title>
+    <meta name="keywords" content="dancing lahti" />
+    <meta name="description" content="Tanssiklubi Dancingin kotisivut">
+    <meta name="author" content="dancing.fi">  
+
+    <!-- Mobile Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Theme CSS -->
+    <link href="{% static "theme/css/style.css" %}" rel="stylesheet" media="screen">
+    <!-- Responsive CSS -->
+    <link href="{% static "theme/css/theme-responsive.css" %}" rel="stylesheet" media="screen">
+    <!-- Skins Theme -->
+    <link href="{% static "theme/css/skins/blue/blue.css" %}" rel="stylesheet" media="screen" class="skin">
+
+    <!-- Favicons -->
+    <link rel="shortcut icon" href="{% static "theme/img/icons/favicon.ico" %}">
+    <link rel="apple-touch-icon" href="{% static "theme/img/icons/apple-touch-icon.png" %}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{% static "theme/img/icons/apple-touch-icon-72x72.png" %}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{% static "theme/img/icons/apple-touch-icon-114x114.png" %}">
+
+    <!-- Head Libs -->
+    <script src="{% static "theme/js/modernizr.js" %}"></script>
+
+    <!--[if IE]>
+        <link rel="stylesheet" href="css/ie/ie.css">
+    <![endif]-->
+
+    <!--[if lte IE 8]>
+        <script src="js/responsive/html5shiv.js"></script>
+        <script src="js/responsive/respond.js"></script>
+    <![endif]-->
+
+    <!-- Skins Changer-->
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    {% render_block "css" %}
+  </head>
+  <body class="none">
+    <div id="layout" class="layout-boxed-margin">
+    {% cms_toolbar %}
+    {% block base_content %}{% endblock %}
+
+    <!-- jQuery local-->
+    <script src="{% static "theme/js/jquery.js" %}"></script>
+
+    {% render_block "theme_js" %}
+
+    <!-- Bootstrap.js-->
+    <script type="text/javascript" src="{% static  "theme/js/bootstrap/bootstrap.js" %}"></script>
+    <!--MAIN FUNCTIONS-->
+    <script type="text/javascript" src="{% static "theme/js/main.js" %}"></script>
+
+    {% render_block "js" %}
+    </div>
+  </body>
+</html>
