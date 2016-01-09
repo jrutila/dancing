@@ -47,7 +47,14 @@ INSTALLED_APPS = [
     'djangocms_text_ckeditor',
 
     'common',
+
+    #Filer
+    'filer',
+    'easy_thumbnails',
 ]
+
+THUMBNAIL_HIGH_RESOLUTION = True
+FILER_DEBUG=True
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
@@ -164,6 +171,9 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'media')
+MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
