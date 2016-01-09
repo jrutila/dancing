@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    
+    'storages',
 
     'cms',  # django CMS itself
     'treebeard',  # utilities for implementing a tree
@@ -174,8 +176,15 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'media')
-MEDIA_URL = '/media/'
+AWS_QUERYSTRING_AUTH = False
+AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
+AWS_STORAGE_BUCKET_NAME = os.environ['S3_BUCKET_NAME']
+MEDIA_URL = 'http://s3-eu-west-1.amazonaws.com/%s/' % AWS_STORAGE_BUCKET_NAME
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto.S3BotoStorage"
+
+#MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'media')
+#MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
