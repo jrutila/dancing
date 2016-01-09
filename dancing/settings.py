@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     #Filer
     'filer',
     'easy_thumbnails',
+
+    'cmsplugin_filer_image',
 ]
 
 THUMBNAIL_HIGH_RESOLUTION = True
