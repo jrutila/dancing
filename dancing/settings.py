@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'cmsplugin_filer_image',
     'cmsplugin_plaintext',
     'cmsplugin_newsplus',
+    'cmsplugin_iframe',
 ]
 
 MIGRATION_MODULES = {
