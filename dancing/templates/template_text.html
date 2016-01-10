@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load cms_tags menu_tags %}
+
+{% block base_content %}
+    <section class="section-title img-feature" >
+        <div class="overlay-bg"></div>
+        <div class="container">
+            {% placeholder title %}
+        </div>
+    </section>
+
+    <section class="content-info">
+        <div class="crumbs">
+            <div class="container">
+                <ul>
+                    {% show_breadcrumb %}
+                </ul>
+            </div>
+        </div>
+        <section class="container padding-top-mini">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel-box">
+                        <div class="titles">
+                            {% placeholder subtitle %}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {% placeholder text %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+{% endblock %}

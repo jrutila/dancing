@@ -1,4 +1,4 @@
-{% load cms_tags sekizai_tags staticfiles %}
+{% load cms_tags sekizai_tags staticfiles menu_tags %}
 
 <html lang="fi">
   <head>
@@ -43,6 +43,44 @@
   <body class="none">
     <div id="layout" class="layout-boxed-margin">
     {% cms_toolbar %}
+
+    <header>
+        <!-- Headerbox -->
+        <div class="headerbox">
+            <div class="container">
+                <div class="row">
+                    <!-- Logo-->
+                    <div class="col-md-3 logo">
+                        <a href="index.html" title="Return Home">
+                            <img src="{% static "img/logo.jpg" %}" alt="Logo" class="logo_img">
+                        </a>
+                    </div>
+                    <!-- End Logo-->
+
+                    <!-- Adds Header
+                    <div class="col-md-9 adds">
+                        <a href="http://themeforest.net/user/iwthemes/portfolio?ref=iwthemes" target="_blank">
+                            <img src="img/adds/banner.jpg" alt="" class="img-responsive">
+                        </a>
+                    </div>
+                    <!-- End Adds Header-->
+                </div>
+            </div>
+        </div>
+        <!-- End headerbox-->
+
+        <!-- Navigation -->
+        <nav class="mainmenu">
+            <div class="container">
+                <ul class="sf-menu sf-arrows" id="menu">
+                    {% show_menu 0 100 100 100 %}
+                </ul>
+            </div>
+        </nav>
+        <!-- End Navigation -->
+
+    </header>
+
     {% block base_content %}{% endblock %}
 
     <!-- jQuery local-->
