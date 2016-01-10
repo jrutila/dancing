@@ -1,0 +1,22 @@
+{% extends "cmsplugin_newsplus/news_base.html" %}
+{% load cms_tags menu_tags extra_cms_tags %}
+
+{% block news_content %}
+    <div class="titles">
+        <h4>Viimeisimmät uutiset</h4>
+    </div>
+    {% for object in latest %}
+    <div class="post-item">
+        <div class="row">
+            <div class="col-md-4">
+
+            </div>
+            <div class="col-md-8">
+                <h4><a href="{{ object.get_absolute_url }}">{{ object.title }}</a></h4>
+                <p class="data-info">{{ object.pub_date }}</p>
+                {{ object.excerpt|safe }}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% endblock %}

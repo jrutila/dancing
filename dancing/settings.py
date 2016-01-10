@@ -56,6 +56,7 @@ INSTALLED_APPS = [
 
     'cmsplugin_filer_image',
     'cmsplugin_plaintext',
+    'cmsplugin_newsplus',
 ]
 
 MIGRATION_MODULES = {
@@ -151,7 +152,6 @@ AUTH_PASSWORD_VALIDATORS = [
 CMS_TEMPLATES = (
     ('template_1.html', 'Template One'),
     ('home.html', 'Home'),
-    ('home_slide.html', 'Home - Slide'),
     ('template_text.html', 'Text page'),
 )
 

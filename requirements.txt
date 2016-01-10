@@ -1,6 +1,7 @@
 boto==2.38.0
 botocore==1.3.17
 cmsplugin-filer==1.0.0
+cmsplugin-newsplus==0.1.10
 -e git+https://github.com/jrutila/cmsplugin-plaintext@59af39514df0e9c23221451d6e0d73f7cef3e830#egg=cmsplugin_plaintext_djangocms3-master
 dj-database-url==0.3.0
 dj-static==0.0.6
@@ -27,6 +28,7 @@ jmespath==0.9.0
 Pillow==3.1.0
 psycopg2==2.6.1
 python-dateutil==2.4.2
+pytz==2015.7
 six==1.10.0
 static3==0.6.1
 Unidecode==0.4.18
