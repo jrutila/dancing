@@ -9,7 +9,10 @@
     <div class="post-item">
         <div class="row">
             <div class="col-md-4">
-
+                <div class="img-hover">
+                    <img src="{{ object.images.first.image.url }}" alt="" class="img-responsive"/>
+                    <div class="overlay"><a href="{{ object.get_absolute_url }}">+</a></div>
+                </div>
             </div>
             <div class="col-md-8">
                 <h4><a href="{{ object.get_absolute_url }}">{{ object.title }}</a></h4>
