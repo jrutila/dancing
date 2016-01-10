@@ -4,7 +4,7 @@ from cms.models.pluginmodel import CMSPlugin
 from common.models import HomeSlide
 from django.utils.translation import ugettext_lazy as _
 
-class HelloPlugin(CMSPluginBase):
+class SlidePlugin(CMSPluginBase):
     model = HomeSlide
     render_template = "home_slide.html"
     name = _("Homepage slide")
@@ -15,4 +15,4 @@ class HelloPlugin(CMSPluginBase):
         return context
 
 
-plugin_pool.register_plugin(HelloPlugin)
+plugin_pool.register_plugin(SlidePlugin)

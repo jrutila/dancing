@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% load cms_tags menu_tags %}
+{% load cms_tags menu_tags extra_cms_tags %}
 
 {% block base_content %}
     <section class="section-title img-feature" >
         <div class="overlay-bg"></div>
         <div class="container">
-            {% placeholder title %}
+            <h1>{% placeholder page_title %}</h1>
         </div>
     </section>
 
@@ -21,9 +21,12 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="panel-box">
+                        {% get_placeholder "page_subtitle" as subtitle_ph %}
+                        {% if subtitle_ph %}
                         <div class="titles">
-                            {% placeholder subtitle %}
+                            <h4>{% placeholder page_subtitle %}</h4>
                         </div>
+                        {% endif %}
                         <div class="row">
                             <div class="col-md-12">
                                 {% placeholder text %}

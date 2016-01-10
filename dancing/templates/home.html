@@ -3,18 +3,9 @@
 
 {% block base_content %}
     <section id="slide" class="camera_wrap camera_white_skin">
-    {% placeholder "carousel" %}
+    {% placeholder "home_slides" %}
     </section>
 
     {% addtoblock "theme_js" %}
-        <!--Slide-->
-        <script type="text/javascript" src="{% static "theme/js/slide/camera.js" %}" ></script>
-        <script type='text/javascript' src="{% static "theme/js/slide/jquery.easing.1.3.min.js" %}"></script>
-        <!--Ligbox-->
-        <script type="text/javascript" src="{% static "theme/js/fancybox/jquery.fancybox.js" %}"></script>
-
-        <!-- carousel.js-->
-        <script src="{% static "theme/js/carousel/carousel.js" %}"></script>
-
     {% endaddtoblock %}
 {% endblock %}

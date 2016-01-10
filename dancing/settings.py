@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'easy_thumbnails',
 
     'cmsplugin_filer_image',
+    'cmsplugin_plaintext',
 ]
 
 THUMBNAIL_HIGH_RESOLUTION = True
@@ -136,6 +137,18 @@ CMS_TEMPLATES = (
     ('home_slide.html', 'Home - Slide'),
     ('template_text.html', 'Text page'),
 )
+
+CMS_PLACEHOLDER_CONF = {
+    'page_title': {
+        'plugins': ['CharFieldPlugin']
+    },
+    'page_subtitle': {
+        'plugins': ['CharFieldPlugin']
+    },
+    'home_slides': {
+        'plugins': ['SlidePlugin']
+    },
+}
 
 LANGUAGES = [
   ('fi-fi', 'Finnish'),
