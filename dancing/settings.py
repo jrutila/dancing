@@ -150,9 +150,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Django CMS
 CMS_TEMPLATES = (
-    ('template_1.html', 'Template One'),
-    ('home.html', 'Home'),
     ('template_text.html', 'Text page'),
+    ('home.html', 'Home'),
 )
 
 CMS_PLACEHOLDER_CONF = {
