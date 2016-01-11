@@ -8,6 +8,8 @@ if ($('#slide').length)
 
 $(".mainmenu").sticky({topSpacing:0});
 
+$("#menu").tinyNav();
+
 //=================================== Nav Superfish ===============================//
 
 $('ul.sf-menu').superfish();

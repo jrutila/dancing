@@ -48,7 +48,12 @@
                 <!-- Right Content -->
                 <div class="col-md-8">
                     <div class="panel-box">
-                        {% placeholder "contact_form" %}
+                        {% placeholder "contact_form" or %}
+                            <div class="titles">
+                                <h4>Ei palautelomaketta</h4>
+                            </div>
+                            <div class="alert alert-danger">Aseta palautelomake</div>
+                        {% endplaceholder %}
                     </div>
                 </div> 
                 <!-- End Right Content -->       
@@ -89,12 +94,12 @@
                 streetViewControl: true,
                 overviewMapControl: true
             },
-            scrollwheel: false,
             marker: { address: "Vesijärvenkatu 30, Lahti", options: { icon: "{% static "theme/img/img-theme/pin.png" %}" } },
             map: {
                 options: {
                     center: [initLatitude, initLongitude],
-                    zoom: 14
+                    zoom: 14,
+                    scrollwheel: false,
                 }
             }
         };
