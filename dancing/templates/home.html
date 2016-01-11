@@ -16,6 +16,27 @@
         </div>
     </div>
 
-    {% addtoblock "theme_js" %}
-    {% endaddtoblock %}
+
+    <aside class="section-wide">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="text-center">
+                        <h2>Meillä käy</h2>
+                    </div>
+                    <ul id="support" class="tooltip-hover">
+                        <li data-toggle="tooltip" title data-original-title="Smartum">
+                            <a href="#"><img height="90" src="{% static "img/smartum5.jpg" %}" alt="Smartum"/></a>
+                        </li>
+                        <li data-toggle="tooltip" title data-original-title="Smartum">
+                            <a href="#"><img height="90" src="{% static "img/smartum4.jpg" %}" alt="Smartum"/></a>
+                        </li>
+                        <li data-toggle="tooltip" title data-original-title="Smartum">
+                            <a href="#"><img height="90" src="{% static "img/smartum_card.jpg" %}" alt="Smartum"/></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </aside>
 {% endblock %}
