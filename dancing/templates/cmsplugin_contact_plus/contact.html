@@ -1,0 +1,56 @@
+{% load extra_form_tags %}
+<div class="titles">
+    <h4>{{ contact.title }}</h4>
+</div>
+{% if form %}
+    {% if form.is_multipart %}
+        <form class="form-theme" enctype="multipart/form-data" method="POST" action="">
+    {% else %}
+       <form class="form-theme" method="POST" action="">
+    {% endif %}
+	{% csrf_token %}
+	{{ form.non_field_errors }}
+	
+	{% with form.fields.keys|list as form_fields %}
+	<div class="row">
+        <div class="form-group">
+            <div class="col-md-6">
+            	{% with form|get_field:form_fields.0 as field %}
+                {{ field.errors }}
+                {{ field.label_tag }}
+                {{ field }}
+                {% endwith %}
+            </div>
+            <div class="col-md-6">
+            	{% with form|get_field:form_fields.1 as field %}
+                {{ field.errors }}
+                {{ field.label_tag }}
+                {{ field }}
+                {% endwith %}
+            </div>
+            <div class="col-md-12">
+            	{% with form|get_field:form_fields.2 as field %}
+                {{ field.errors }}
+                {{ field.label_tag }}
+                {{ field }}
+                {% endwith %}
+            </div>
+        </div>
+	</div>
+	{% endwith %}
+    
+    <div class="row">
+        <div class="col-md-12">
+        	<input class="btn btn-lg btn-primary" type="submit" name="contact_plus_form_{{ contact.id }}" {% if contact.submit %} value="{{ contact.submit }}"{% endif %} />
+        </div>
+    </div>
+	</form>
+{% else %}
+    <div class="row result">
+        <div class="col-md-12">
+        	{{ contact.thanks|safe }}
+        </div>
+	</div>
+{% endif %}
+
+    

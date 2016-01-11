@@ -48,39 +48,7 @@
                 <!-- Right Content -->
                 <div class="col-md-8">
                     <div class="panel-box">
-                        <div class="titles">
-                            <h4>Ota yhteyttä!</h4>
-                        </div>
-                        <!-- Form Contact -->
-                        <form class="form-theme" action="php/send-mail.php">
-                            <div class="row">
-                                <div class="form-group">
-                                    <div class="col-md-6">
-                                        <label>Nimesi *</label>
-                                        <input type="text"  required="required" value="" maxlength="100" class="form-control" name="Name" id="name">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label>Sähköpostiosoitteesi *</label>
-                                        <input type="email"  required="required" value="" maxlength="100" class="form-control" name="Email" id="email">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="form-group">
-                                    <div class="col-md-12">
-                                        <label>Viestisi *</label>
-                                        <textarea maxlength="5000" rows="10" class="form-control" name="message"  style="height: 138px;" required="required" ></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <input type="submit" value="Send Message" class="btn btn-lg btn-primary">
-                                </div>
-                            </div>
-                        </form>
-                        <!-- End Form Contact --> 
-                        <div class="result"></div>
+                        {% placeholder "contact_form" %}
                     </div>
                 </div> 
                 <!-- End Right Content -->       

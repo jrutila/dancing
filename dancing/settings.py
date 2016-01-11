@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'cmsplugin_plaintext',
     'cmsplugin_newsplus',
     'cmsplugin_iframe',
+    'cmsplugin_contact_plus',
 ]
 
 MIGRATION_MODULES = {
@@ -229,3 +230,6 @@ STATICFILES_DIRS = (
 # https://warehouse.python.org/project/whitenoise/
 
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = 'app-messages'
