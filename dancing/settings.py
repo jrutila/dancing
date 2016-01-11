@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'easy_thumbnails',
 
     'cmsplugin_filer_image',
+    'cmsplugin_filer_file',
     'cmsplugin_plaintext',
     'cmsplugin_newsplus',
     'cmsplugin_iframe',
@@ -62,7 +63,7 @@ INSTALLED_APPS = [
 ]
 
 MIGRATION_MODULES = {
-    #'cmsplugin_filer_file': 'cmsplugin_filer_file.migrations_django',
+    'cmsplugin_filer_file': 'cmsplugin_filer_file.migrations_django',
     #'cmsplugin_filer_folder': 'cmsplugin_filer_folder.migrations_django',
     #'cmsplugin_filer_link': 'cmsplugin_filer_link.migrations_django',
     'cmsplugin_filer_image': 'cmsplugin_filer_image.migrations_django',
