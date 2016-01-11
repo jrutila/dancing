@@ -153,6 +153,7 @@ AUTH_PASSWORD_VALIDATORS = [
 CMS_TEMPLATES = (
     ('template_text.html', 'Text page'),
     ('home.html', 'Home'),
+    ('template_contact.html', 'Contact page'),
 )
 
 CMS_PLACEHOLDER_CONF = {
