@@ -50,7 +50,6 @@ INSTALLED_APPS = [
 
     'common',
 
-    
     #Filer
     'filer',
     'easy_thumbnails',
@@ -62,7 +61,7 @@ INSTALLED_APPS = [
     'cmsplugin_iframe',
     'cmsplugin_contact_plus',
     
-    #'danceclub',
+    'danceclub',
 ]
 
 MIGRATION_MODULES = {
