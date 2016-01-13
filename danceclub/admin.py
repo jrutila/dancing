@@ -2,11 +2,15 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Member, Dancer, Couple
+from .models import Member, Dancer, Couple, Activity, ActivityParticipation, Transaction, Season
 
 admin.site.register(Member)
 admin.site.register(Dancer)
 admin.site.register(Couple)
+admin.site.register(Activity)
+admin.site.register(ActivityParticipation)
+admin.site.register(Transaction)
+admin.site.register(Season)
 
 class UserCreateForm(UserCreationForm):
     class Meta:
