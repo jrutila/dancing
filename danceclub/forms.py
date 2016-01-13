@@ -16,12 +16,15 @@ class ParticipationForm(forms.Form):
         first_name = self.cleaned_data['first_name']
         last_name = self.cleaned_data['last_name']
         email = self.cleaned_data['email']
-        existing_member = Member.objects.get(user__email=email)
-        if not existing_member:
-            existing_member = Member.objects.get(
-                user__first_name=first_name,
-                user__last_name=last_name)
-        if not existing_member:
-            # Member does not exist! Create one!
-            user = User.objects.create(**self.cleaned_data)
-            Member.objects.create(user=user)
+        try:
+            member = Member.objects.get(user__email=email)
+        except Member.DoesNotExist:
+            try:
+                member = Member.objects.get(
+                    user__first_name=first_name,
+                    user__last_name=last_name)
+            except Member.DoesNotExist:
+                # Member does not exist! Create one!
+                user = User.objects.create(**self.cleaned_data)
+                member = Member.objects.create(user=user)
+        print(member)
