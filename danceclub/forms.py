@@ -1,7 +1,8 @@
 from django import forms
-from .models import Activity
+from .models import Activity, ActivityParticipation
 from django.utils import timezone
 from .models import Member
+from django.contrib.auth.models import User
 
 class ParticipationForm(forms.Form):
     first_name = forms.CharField()
@@ -16,15 +17,34 @@ class ParticipationForm(forms.Form):
         first_name = self.cleaned_data['first_name']
         last_name = self.cleaned_data['last_name']
         email = self.cleaned_data['email']
-        try:
-            member = Member.objects.get(user__email=email)
-        except Member.DoesNotExist:
+        member = None
+        if email:
+            try:
+                member = Member.objects.get(user__email=email)
+                member.user.first_name = first_name
+                member.user.last_name = last_name
+                member.user.save()
+            except Member.DoesNotExist:
+                member = None
+        if not member:
             try:
                 member = Member.objects.get(
-                    user__first_name=first_name,
-                    user__last_name=last_name)
+                        user__first_name=first_name,
+                        user__last_name=last_name,
+                        user__email='')
+                if email:
+                    member.user.email = email
+                    member.user.save()
             except Member.DoesNotExist:
-                # Member does not exist! Create one!
-                user = User.objects.create(**self.cleaned_data)
-                member = Member.objects.create(user=user)
-        print(member)
+                member = None
+        if not member:
+            # Member does not exist! Create one!
+            user = User.objects.create(
+                first_name=self.cleaned_data['first_name'],
+                last_name=self.cleaned_data['last_name'],
+                email=self.cleaned_data['email'])
+            member = Member.objects.create(user=user)
+        for act in self.cleaned_data['activities']:
+            ActivityParticipation.objects.get_or_create(
+                member=member,
+                activity=act)

@@ -4,6 +4,9 @@ from datetime import date
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from decimal import *
 
 LEVELS = (('F', 'F'), ('E', 'E'), ('D', 'D'), ('C','C'), ('B','B'), ('A', 'A'))
 AGES = (('L1', 'Lapsi I'), ('L2', 'Lapsi II'), ('J1', 'Juniori I'), ('J2','Juniori II'), ('N','Nuoriso'), ('Y', 'Yleinen'), ('S1', 'Seniori I'),
@@ -54,6 +57,22 @@ class ActivityParticipation(models.Model):
     
     def __str__(self):
         return "%s - %s" % (str(self.member), str(self.activity))
+        
+@receiver(post_save, sender=ActivityParticipation)
+def create_transactions(instance, created, **kwargs):
+    if created:
+        season = Season.objects.get(start__lte=instance.activity.start, end__gte=instance.activity.end)
+        try:
+            tr = Transaction.objects.get(
+                source_type=ContentType.objects.get_for_model(season),
+                source_id=season.id,
+                owner=instance.member)
+        except Transaction.DoesNotExist:
+            tr = Transaction.objects.create(
+                source=season,
+                owner=instance.member,
+                amount = Decimal('-25.00'),
+                title = 'Jäsenmaksu %s' % str(season))
         
 class Transaction(models.Model):
     title = models.CharField(max_length=255, blank=True)
