@@ -2,15 +2,33 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Member, Dancer, Couple, Activity, ActivityParticipation, Transaction, Season
+from .models import Member, Dancer, Couple, Activity, ActivityParticipation, Transaction, Season, ReferenceNumber
+from django.contrib.contenttypes.admin import GenericTabularInline
+from django import forms
 
-admin.site.register(Member)
+class RefNumberInlineForm(forms.ModelForm):
+    def has_changed(self):
+        return True
+    
+class ReferenceNumberInline(GenericTabularInline):
+    model = ReferenceNumber
+    ct_field = "object_type"
+    ct_fk_field = "object_id"
+    extra = 0
+    form = RefNumberInlineForm
+
+class MemberAdmin(admin.ModelAdmin):
+    model = Member
+    inlines = [ ReferenceNumberInline ]
+
+admin.site.register(Member, MemberAdmin)
 admin.site.register(Dancer)
 admin.site.register(Couple)
 admin.site.register(Activity)
 admin.site.register(ActivityParticipation)
 admin.site.register(Transaction)
 admin.site.register(Season)
+admin.site.register(ReferenceNumber)
 
 class UserCreateForm(UserCreationForm):
     class Meta:

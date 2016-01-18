@@ -7,6 +7,9 @@ from django.utils import timezone
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from decimal import *
+from django.contrib.contenttypes.fields import GenericRelation
+from django.db.models import Max
+from django.core.exceptions import ValidationError
 
 LEVELS = (('F', 'F'), ('E', 'E'), ('D', 'D'), ('C','C'), ('B','B'), ('A', 'A'))
 AGES = (('L1', 'Lapsi I'), ('L2', 'Lapsi II'), ('J1', 'Juniori I'), ('J2','Juniori II'), ('N','Nuoriso'), ('Y', 'Yleinen'), ('S1', 'Seniori I'),
@@ -17,12 +20,54 @@ costs = {
     'dancing': [Decimal("80.00"), Decimal("45.00"), Decimal("35.00")],
     '*': [Decimal("55.00"), Decimal("45.00"), Decimal("35.00")],
     }
+    
+def get_max_ref():
+    m = ReferenceNumber.objects.all().aggregate(Max('number'))['number__max']
+    if not m:
+        m = 9000000
+    m = int(m/10)
+    m = m+1
+    return m*10+reference_check_number(str(m))
+        
+def reference_check_number(ref):
+    multipliers = (7, 3, 1)
+    ref = ref.replace(' ', '')
+    inverse = map(int, ref[::-1])
+    summ = sum(multipliers[i % 3] * x for i, x in enumerate(inverse))
+    return (10 - (summ % 10)) % 10
+
+def validate_ref(value):
+    ch = value % 10
+    m = int(value/10)
+    r = reference_check_number(str(m))
+    if r != ch:
+        raise ValidationError('%s is not a valid reference number (should be %s)' % (value,m*10+r))
+    
+class ReferenceNumber(models.Model):
+    number = models.PositiveIntegerField(
+        unique=True,
+        default=get_max_ref,
+        validators=[validate_ref])
+    
+    object_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    object = GenericForeignKey('object_type', 'object_id')
+    
+    def __str__(self):
+        return "%s: %s" % (self.number, str(self.object))
 
 class Member(models.Model):
     user = models.ForeignKey(User)
+    reference_numbers = GenericRelation(ReferenceNumber)
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name
+        
+@receiver(post_save, sender=Member)
+def create_refnumber(instance, created, **kwargs):
+    if created:
+        ReferenceNumber.objects.create(
+            object=instance)
 
 class Dancer(Member):
     license = models.CharField(max_length=20, null=True, blank=True)
@@ -138,13 +183,6 @@ class Transaction(models.Model):
     
     def __str__(self):
         return "%s %s %s" % (str(self.owner), str(self.amount), str(self.title))
-    
-class ReferenceNumbers(models.Model):
-    number = models.PositiveIntegerField()
-    
-    object_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    object = GenericForeignKey('object_type', 'object_id')
     
 class Season(models.Model):
     name = models.CharField(max_length=300)
