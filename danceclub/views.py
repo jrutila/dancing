@@ -29,13 +29,14 @@ class MemberView(TemplateView):
         saldo = transactions.aggregate(Sum('amount'))['amount__sum']
         ctx["transactions"] = transactions
         ctx["saldo"] = saldo
-        barcode = "4"
-        barcode = barcode + "8650INVALI0008825"
-        intpart,decimalpart = int(saldo),int((saldo-int(saldo))*100)
-        barcode = barcode + str(1000000 - intpart)[1:]
-        barcode = barcode + str(100 - decimalpart)[1:]
-        barcode = barcode + '000'
-        barcode = barcode + str(member.reference_numbers.first().number).zfill(20)
-        barcode = barcode + timezone.now().strftime("%Y%m%d")
-        ctx['barcode'] = barcode
+        if saldo and member.reference_numbers:
+            barcode = "4"
+            barcode = barcode + "6556121120318099"
+            intpart,decimalpart = int(saldo),int((saldo-int(saldo))*100)
+            barcode = barcode + str(1000000 - intpart)[1:]
+            barcode = barcode + str(100 - decimalpart)[1:]
+            barcode = barcode + '000'
+            barcode = barcode + str(member.reference_numbers.first().number).zfill(20)
+            barcode = barcode + timezone.now().strftime("%Y%m%d")
+            ctx['barcode'] = barcode
         return ctx
