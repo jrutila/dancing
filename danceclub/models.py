@@ -109,6 +109,25 @@ class ActivityParticipation(models.Model):
     def __str__(self):
         return "%s - %s" % (str(self.member), str(self.activity))
         
+class DanceEvent(models.Model):
+    name = models.CharField(max_length=200, help_text="Nimi, joka näytetään ilmoittautujille")
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+    who = models.CharField(max_length=200, help_text="Kuka vetää?")
+    extra = models.TextField(help_text="Lisätietoja", blank=True)
+    
+    def __str__(self):
+        return "%s: %s - %s" % (self.who, self.name, timezone.get_current_timezone().normalize(self.start))
+    
+class DanceEventParticipation(models.Model):
+    event = models.ForeignKey(DanceEvent)
+    dancer = models.ForeignKey(Dancer)
+    
+    cancelled = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return "%s - %s" % (str(self.dancer), str(self.event))
+        
 @receiver(post_delete, sender=ActivityParticipation)
 def update_transactions(instance, **kwargs):
     season = Season.objects.get(start__lte=instance.activity.start, end__gte=instance.activity.end)

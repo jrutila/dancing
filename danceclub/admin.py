@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Member, Dancer, Couple, Activity, ActivityParticipation, Transaction, Season, ReferenceNumber
+from .models import Member, Dancer, Couple, Activity, ActivityParticipation, Transaction, Season, ReferenceNumber, DanceEvent, DanceEventParticipation
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django import forms
 
@@ -23,6 +23,8 @@ class MemberAdmin(admin.ModelAdmin):
 
 admin.site.register(Member, MemberAdmin)
 admin.site.register(Dancer)
+admin.site.register(DanceEvent)
+admin.site.register(DanceEventParticipation)
 admin.site.register(Couple)
 admin.site.register(Activity)
 admin.site.register(ActivityParticipation)
