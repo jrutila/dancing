@@ -17,8 +17,9 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import ParticipationView
+from .views import ParticipationView, MemberView
 
 urlpatterns = [
     url(r'participate$', ParticipationView.as_view()),
+    url(r'info/(?P<member_id>\d+)/(?P<member_name>\w+)/$', MemberView.as_view()),
 ]

@@ -58,7 +58,7 @@ class ReferenceNumber(models.Model):
 
 class Member(models.Model):
     user = models.ForeignKey(User)
-    reference_numbers = GenericRelation(ReferenceNumber)
+    reference_numbers = GenericRelation(ReferenceNumber, content_type_field='object_type')
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name
@@ -102,7 +102,7 @@ class Activity(models.Model):
         
 class ActivityParticipation(models.Model):
     activity = models.ForeignKey(Activity)
-    member = models.ForeignKey(Member)
+    member = models.ForeignKey(Member, related_name='activities')
     
     cancelled = models.BooleanField(default=False)
     

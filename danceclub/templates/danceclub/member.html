@@ -1,0 +1,15 @@
+<h2>Your info:</h2>
+<p>Name: {{ member }}</p>
+{{saldo}}
+<ul>
+    {% for tr in transactions %}
+    <li>{{ tr.created_at }} {{ tr }}</li>
+    {% endfor %}
+</ul>
+
+<p>
+    Maksa tilille: 123456777-1232131<br/>
+    Käytä viitettä: {{ member.reference_numbers.first.number }}
+   <br/><br/> 
+    Virtuaaliviivakoodi: {{ barcode }}
+</p>
