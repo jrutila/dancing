@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load settings_tags %}
+
+{% block base_content %}
+<section class="section-title img-feature" >
+    <div class="overlay-bg"></div>
+    <div class="container">
+        <h1>Maksutiedot</h1>
+    </div>
+</section>
+
+<section class="content-info">
+<section class="container padding-top-mini">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel-box">
+                <div class="titles">
+                    <h4>{{ member }}</h4>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+{{saldo}} &euro; ({{ last_check }})
+<table class="table">
+    {% for tr in transactions %}
+    <tr>
+        <td>
+        {{ tr.created_at }}
+        </td>
+        <td>
+        {{ tr.amount }} &euro;
+        </td>
+        <td>
+        {{ tr.title }}
+        </td>
+        <td>
+        {% if tr.cancel %}
+        <form method="POST" action="{% url 'cancel' %}">
+            {% csrf_token %}
+            {{ tr.cancel.as_p }}
+            <button type="submit">Peru</button>
+        </form>
+        {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% if saldo < 0 %}
+<p>
+    Maksa tilille: {% settings "bank_account" %}<br/>
+    Käytä viitettä: {{ member.reference_numbers.first.number }}
+   <br/><br/> 
+    Virtuaaliviivakoodi: {{ barcode }}
+</p>
+{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</section>
+{% endblock %}

@@ -180,6 +180,7 @@ def create_transactions(instance, created, **kwargs):
                 source=season,
                 owner=instance.member,
                 amount = -1*season_cost,
+                created_at = instance.created_at,
                 title = 'Jäsenmaksu %s' % str(season))
         try:
             tr = Transaction.objects.get(
@@ -196,6 +197,7 @@ def create_transactions(instance, created, **kwargs):
                 source=instance.activity,
                 owner=instance.member,
                 amount = -1*cost,
+                created_at = instance.created_at,
                 title = "%s (%s)" % (instance.activity.name, str(season)))
         
 class Transaction(models.Model):

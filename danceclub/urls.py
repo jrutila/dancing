@@ -18,9 +18,11 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import ParticipationView, MemberView, CancelView
+from django.shortcuts import redirect
 
 urlpatterns = [
-    url(r'participate$', ParticipationView.as_view()),
+    #url(r'$', redirect('participate')),
+    url(r'$', ParticipationView.as_view(), name='participate'),
     url(r'info/(?P<member_id>\d+)/(?P<member_name>\w+)/$', MemberView.as_view(), name='member_info'),
     url(r'cancel/$', CancelView.as_view(), name='cancel'),
 ]
