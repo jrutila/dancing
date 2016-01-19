@@ -1,8 +1,8 @@
 import re
 
 from django.shortcuts import render
-from .forms import ParticipationForm
-from .models import Member, Transaction, ReferenceNumber
+from .forms import ParticipationForm, CancelForm
+from .models import Member, Transaction, ReferenceNumber, ActivityParticipation
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
@@ -11,6 +11,7 @@ from django.utils import timezone
 import django_settings
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
+import datetime
 
 class ParticipationView(FormView):
     template_name = 'danceclub/participate.html'
@@ -28,6 +29,23 @@ class ParticipationView(FormView):
             'member_id': self.member.id,
             'member_name': self.member.user.last_name
             })
+            
+class CancelView(FormView):
+    form_class = CancelForm
+    
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        self.member = Member.objects.get(token=form.cleaned_data['member'])
+        actpart = ActivityParticipation.objects.filter_canceable(self.member).get(id=form.cleaned_data['actpartid'])
+        actpart.delete()
+        return super().form_valid(form)
+        
+    def get_success_url(self):
+        return reverse('member_info', kwargs={
+            'member_id': self.member.id,
+            'member_name': self.member.user.last_name
+            })
         
 class MemberView(TemplateView):
     template_name = 'danceclub/member.html'
@@ -38,7 +56,12 @@ class MemberView(TemplateView):
         ctx["member"] = member
         transactions = Transaction.objects.filter(owner=member)
         saldo = transactions.aggregate(Sum('amount'))['amount__sum']
-        ctx["transactions"] = transactions.order_by('created_at')
+        ctx["transactions"] = list(transactions.order_by('created_at'))
+        ctx['acts'] = ActivityParticipation.objects.filter_canceable(member=member)
+        for a in ctx['acts']:
+            tr = [x for x in ctx['transactions'] if x.source == a.activity]
+            if tr:
+                tr[0].cancel = CancelForm({ 'actpartid': a.id, 'member': member.token })
         ctx["saldo"] = saldo
         ctx["last_check"] = Transaction.objects.filter(
             source_type=ContentType.objects.get_for_model(ReferenceNumber)).aggregate(

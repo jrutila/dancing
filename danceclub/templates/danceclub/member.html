@@ -5,7 +5,16 @@
 {{saldo}} &euro; ({{ last_check }})
 <ul>
     {% for tr in transactions %}
-    <li>{{ tr.created_at }} {{ tr }}</li>
+    <li>
+        {{ tr.created_at }} {{ tr }}
+        {% if tr.cancel %}
+        <form method="POST" action="{% url 'cancel' %}">
+            {% csrf_token %}
+            {{ tr.cancel.as_p }}
+            <button type="submit">Peru</button>
+        </form>
+        {% endif %}
+    </li>
     {% endfor %}
 </ul>
 

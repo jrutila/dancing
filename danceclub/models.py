@@ -10,6 +10,8 @@ from decimal import *
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db.models import Max
 from django.core.exceptions import ValidationError
+import datetime
+import uuid
 
 LEVELS = (('F', 'F'), ('E', 'E'), ('D', 'D'), ('C','C'), ('B','B'), ('A', 'A'))
 AGES = (('L1', 'Lapsi I'), ('L2', 'Lapsi II'), ('J1', 'Juniori I'), ('J2','Juniori II'), ('N','Nuoriso'), ('Y', 'Yleinen'), ('S1', 'Seniori I'),
@@ -59,6 +61,7 @@ class ReferenceNumber(models.Model):
 class Member(models.Model):
     user = models.ForeignKey(User)
     reference_numbers = GenericRelation(ReferenceNumber, content_type_field='object_type')
+    token = models.UUIDField(unique=True,blank=False,null=False,default=uuid.uuid4, editable=False)
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name
@@ -100,12 +103,18 @@ class Activity(models.Model):
             s = s + " (päättynyt: %s)" % self.end
         return s
         
+class ActivityParticipationManager(models.Manager):
+    def filter_canceable(self, member):
+        return self.filter(member=member, created_at__gte=(timezone.now()-datetime.timedelta(days=14)))
+        
 class ActivityParticipation(models.Model):
     activity = models.ForeignKey(Activity)
     member = models.ForeignKey(Member, related_name='activities')
     
+    created_at = models.DateTimeField(default=timezone.now)
     cancelled = models.BooleanField(default=False)
     
+    objects = ActivityParticipationManager()
     def __str__(self):
         return "%s - %s" % (str(self.member), str(self.activity))
         
@@ -130,7 +139,7 @@ class DanceEventParticipation(models.Model):
         
 @receiver(post_delete, sender=ActivityParticipation)
 def update_transactions(instance, **kwargs):
-    season = Season.objects.get(start__lte=instance.activity.start, end__gte=instance.activity.end)
+    season = Season.objects.get_season(instance.activity)
     acts = ActivityParticipation.objects.filter(
         member=instance.member,
         activity__start__gte=season.start,
@@ -144,9 +153,10 @@ def update_transactions(instance, **kwargs):
         Transaction.objects.filter(
             owner=instance.member,
             source_type=ContentType.objects.get_for_model(season),
-            source_id=season.id)
+            source_id=season.id).delete()
     else:
         trans = Transaction.objects.filter(
+            owner=instance.member,
             source_type=ContentType.objects.get_for_model(Activity),
             source_id__in=[x.activity.id for x in acts])
         i = 0
@@ -159,7 +169,7 @@ def update_transactions(instance, **kwargs):
 @receiver(post_save, sender=ActivityParticipation)
 def create_transactions(instance, created, **kwargs):
     if created:
-        season = Season.objects.get(start__lte=instance.activity.start, end__gte=instance.activity.end)
+        season = Season.objects.get_season(instance.activity)
         try:
             tr = Transaction.objects.get(
                 source_type=ContentType.objects.get_for_model(season),
@@ -203,11 +213,21 @@ class Transaction(models.Model):
     def __str__(self):
         return "%s %s %s" % (str(self.owner), str(self.amount), str(self.title))
     
+class SeasonManager(models.Manager):
+    def current_season(self):
+        return self.get(start__lte=timezone.now(), end__gte=timezone.now())
+    
+    def get_season(self, act):
+        return self.get(start__lte=act.start, end__gte=act.end)
+        
 class Season(models.Model):
     name = models.CharField(max_length=300)
     
     start = models.DateField()
     end = models.DateField()
     
+    objects = SeasonManager()
+    
     def __str__(self):
         return self.name
+        
