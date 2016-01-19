@@ -21,5 +21,5 @@ from .views import ParticipationView, MemberView
 
 urlpatterns = [
     url(r'participate$', ParticipationView.as_view()),
-    url(r'info/(?P<member_id>\d+)/(?P<member_name>\w+)/$', MemberView.as_view()),
+    url(r'info/(?P<member_id>\d+)/(?P<member_name>\w+)/$', MemberView.as_view(), name='member_info'),
 ]

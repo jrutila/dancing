@@ -44,6 +44,7 @@ class ParticipationForm(forms.Form):
                 last_name=self.cleaned_data['last_name'],
                 email=self.cleaned_data['email'])
             member = Member.objects.create(user=user)
+        self.member = member
         for act in self.cleaned_data['activities']:
             ActivityParticipation.objects.get_or_create(
                 member=member,

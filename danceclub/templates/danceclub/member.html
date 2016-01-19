@@ -2,16 +2,18 @@
 
 <h2>Your info:</h2>
 <p>Name: {{ member }}</p>
-{{saldo}}
+{{saldo}} &euro; ({{ last_check }})
 <ul>
     {% for tr in transactions %}
     <li>{{ tr.created_at }} {{ tr }}</li>
     {% endfor %}
 </ul>
 
+{% if saldo < 0 %}
 <p>
     Maksa tilille: {% settings "bank_account" %}<br/>
     Käytä viitettä: {{ member.reference_numbers.first.number }}
    <br/><br/> 
     Virtuaaliviivakoodi: {{ barcode }}
 </p>
+{% endif %}
