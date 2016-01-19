@@ -12,6 +12,7 @@ import django_settings
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 import datetime
+from django.core.mail import send_mail
 
 class ParticipationView(FormView):
     template_name = 'danceclub/participate.html'
@@ -22,6 +23,12 @@ class ParticipationView(FormView):
         # It should return an HttpResponse.
         form.save(True)
         self.member = form.member
+        if self.member.user.email:
+            send_mail(
+                'Maksutietosi Dancingille',
+                'Hei,\nkiitos osallistumisestasi.\nTarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing' % self.request.build_absolute_uri(self.get_success_url()),
+                'sihteeri@dancing.fi',
+                [self.member.user.email], fail_silently=True)
         return super().form_valid(form)
         
     def get_success_url(self):
