@@ -1,3 +1,5 @@
+import re
+
 from django.shortcuts import render
 from .forms import ParticipationForm
 from .models import Member, Transaction
@@ -6,6 +8,7 @@ from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum
 from django.utils import timezone
+import django_settings
 
 class ParticipationView(FormView):
     template_name = 'danceclub/participate.html'
@@ -31,7 +34,7 @@ class MemberView(TemplateView):
         ctx["saldo"] = saldo
         if saldo and member.reference_numbers:
             barcode = "4"
-            barcode = barcode + "6556121120318099"
+            barcode = barcode + re.sub(r"[A-Za-z\s]+", "", django_settings.get('bank_account'))
             intpart,decimalpart = int(saldo),int((saldo-int(saldo))*100)
             barcode = barcode + str(1000000 - intpart)[1:]
             barcode = barcode + str(100 - decimalpart)[1:]

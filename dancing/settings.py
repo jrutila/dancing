@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     
     'storages',
+    'django_settings',
 
     'cms',  # django CMS itself
     'treebeard',  # utilities for implementing a tree

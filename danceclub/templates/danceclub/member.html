@@ -1,3 +1,5 @@
+{% load settings_tags %}
+
 <h2>Your info:</h2>
 <p>Name: {{ member }}</p>
 {{saldo}}
@@ -8,7 +10,7 @@
 </ul>
 
 <p>
-    Maksa tilille: 123456777-1232131<br/>
+    Maksa tilille: {% settings "bank_account" %}<br/>
     Käytä viitettä: {{ member.reference_numbers.first.number }}
    <br/><br/> 
     Virtuaaliviivakoodi: {{ barcode }}
