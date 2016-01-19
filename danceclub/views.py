@@ -1,8 +1,8 @@
 import re
 
 from django.shortcuts import render
-from .forms import ParticipationForm, CancelForm
-from .models import Member, Transaction, ReferenceNumber, ActivityParticipation
+from .forms import ParticipationForm, CancelForm, LostLinkForm
+from .models import Member, Transaction, ReferenceNumber, ActivityParticipation, Season
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
@@ -13,6 +13,13 @@ from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 import datetime
 from django.core.mail import send_mail
+
+def get_member_url(member):
+    return reverse('member_info', kwargs={
+        'member_id': member.id,
+        'member_name': member.user.last_name
+        })
+    
 
 class ParticipationView(FormView):
     template_name = 'danceclub/participate.html'
@@ -32,10 +39,7 @@ class ParticipationView(FormView):
         return super().form_valid(form)
         
     def get_success_url(self):
-        return reverse('member_info', kwargs={
-            'member_id': self.member.id,
-            'member_name': self.member.user.last_name
-            })
+        return get_member_url(self.member)
             
 class CancelView(FormView):
     form_class = CancelForm
@@ -53,6 +57,30 @@ class CancelView(FormView):
             'member_id': self.member.id,
             'member_name': self.member.user.last_name
             })
+            
+class LostLinkView(FormView):
+    form_class = LostLinkForm
+    
+    def form_valid(self, form):
+        self.failed = None
+        try:
+            self.member = Member.objects.get(user__email=form.cleaned_data['email'])
+        except Member.DoesNotExist:
+            self.failed = "Antamaasi sähköpostiosoitetta ei löytynyt"
+            return super().form_valid(form)
+        
+        self.lostlink = "Maksutietolinkki lähetetty osoitteeseen "+self.member.user.email
+        send_mail(
+            'Maksutietosi Dancingille',
+            'Hei,\nTarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing' % self.request.build_absolute_uri(get_member_url(self.member)),
+            'sihteeri@dancing.fi',
+            [self.member.user.email], fail_silently=False)
+        return super().form_valid(form)
+        
+    def get_success_url(self):
+        if self.failed:
+            return reverse('participate')+"?failed="+self.failed
+        return reverse('participate')+"?lostlink="+self.lostlink
         
 class MemberView(TemplateView):
     template_name = 'danceclub/member.html'
@@ -60,6 +88,7 @@ class MemberView(TemplateView):
     def get_context_data(self, member_id, member_name):
         ctx = super().get_context_data()
         member = get_object_or_404(Member, id=member_id, user__last_name__iexact=member_name)
+        ctx["season"] = Season.objects.current_season()
         ctx["member"] = member
         transactions = Transaction.objects.filter(owner=member)
         saldo = transactions.aggregate(Sum('amount'))['amount__sum']

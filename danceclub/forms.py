@@ -7,6 +7,9 @@ from django.contrib.auth.models import User
 class CancelForm(forms.Form):
     actpartid = forms.IntegerField(widget=forms.HiddenInput)
     member = forms.CharField(widget=forms.HiddenInput)
+    
+class LostLinkForm(forms.Form):
+    email = forms.EmailField()
 
 class ParticipationForm(forms.Form):
     first_name = forms.CharField()

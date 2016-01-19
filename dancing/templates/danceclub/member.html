@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load settings_tags %}
+{% load cms_tags menu_tags %}
 
 {% block base_content %}
 <section class="section-title img-feature" >
@@ -19,7 +20,8 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-{{saldo}} &euro; ({{ last_check }})
+{% if transactions %}
+{{saldo}} &euro; <small>(tarkistettu: {{ last_check }})</small>
 <table class="table">
     {% for tr in transactions %}
     <tr>
@@ -52,6 +54,10 @@
    <br/><br/> 
     Virtuaaliviivakoodi: {{ barcode }}
 </p>
+{% endif %}
+{% else %}
+Ei ilmoittautumisia kaudelle {{ season }}.
+Ole hyvä ja <a href="{% page_url "participate" %}">ilmoittaudu</a>.
 {% endif %}
                     </div>
                 </div>

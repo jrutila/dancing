@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'djangocms_text_ckeditor',
 
     'common',
+    'bootstrap3',
 
     #Filer
     'filer',
