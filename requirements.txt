@@ -1,17 +1,15 @@
-Django==1.8.8
-Pillow==3.1.0
-Unidecode==0.04.18
 beautifulsoup4==4.4.1
 boto==2.38.0
 botocore==1.3.17
 cmsplugin-contact-plus==1.2.6
 cmsplugin-filer==1.0.0
--e git+https://github.com/jrutila/cmsplugin-iframe.git@43c5a3c33431670fe34c679ce5cf0ee6a29ad56e#egg=cmsplugin_iframe-origin/master
+-e git+https://github.com/jrutila/cmsplugin-iframe.git@43c5a3c33431670fe34c679ce5cf0ee6a29ad56e#egg=cmsplugin_iframe-master
 -e git+git@github.com:jrutila/cmsplugin-image-gallery.git@9dab462d366392d2459d19931e1dc43c197738fb#egg=cmsplugin_image_gallery-master
 cmsplugin-newsplus==0.1.10
--e git+https://github.com/jrutila/cmsplugin-plaintext@59af39514df0e9c23221451d6e0d73f7cef3e830#egg=cmsplugin_plaintext_djangocms3-origin/master
+-e git+https://github.com/jrutila/cmsplugin-plaintext@59af39514df0e9c23221451d6e0d73f7cef3e830#egg=cmsplugin_plaintext_djangocms3-master
 dj-database-url==0.3.0
 dj-static==0.0.6
+Django==1.8.8
 django-admin-jqueryui==1.8.22
 django-appconf==1.0.1
 django-bootstrap3==6.2.2
@@ -25,7 +23,7 @@ django-polymorphic==0.8.1
 django-recaptcha==1.0.5
 django-reversion==1.10.0
 django-sekizai==0.9.0
--e git+https://github.com/jrutila/django-settings.git@e63e390ed7154bc4f026bf21588b26cbb5159a8b#egg=django_settings-origin/master
+-e git+https://github.com/jrutila/django-settings.git@e63e390ed7154bc4f026bf21588b26cbb5159a8b#egg=django_settings-master
 django-simple-math-captcha==1.0.7
 django-storages-redux==1.3
 django-toolbelt==0.0.1
@@ -38,10 +36,12 @@ gunicorn==19.4.5
 html5lib==0.9999999
 jmespath==0.9.0
 jsonfield==1.0.3
+Pillow==3.1.0
 psycopg2==2.6.1
 python-dateutil==2.4.2
 pytz==2015.7
 six==1.10.0
 static3==0.6.1
+Unidecode==0.4.18
 wheel==0.24.0
 whitenoise==2.0.6
