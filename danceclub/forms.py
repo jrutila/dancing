@@ -56,3 +56,6 @@ class ParticipationForm(forms.Form):
             ActivityParticipation.objects.get_or_create(
                 member=member,
                 activity=act)
+
+class MassTransactionForm(forms.Form):
+    file = forms.FileField()

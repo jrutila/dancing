@@ -199,7 +199,25 @@ def create_transactions(instance, created, **kwargs):
                 amount = -1*cost,
                 created_at = instance.created_at,
                 title = "%s (%s)" % (instance.activity.name, str(season)))
-        
+
+
+class AlreadyExists(BaseException):
+    pass
+
+class TransactionManager(models.Manager):
+    def add_transaction(self, **kwargs):
+        source = ReferenceNumber.objects.get(number=kwargs['ref'])
+        ref_obj = source.object
+        kwargs['source_type'] = ContentType.objects.get_for_model(source)
+        kwargs['source_id'] = source.id
+        del kwargs['ref']
+        if isinstance(ref_obj, Member):
+            kwargs['owner'] = ref_obj
+        tr,created = Transaction.objects.get_or_create(**kwargs)
+        if not created:
+            raise AlreadyExists
+        return tr
+
 class Transaction(models.Model):
     title = models.CharField(max_length=255, blank=True)
     
@@ -211,6 +229,8 @@ class Transaction(models.Model):
     source_type = models.ForeignKey(ContentType, null=True, blank=True)
     source_id = models.PositiveIntegerField(null=True, blank=True)
     source = GenericForeignKey('source_type', 'source_id')
+
+    objects = TransactionManager()
     
     def __str__(self):
         return "%s %s %s" % (str(self.owner), str(self.amount), str(self.title))

@@ -17,7 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import ParticipationView, MemberView, CancelView, LostLinkView
+from .views import ParticipationView, MemberView, CancelView, LostLinkView, MassTransactionView
 from django.shortcuts import redirect
 
 urlpatterns = [
@@ -26,4 +26,7 @@ urlpatterns = [
     url(r'info/(?P<member_id>\d+)/(?P<member_name>\w+)/$', MemberView.as_view(), name='member_info'),
     url(r'cancel/$', CancelView.as_view(), name='cancel'),
     url(r'lostlink/$', LostLinkView.as_view(), name='lost-link'),
+
+    # Admin urls
+    url(r'upload/$', MassTransactionView.as_view(), name='upload-transaction'),
 ]

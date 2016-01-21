@@ -48,7 +48,7 @@
 </table>
 
 {% if saldo < 0 %}
-<p>
+<p class="alert alert-info">
     Maksa tilille: {% settings "bank_account" %}<br/>
     Käytä viitettä: {{ member.reference_numbers.first.number }}
    <br/><br/> 

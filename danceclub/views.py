@@ -1,8 +1,15 @@
+import csv
+
+from decimal import Decimal
+
+from django.contrib import messages
+from io import TextIOWrapper
+
 import re
 
 from django.shortcuts import render
-from .forms import ParticipationForm, CancelForm, LostLinkForm
-from .models import Member, Transaction, ReferenceNumber, ActivityParticipation, Season
+from .forms import ParticipationForm, CancelForm, LostLinkForm, MassTransactionForm
+from .models import Member, Transaction, ReferenceNumber, ActivityParticipation, Season, AlreadyExists
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
@@ -113,3 +120,46 @@ class MemberView(TemplateView):
             barcode = barcode + timezone.now().strftime("%Y%m%d")
             ctx['barcode'] = barcode
         return ctx
+
+class MassTransactionView(FormView):
+    template_name = "danceclub/generic_form.html"
+    form_class = MassTransactionForm
+
+    def get_success_url(self):
+        return reverse('upload-transaction')
+
+    def form_valid(self, form):
+        file = TextIOWrapper(self.request.FILES['file'].file, encoding='ascii', errors='replace')
+        reader = csv.reader(file, delimiter=';')
+        transactions = []
+        for row in reader:
+            tr = {}
+            if row == []:
+                continue
+            try:
+                tr['created_at'] = datetime.datetime.strptime(row[0], '%d.%m.%Y')
+            except ValueError:
+                continue
+            tr['amount'] = Decimal(row[2].replace(',','.'))
+            if tr['amount'] <= 0:
+                continue
+            tr['title'] = row[4] + " " + row[5]
+            tr['ref'] = int(row[7])
+            transactions.append(tr)
+            #messages.add_message(self.request, messages.SUCCESS, row)
+        succeeded = len(transactions)
+        for tr in transactions:
+            try:
+                tr = Transaction.objects.add_transaction(**tr)
+            except ReferenceNumber.DoesNotExist:
+                messages.add_message(self.request, messages.ERROR, 'No such reference number %s' % tr['source'])
+                succeeded = succeeded - 1
+                continue
+            except AlreadyExists:
+                succeeded = succeeded - 1
+                continue
+
+            messages.add_message(self.request, messages.SUCCESS, tr)
+        messages.add_message(self.request, messages.SUCCESS, '%d transactions uploaded!' % succeeded)
+
+        return super().form_valid(form)
