@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'filer',
     'easy_thumbnails',
 
+    'djangocms_link',
     'cmsplugin_filer_image',
     'cmsplugin_filer_file',
     'cmsplugin_plaintext',
