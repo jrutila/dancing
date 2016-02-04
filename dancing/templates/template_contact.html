@@ -2,12 +2,7 @@
 {% load cms_tags menu_tags extra_cms_tags sekizai_tags staticfiles %}
 
 {% block base_content %}
-    <section class="section-title img-feature" >
-        <div class="overlay-bg"></div>
-        <div class="container">
-            <h1>{% placeholder page_title %}</h1>
-        </div>
-    </section>
+    {% include "_page_title.html" %}
 
     <section class="content-info">
         <div class="crumbs">
