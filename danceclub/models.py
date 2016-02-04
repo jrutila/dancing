@@ -89,6 +89,11 @@ class Couple(models.Model):
     def __str__(self):
         return "%s - %s (%s %s)" % (str(self.man), str(self.woman), str(self.age_level), str(self.level))
 
+class ActivityManager(models.Manager):
+    def current_or_next(self):
+        season = Season.objects.current_or_next_season()
+        return self.filter(start__gte=season.start, end__lte=season.end)
+
 class Activity(models.Model):
     type = models.CharField(max_length=10,help_text="Tekninen nimi, joka kertoo minkä otsikon alle tapahtumat tulevat")
     name = models.CharField(max_length=200, help_text="Nimi, joka näytetään ilmoittautujille")
@@ -96,6 +101,8 @@ class Activity(models.Model):
     end = models.DateField()
     when = models.CharField(max_length=50, help_text="Milloin tapahtuu. Esim (To klo 15:00 - 16:00)")
     who = models.CharField(max_length=200, help_text="Kuka vetää?")
+
+    objects = ActivityManager()
     
     def __str__(self):
         s = "%s %s" % (self.name, self.when)
@@ -238,7 +245,10 @@ class Transaction(models.Model):
 class SeasonManager(models.Manager):
     def current_season(self):
         return self.get(start__lte=timezone.now(), end__gte=timezone.now())
-    
+
+    def current_or_next_season(self):
+        return self.filter(end__gte=timezone.now()).order_by("start")[0]
+
     def get_season(self, act):
         return self.get(start__lte=act.start, end__gte=act.end)
         

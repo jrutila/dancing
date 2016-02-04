@@ -1,5 +1,5 @@
 from django import forms
-from .models import Activity, ActivityParticipation
+from .models import Activity, ActivityParticipation, Season
 from django.utils import timezone
 from .models import Member
 from django.contrib.auth.models import User
@@ -12,12 +12,13 @@ class LostLinkForm(forms.Form):
     email = forms.EmailField()
 
 class ParticipationForm(forms.Form):
-    first_name = forms.CharField()
-    last_name = forms.CharField()
-    email = forms.EmailField(required=False, help_text="Saat sähköpostiisi maksamiseen liittyvät ohjeet. Jos sinulla ei ole sähköpostia, pyydä maksuohje salilta.")
+    first_name = forms.CharField(label="Etunimi")
+    last_name = forms.CharField(label="Sukunimi")
+    email = forms.EmailField(label="Sähköpostiosoite", required=False, help_text="Saat sähköpostiisi maksamiseen liittyvät ohjeet. Jos sinulla ei ole sähköpostia, pyydä maksuohje salilta.")
     
     activities = forms.ModelMultipleChoiceField(
-        queryset=Activity.objects.filter(end__gt=timezone.now()),
+        label="Tunnit (%s)" % str(Season.objects.current_or_next_season()),
+        queryset=Activity.objects.current_or_next(),
         widget=forms.CheckboxSelectMultiple)
         
     def save(self, commit=True):
