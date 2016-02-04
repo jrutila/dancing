@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from .models import Member, Dancer, Couple, Activity, ActivityParticipation, Transaction, Season, ReferenceNumber, DanceEvent, DanceEventParticipation
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django import forms
+from reversion.admin import VersionAdmin
 
 class RefNumberInlineForm(forms.ModelForm):
     def has_changed(self):
@@ -27,7 +28,7 @@ admin.site.register(DanceEvent)
 admin.site.register(DanceEventParticipation)
 admin.site.register(Couple)
 admin.site.register(Activity)
-admin.site.register(ActivityParticipation)
+admin.site.register(ActivityParticipation, VersionAdmin)
 admin.site.register(Transaction)
 admin.site.register(Season)
 admin.site.register(ReferenceNumber)

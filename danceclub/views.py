@@ -2,6 +2,8 @@ import csv
 
 from decimal import Decimal
 
+# For reversion 1.10 from reversion import revisions as reversion
+import reversion
 from django.contrib import messages
 from io import TextIOWrapper
 
@@ -32,6 +34,7 @@ class ParticipationView(FormView):
     template_name = 'danceclub/participate.html'
     form_class = ParticipationForm
 
+    @reversion.create_revision()
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
@@ -50,7 +53,8 @@ class ParticipationView(FormView):
             
 class CancelView(FormView):
     form_class = CancelForm
-    
+
+    @reversion.create_revision()
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.

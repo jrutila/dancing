@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     
     'storages',
     'django_settings',
+    'reversion',
 
     'cms',  # django CMS itself
     'treebeard',  # utilities for implementing a tree

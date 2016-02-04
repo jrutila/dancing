@@ -21,7 +21,7 @@ django-inline-ordering==1.0.2
 django-mptt==0.8.0
 django-polymorphic==0.8.1
 django-recaptcha==1.0.5
-django-reversion==1.10.0
+django-reversion==1.9.3
 django-sekizai==0.9.0
 -e git+https://github.com/jrutila/django-settings.git@e63e390ed7154bc4f026bf21588b26cbb5159a8b#egg=django_settings-master
 django-simple-math-captcha==1.0.7
