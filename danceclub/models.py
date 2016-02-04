@@ -247,7 +247,7 @@ class SeasonManager(models.Manager):
         return self.get(start__lte=timezone.now(), end__gte=timezone.now())
 
     def current_or_next_season(self):
-        return self.filter(end__gte=timezone.now()).order_by("start")[0]
+        return self.filter(end__gte=timezone.now()).order_by("start").first()
 
     def get_season(self, act):
         return self.get(start__lte=act.start, end__gte=act.end)
