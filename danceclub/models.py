@@ -92,6 +92,8 @@ class Couple(models.Model):
 class ActivityManager(models.Manager):
     def current_or_next(self):
         season = Season.objects.current_or_next_season()
+        if not season:
+            return self.filter(start__gte=timezone.now())
         return self.filter(start__gte=season.start, end__lte=season.end)
 
 class Activity(models.Model):
