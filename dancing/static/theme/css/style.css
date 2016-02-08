@@ -1221,6 +1221,67 @@ footer .social li i {
 	margin-left: 2px;
 }
 
+/* Actions -----------------------------------------------------------------*/
+.actions{
+	padding-bottom: 20px;
+}
+.item-action{
+	position: relative;
+	overflow: hidden;
+	width: 210px;
+	margin-left: auto;
+	margin-right: auto;
+}
+.item-action:hover .info-action{
+	top: 20%;
+	 -webkit-transition: all .45s ease-in-out;
+    -moz-transition: all .45s ease-in-out;
+    -o-transition: all .45s ease-in-out;
+    transition: all .45s ease-in-out;
+}
+.info-action{
+	position: absolute;
+	top: 75%;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	-webkit-transition: all .45s ease-in-out;
+    -moz-transition: all .45s ease-in-out;
+    -o-transition: all .45s ease-in-out;
+    transition: all .45s ease-in-out;
+}
+.info-action h4 a,
+.info-action h5{
+	color: #fff;
+	font-weight: bold;
+}
+.info-action h4 a{
+	padding: 5px 10px;
+	display: inline;
+}
+.info-action h4 a:hover{
+	text-decoration: none;
+}
+.info-action h5 span{
+	background: rgba(0,0,0,0.8);
+	padding: 5px 20px 5px 10px;
+	display: inline;
+}
+.overlay-action{
+	background-color: #232323;
+	background: rgba(0,0,0,0.7);
+	width: 100%;
+	height: 100%;
+	padding: 10px 5%;
+	margin-top: 10px;
+}
+.overlay-action p{
+	color: #fff;
+	font-size: 13px;
+	line-height: 22px;
+}
+
+
 /* Players -----------------------------------------------------------------*/
 
 .players{
