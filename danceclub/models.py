@@ -82,12 +82,20 @@ class Couple(models.Model):
     started = models.DateField()
     ended = models.DateField(blank=True, null=True)
 
-    level = models.CharField(max_length=1, choices=LEVELS)
+    level_standard = models.CharField(max_length=1, choices=LEVELS, null=True, blank=True)
+    points_standard = models.PositiveIntegerField(null=True, blank=True)
+    level_latin = models.CharField(max_length=1, choices=LEVELS, null=True, blank=True)
+    points_latin = models.PositiveIntegerField(null=True, blank=True)
     age_level = models.CharField(max_length=2, choices=AGES)
-    points = models.PositiveIntegerField()
 
     def __str__(self):
-        return "%s - %s (%s %s)" % (str(self.man), str(self.woman), str(self.age_level), str(self.level))
+        if (self.level_standard == None and self.level_latin == None):
+            level = ""
+        elif (self.level_standard >= self.level_latin):
+            level = self.level_standard
+        else:
+            level = self.level_latin
+        return "%s - %s (%s %s)" % (str(self.man), str(self.woman), str(self.age_level), str(level))
 
 class ActivityManager(models.Manager):
     def current_or_next(self):
