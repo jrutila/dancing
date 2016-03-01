@@ -1231,6 +1231,7 @@ footer .social li i {
 	width: 210px;
 	margin-left: auto;
 	margin-right: auto;
+	margin-bottom: 10px;
 }
 .item-action:hover .info-action{
 	top: 20%;
