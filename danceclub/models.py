@@ -141,6 +141,8 @@ class DanceEvent(models.Model):
     end = models.DateTimeField()
     who = models.CharField(max_length=200, help_text="Kuka vetää?")
     extra = models.TextField(help_text="Lisätietoja", blank=True)
+    cost = models.DecimalField(decimal_places=2, max_digits=6)
+    cost_per_participant = models.BooleanField(help_text="Valitse tämä, jos maksu on per osallistuja")
     
     def __str__(self):
         return "%s: %s - %s" % (self.who, self.name, timezone.get_current_timezone().normalize(self.start))
@@ -148,11 +150,52 @@ class DanceEvent(models.Model):
 class DanceEventParticipation(models.Model):
     event = models.ForeignKey(DanceEvent)
     dancer = models.ForeignKey(Dancer)
-    
-    cancelled = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
     
     def __str__(self):
         return "%s - %s" % (str(self.dancer), str(self.event))
+        
+@receiver(post_save, sender=DanceEventParticipation)
+@receiver(post_delete, sender=DanceEventParticipation)
+def create_event_transaction(instance, **kwargs):
+    cost = -1*instance.event.cost
+    event = instance.event
+    dancer = instance.dancer
+    created_at = instance.created_at
+    event_name = instance.event.name
+    if not 'created' in kwargs:
+        #DELETE
+        tr = Transaction.objects.get(
+            source_type=ContentType.objects.get_for_model(event),
+            source_id=event.id,
+            owner=dancer)
+        tr.delete()
+        
+    if not event.cost_per_participant:
+        parts = DanceEventParticipation.objects.filter(event=event)
+        cost = cost/parts.count()
+        for part in parts:
+            dancer = part.dancer
+            created_at = part.created_at
+            tr,cr = Transaction.objects.update_or_create(
+                source_type=ContentType.objects.get_for_model(event),
+                source_id=event.id,
+                owner=dancer,
+                defaults={
+                'amount': cost,
+                'created_at': created_at,
+                'title': "%s" % str(event)})
+    if 'created' in kwargs:
+        if event.cost_per_participant:
+            tr,cr = Transaction.objects.update_or_create(
+                source_type=ContentType.objects.get_for_model(event),
+                source_id=event.id,
+                owner=dancer,
+                defaults={
+                'amount': cost,
+                'created_at': created_at,
+                'title': "%s" % str(event)})
+
         
 @receiver(post_delete, sender=ActivityParticipation)
 def update_transactions(instance, **kwargs):
