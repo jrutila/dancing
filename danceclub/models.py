@@ -12,16 +12,23 @@ from django.db.models import Max
 from django.core.exceptions import ValidationError
 import datetime
 import uuid
+from collections import defaultdict
 
 LEVELS = (('F', 'F'), ('E', 'E'), ('D', 'D'), ('C','C'), ('B','B'), ('A', 'A'))
 AGES = (('L1', 'Lapsi I'), ('L2', 'Lapsi II'), ('J1', 'Juniori I'), ('J2','Juniori II'), ('N','Nuoriso'), ('Y', 'Yleinen'), ('S1', 'Seniori I'),
         ('S2', 'Seniori II'), ('S3', 'Seniori III'), ('S4', 'Seniori IV'))
         
 season_cost = Decimal("20.00")
-costs = {
+normal_costs = {
     'dancing': [Decimal("80.00"), Decimal("45.00"), Decimal("35.00")],
     '*': [Decimal("55.00"), Decimal("45.00"), Decimal("35.00")],
     }
+    
+youth_costs = {
+    'dancing': [Decimal("80.00"), Decimal("25.00"), Decimal("20.00")],
+    '*': [Decimal("25.00"), Decimal("25.00"), Decimal("20.00")],
+    }
+    
     
 def get_max_ref():
     m = ReferenceNumber.objects.all().aggregate(Max('number'))['number__max']
@@ -62,6 +69,7 @@ class Member(models.Model):
     user = models.ForeignKey(User)
     reference_numbers = GenericRelation(ReferenceNumber, content_type_field='object_type')
     token = models.UUIDField(unique=True,blank=False,null=False,default=uuid.uuid4, editable=False)
+    young = models.BooleanField(help_text="Olen alle 16-vuotias")
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name
@@ -196,20 +204,40 @@ def create_event_transaction(instance, **kwargs):
                 'created_at': created_at,
                 'title': "%s" % str(event)})
 
-        
+@receiver(post_save, sender=ActivityParticipation)
 @receiver(post_delete, sender=ActivityParticipation)
-def update_transactions(instance, **kwargs):
+def set_activity_transactions(instance, **kwargs):
     season = Season.objects.get_season(instance.activity)
+    owner = instance.member
     acts = ActivityParticipation.objects.filter(
         member=instance.member,
         activity__start__gte=season.start,
-        activity__end__lte=season.end)
+        activity__end__lte=season.end).order_by('-activity__type')
     Transaction.objects.filter(
         owner=instance.member,
         source_type=ContentType.objects.get_for_model(Activity),
-        source_id=instance.activity.id).delete()
+        source_id=instance.activity.id
+    ).delete()
+    
+    if 'created' in kwargs:
+        Transaction.objects.get_or_create(
+            source_type=ContentType.objects.get_for_model(season),
+            source_id=season.id,
+            owner=owner,
+            defaults={
+            'amount':-1*season_cost,
+            'created_at':instance.created_at,
+            'title':"Jäsenmaksu %s" % str(season)
+            })
+        Transaction.objects.create(
+            source=instance.activity,
+            owner=instance.member,
+            amount = Decimal('0.00'),
+            created_at = instance.created_at,
+            title = "%s (%s)" % (instance.activity.name, str(season)))
         
-    if len(acts) == 0:
+    if len(acts) == 0 and not 'created' in kwargs:
+        # If all deleted
         Transaction.objects.filter(
             owner=instance.member,
             source_type=ContentType.objects.get_for_model(season),
@@ -219,47 +247,22 @@ def update_transactions(instance, **kwargs):
             owner=instance.member,
             source_type=ContentType.objects.get_for_model(Activity),
             source_id__in=[x.activity.id for x in acts])
-        i = 0
-        cost = costs["*"]
-        for t in trans:
-            t.amount = -1*cost[i]
-            if i < len(cost)-1: i = i + 1
-            t.save()
+        ids = [x.activity.id for x in acts]
+        trans = sorted(trans, key=lambda x: ids.index(x.source.id))
         
-@receiver(post_save, sender=ActivityParticipation)
-def create_transactions(instance, created, **kwargs):
-    if created:
-        season = Season.objects.get_season(instance.activity)
-        try:
-            tr = Transaction.objects.get(
-                source_type=ContentType.objects.get_for_model(season),
-                source_id=season.id,
-                owner=instance.member)
-        except Transaction.DoesNotExist:
-            tr = Transaction.objects.create(
-                source=season,
-                owner=instance.member,
-                amount = -1*season_cost,
-                created_at = instance.created_at,
-                title = 'Jäsenmaksu %s' % str(season))
-        try:
-            tr = Transaction.objects.get(
-                source_type=ContentType.objects.get_for_model(instance.activity),
-                source_id=instance.activity.id,
-                owner=instance.member)
-        except Transaction.DoesNotExist:
-            acts = ActivityParticipation.objects.filter(
-                member=instance.member,
-                activity__start__gte=season.start,
-                activity__end__lte=season.end).count()
-            cost = costs["*"][acts-1]
-            tr = Transaction.objects.create(
-                source=instance.activity,
-                owner=instance.member,
-                amount = -1*cost,
-                created_at = instance.created_at,
-                title = "%s (%s)" % (instance.activity.name, str(season)))
-
+        i = 0
+        cost = normal_costs
+        if owner.young:
+            cost = youth_costs
+            
+        for t in trans:
+            key = t.source.type
+            if key not in cost:
+                key = '*'
+            t.amount = -1*cost[key][i]
+            if i < len(cost):
+                i = i + 1;
+            t.save()
 
 class AlreadyExists(BaseException):
     pass
