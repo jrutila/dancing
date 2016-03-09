@@ -46,11 +46,11 @@ class ParticipationView(FormView):
             try:
                 send_mail(
                     'Maksutietosi Dancingille',
-                    'Hei,\nkiitos osallistumisestasi.\nTarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing' % self.request.build_absolute_uri(self.get_success_url()),
+                    'Hei,\nkiitos osallistumisestasi.\nTarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing' % self.request.build_absolute_uri(get_member_url(self.member)),
                     'sihteeri@dancing.fi',
                     [self.member.user.email], fail_silently=False)
                 self.mail_sent = True
-                messages.add_message(self.request, messages.SUCCESS, 'Sähköposti lähetetty osoitteeseen %s' % self.member.user.email)
+                messages.add_message(self.request, messages.SUCCESS, 'Maksutiedot lähetetty osoitteeseen %s' % self.member.user.email)
             except smtplib.SMTPException:
                 messages.add_message(self.request, messages.ERROR, 'Sähköpostin lähetys epäonnistui!')
         return super().form_valid(form)

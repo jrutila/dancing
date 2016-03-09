@@ -19,10 +19,11 @@
             </div>
         </div>
         
-{% for message in messages %}
-        MSG
-    {{ message }}
-{% endfor %}
+{% if messages %}
+    {% for message in messages %}
+    <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>
+    {% endfor %}
+{% endif %}
 
 <section class="container padding-top-mini">
     <div class="row">
