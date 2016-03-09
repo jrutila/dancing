@@ -69,7 +69,7 @@ class Member(models.Model):
     user = models.ForeignKey(User)
     reference_numbers = GenericRelation(ReferenceNumber, content_type_field='object_type')
     token = models.UUIDField(unique=True,blank=False,null=False,default=uuid.uuid4, editable=False)
-    young = models.BooleanField(help_text="Olen alle 16-vuotias")
+    young = models.BooleanField(help_text="Olen alle 16-vuotias",blank=True)
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name

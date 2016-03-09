@@ -15,6 +15,7 @@ class ParticipationForm(forms.Form):
     first_name = forms.CharField(label="Etunimi")
     last_name = forms.CharField(label="Sukunimi")
     email = forms.EmailField(label="Sähköpostiosoite", required=False, help_text="Saat sähköpostiisi maksamiseen liittyvät ohjeet. Jos sinulla ei ole sähköpostia, pyydä maksuohje salilta.")
+    young = forms.BooleanField(label="Olen alle 16-vuotias",required=False)
     
     activities = forms.ModelMultipleChoiceField(
         label="Tunnit (%s)" % str(Season.objects.current_or_next_season()),
@@ -25,7 +26,9 @@ class ParticipationForm(forms.Form):
         first_name = self.cleaned_data['first_name']
         last_name = self.cleaned_data['last_name']
         email = self.cleaned_data['email']
+        young = self.cleaned_data['young']
         member = None
+        created = False
         if email:
             try:
                 member = Member.objects.get(user__email=email)
@@ -51,12 +54,17 @@ class ParticipationForm(forms.Form):
                 first_name=self.cleaned_data['first_name'],
                 last_name=self.cleaned_data['last_name'],
                 email=self.cleaned_data['email'])
-            member = Member.objects.create(user=user)
+            member = Member.objects.create(user=user,young=young)
+            created = True
+        else:
+            member.young = young
+            member.save()
         self.member = member
         for act in self.cleaned_data['activities']:
             ActivityParticipation.objects.get_or_create(
                 member=member,
                 activity=act)
+        return member,created
 
 class MassTransactionForm(forms.Form):
     file = forms.FileField()

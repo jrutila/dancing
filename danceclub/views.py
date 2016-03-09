@@ -25,7 +25,7 @@ from django.core.mail import send_mail
 
 def get_member_url(member):
     return reverse('member_info', kwargs={
-        'member_id': member.id,
+        'member_id': member.token,
         'member_name': member.user.last_name
         })
     
@@ -38,18 +38,28 @@ class ParticipationView(FormView):
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
-        form.save(True)
+        m,created = form.save(True)
         self.member = form.member
+        self.created = created
+        self.mail_sent = False
         if self.member.user.email:
-            send_mail(
-                'Maksutietosi Dancingille',
-                'Hei,\nkiitos osallistumisestasi.\nTarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing' % self.request.build_absolute_uri(self.get_success_url()),
-                'sihteeri@dancing.fi',
-                [self.member.user.email], fail_silently=True)
+            try:
+                send_mail(
+                    'Maksutietosi Dancingille',
+                    'Hei,\nkiitos osallistumisestasi.\nTarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing' % self.request.build_absolute_uri(self.get_success_url()),
+                    'sihteeri@dancing.fi',
+                    [self.member.user.email], fail_silently=False)
+                self.mail_sent = True
+                messages.add_message(self.request, messages.SUCCESS, 'Sähköposti lähetetty osoitteeseen %s' % self.member.user.email)
+            except smtplib.SMTPException:
+                messages.add_message(self.request, messages.ERROR, 'Sähköpostin lähetys epäonnistui!')
         return super().form_valid(form)
         
     def get_success_url(self):
-        return get_member_url(self.member)
+        if not self.mail_sent or self.created:
+            # Message not sent to email or this is a new user
+            return get_member_url(self.member)
+        return reverse('participate')
             
 class CancelView(FormView):
     form_class = CancelForm
@@ -64,10 +74,7 @@ class CancelView(FormView):
         return super().form_valid(form)
         
     def get_success_url(self):
-        return reverse('member_info', kwargs={
-            'member_id': self.member.id,
-            'member_name': self.member.user.last_name
-            })
+        return get_member_url(self.member)
             
 class LostLinkView(FormView):
     form_class = LostLinkForm
@@ -98,7 +105,7 @@ class MemberView(TemplateView):
     
     def get_context_data(self, member_id, member_name):
         ctx = super().get_context_data()
-        member = get_object_or_404(Member, id=member_id, user__last_name__iexact=member_name)
+        member = get_object_or_404(Member, token=member_id, user__last_name__iexact=member_name)
         ctx["season"] = Season.objects.current_season()
         ctx["member"] = member
         transactions = Transaction.objects.filter(owner=member)
@@ -124,7 +131,7 @@ class MemberView(TemplateView):
             barcode = barcode + timezone.now().strftime("%Y%m%d")
             ctx['barcode'] = barcode
         return ctx
-
+        
 class MassTransactionView(FormView):
     template_name = "danceclub/generic_form.html"
     form_class = MassTransactionForm
@@ -148,6 +155,9 @@ class MassTransactionView(FormView):
             if tr['amount'] <= 0:
                 continue
             tr['title'] = row[4] + " " + row[5]
+            if 'ref' not in tr or tr['ref'] == '':
+                messages.add_message(self.request, messages.ERROR, 'Empty reference number: ' + str(tr) )
+                continue
             tr['ref'] = int(row[7])
             transactions.append(tr)
             #messages.add_message(self.request, messages.SUCCESS, row)

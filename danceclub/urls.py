@@ -19,14 +19,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .views import ParticipationView, MemberView, CancelView, LostLinkView, MassTransactionView
 from django.shortcuts import redirect
+from django.contrib.admin.views.decorators import staff_member_required
 
 urlpatterns = [
     #url(r'$', redirect('participate')),
     url(r'$', ParticipationView.as_view(), name='participate'),
-    url(r'info/(?P<member_id>\d+)/(?P<member_name>\w+)/$', MemberView.as_view(), name='member_info'),
+    url(r'info/(?P<member_id>[^/]+)/(?P<member_name>\w+)/$', MemberView.as_view(), name='member_info'),
     url(r'cancel/$', CancelView.as_view(), name='cancel'),
     url(r'lostlink/$', LostLinkView.as_view(), name='lost-link'),
 
     # Admin urls
-    url(r'upload/$', MassTransactionView.as_view(), name='upload-transaction'),
+    url(r'upload/$', staff_member_required(MassTransactionView.as_view()), name='upload-transaction'),
 ]
