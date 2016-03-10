@@ -11,11 +11,11 @@ import re
 
 from django.shortcuts import render
 from .forms import ParticipationForm, CancelForm, LostLinkForm, MassTransactionForm
-from .models import Member, Transaction, ReferenceNumber, ActivityParticipation, Season, AlreadyExists
+from .models import Member, Transaction, ReferenceNumber, ActivityParticipation, Season, AlreadyExists, DanceEvent, Dancer, Couple
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum, Max
+from django.db.models import Sum, Max, Q
 from django.utils import timezone
 import django_settings
 from django.core.urlresolvers import reverse
@@ -29,6 +29,25 @@ def get_member_url(member):
         'member_name': member.user.last_name
         })
     
+class DanceEventsView(TemplateView):
+    template_name = 'danceclub/dance_events.html'
+    
+    def get_context_data(self):
+        ctx = super().get_context_data()
+        events = DanceEvent.objects.filter(
+            end__gte=timezone.now()
+            ).order_by('start')
+        ctx['events'] = events
+        ctx['dancer'] = None
+        ctx['couple'] = None
+        if self.request.user.is_authenticated():
+            try:
+                ctx['dancer'] = dancer = Dancer.objects.get(user=self.request.user)
+                ctx['couple'] = Couple.objects.filter(Q(man=dancer) | Q(woman=dancer)).filter(ended__isnull=True).first()
+            except Dancer.DoesNotExist:
+                pass
+        return ctx
+        
 
 class ParticipationView(FormView):
     template_name = 'danceclub/participate.html'

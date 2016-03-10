@@ -104,6 +104,10 @@ class Couple(models.Model):
         else:
             level = self.level_latin
         return "%s - %s (%s %s)" % (str(self.man), str(self.woman), str(self.age_level), str(level))
+        
+    def __iter__(self):
+        yield self.man
+        yield self.woman
 
 class ActivityManager(models.Manager):
     def current_or_next(self):
@@ -156,7 +160,7 @@ class DanceEvent(models.Model):
         return "%s: %s - %s" % (self.who, self.name, timezone.get_current_timezone().normalize(self.start))
     
 class DanceEventParticipation(models.Model):
-    event = models.ForeignKey(DanceEvent)
+    event = models.ForeignKey(DanceEvent,related_name='participations')
     dancer = models.ForeignKey(Dancer)
     created_at = models.DateTimeField(default=timezone.now)
     
@@ -173,7 +177,7 @@ def create_event_transaction(instance, **kwargs):
     event_name = instance.event.name
     if not 'created' in kwargs:
         #DELETE
-        tr = Transaction.objects.get(
+        tr = Transaction.objects.filter(
             source_type=ContentType.objects.get_for_model(event),
             source_id=event.id,
             owner=dancer)
@@ -181,7 +185,7 @@ def create_event_transaction(instance, **kwargs):
         
     if not event.cost_per_participant:
         parts = DanceEventParticipation.objects.filter(event=event)
-        cost = cost/parts.count()
+        cost = cost/parts.count() if parts.count() > 0 else None
         for part in parts:
             dancer = part.dancer
             created_at = part.created_at
