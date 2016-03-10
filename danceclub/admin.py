@@ -17,10 +17,13 @@ class ReferenceNumberInline(GenericTabularInline):
     ct_fk_field = "object_id"
     extra = 0
     form = RefNumberInlineForm
+    
+class TransactionInline(admin.TabularInline):
+    model = Transaction
 
 class MemberAdmin(admin.ModelAdmin):
     model = Member
-    inlines = [ ReferenceNumberInline ]
+    inlines = [ ReferenceNumberInline, TransactionInline ]
     
 class DancerCreateForm(forms.ModelForm):
     class Meta:

@@ -89,6 +89,7 @@ THUMBNAIL_PROCESSORS = (
 FILER_DEBUG=True
 
 MIDDLEWARE_CLASSES = [
+    'reversion.middleware.RevisionMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'cms.middleware.utils.ApphookReloadMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

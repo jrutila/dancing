@@ -73,6 +73,10 @@ class Member(models.Model):
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name
+    
+    def get_absolute_url(self):
+        from .views import get_member_url
+        return get_member_url(self)
         
 @receiver(post_save, sender=Member)
 def create_refnumber(instance, created, **kwargs):
