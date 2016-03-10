@@ -21,9 +21,37 @@ class ReferenceNumberInline(GenericTabularInline):
 class MemberAdmin(admin.ModelAdmin):
     model = Member
     inlines = [ ReferenceNumberInline ]
+    
+class DancerCreateForm(forms.ModelForm):
+    class Meta:
+        exclude = ['user', 'young']
+    member = forms.ModelChoiceField(queryset=Member.objects.all())
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if ('instance' in kwargs and kwargs['instance']):
+            self.fields['member'].initial = Member.objects.get(user=kwargs['instance'].user)
+
+    # Hack to resave the member as a dancer
+    def save(self, commit=True):
+        if self.instance.id:
+            return super().save(commit)
+        else:
+            member = self.cleaned_data['member']
+            dancer = Dancer(member_ptr_id=member.id)
+            dancer.__dict__.update(member.__dict__)
+            if commit:
+                dancer.save()
+            return dancer
+        
+    def save_m2m(self):
+        pass
+    
+class DancerAdmin(admin.ModelAdmin):
+    form = DancerCreateForm
 
 admin.site.register(Member, MemberAdmin)
-admin.site.register(Dancer)
+admin.site.register(Dancer, DancerAdmin)
 admin.site.register(DanceEvent)
 admin.site.register(DanceEventParticipation)
 admin.site.register(Couple)
