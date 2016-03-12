@@ -124,8 +124,6 @@ class CancelView(FormView):
 
     @reversion.create_revision()
     def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
         self.member = Member.objects.get(token=form.cleaned_data['member'])
         actpart = ActivityParticipation.objects.filter_canceable(self.member).get(id=form.cleaned_data['actpartid'])
         actpart.delete()
