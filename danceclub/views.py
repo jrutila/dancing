@@ -10,8 +10,8 @@ from io import TextIOWrapper
 import re
 
 from django.shortcuts import render
-from .forms import ParticipationForm, CancelForm, LostLinkForm, MassTransactionForm
-from .models import Member, Transaction, ReferenceNumber, ActivityParticipation, Season, AlreadyExists, DanceEvent, Dancer, Couple
+from .forms import ParticipationForm, CancelForm, LostLinkForm, MassTransactionForm, DanceEventParticipationForm
+from .models import Member, Transaction, ReferenceNumber, ActivityParticipation, Season, AlreadyExists, DanceEvent, Dancer, Couple, DanceEventParticipation
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
@@ -29,10 +29,20 @@ def get_member_url(member):
         'member_name': member.user.last_name
         })
     
-class DanceEventsView(TemplateView):
+class DanceEventsView(FormView):
     template_name = 'danceclub/dance_events.html'
+    form_class = DanceEventParticipationForm
     
-    def get_context_data(self):
+    def get_form(self, *args, **kwargs):
+        #form = super().get_form(*args, **kwargs)
+        #form.user = self.request.user
+        form = DanceEventParticipationForm(self.request.user, **self.get_form_kwargs())
+        return form
+    
+    def get_success_url(self):
+        return reverse('dance_events')
+    
+    def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data()
         events = DanceEvent.objects.filter(
             end__gte=timezone.now()
@@ -43,11 +53,40 @@ class DanceEventsView(TemplateView):
         if self.request.user.is_authenticated():
             try:
                 ctx['dancer'] = dancer = Dancer.objects.get(user=self.request.user)
-                ctx['couple'] = Couple.objects.filter(Q(man=dancer) | Q(woman=dancer)).filter(ended__isnull=True).first()
+                ctx['couple'] = couple = Couple.objects.filter(Q(man=dancer) | Q(woman=dancer)).filter(ended__isnull=True).first()
+                for e in events:
+                    setattr(e, 'possible', [couple.man, couple.woman])
+                    for p in e.participations.all():
+                        if p.dancer in ctx['couple']:
+                            e.possible.remove(p.dancer)
+                        elif not e.cost_per_participant:
+                            e.possible = []
             except Dancer.DoesNotExist:
                 pass
         return ctx
         
+    def form_invalid(self, form):
+        raise Http500
+        
+    def form_valid(self, form):
+        parts = form.cleaned_data['participant'] if 'participant' in form.cleaned_data else []
+        cancels = form.cleaned_data['cancel'] if 'cancel' in form.cleaned_data else []
+        eid = form.cleaned_data['event']
+        event = DanceEvent.objects.get(pk=eid)
+        
+        for p in parts:
+            pp = Dancer.objects.get(pk=p)
+            dep,cr = DanceEventParticipation.objects.get_or_create(
+                event=event,
+                dancer=pp
+                )
+                
+        for c in cancels:
+            pp = Dancer.objects.get(pk=c)
+            DanceEventParticipation.objects.get(
+                event=event,
+                dancer=pp).delete()
+        return super().form_valid(form)
 
 class ParticipationView(FormView):
     template_name = 'danceclub/participate.html'

@@ -5,6 +5,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.db.models.signals import post_save, post_delete
+from django.db.models import Sum, Max, Q
 from django.dispatch import receiver
 from decimal import *
 from django.contrib.contenttypes.fields import GenericRelation
@@ -86,6 +87,10 @@ def create_refnumber(instance, created, **kwargs):
 
 class Dancer(Member):
     license = models.CharField(max_length=20, null=True, blank=True)
+    
+class CoupleManager(models.Manager):
+    def get_couple(self, dancer):
+        return self.filter(Q(man=dancer) | Q(woman=dancer)).filter(ended__isnull=True).first()
 
 class Couple(models.Model):
     man = models.ForeignKey(Dancer, related_name='man')
@@ -99,6 +104,8 @@ class Couple(models.Model):
     level_latin = models.CharField(max_length=1, choices=LEVELS, null=True, blank=True)
     points_latin = models.PositiveIntegerField(null=True, blank=True)
     age_level = models.CharField(max_length=2, choices=AGES)
+    
+    objects = CoupleManager()
 
     def __str__(self):
         if (self.level_standard == None and self.level_latin == None):

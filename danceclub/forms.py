@@ -1,7 +1,7 @@
 from django import forms
 from .models import Activity, ActivityParticipation, Season
 from django.utils import timezone
-from .models import Member
+from .models import Member, Dancer, Couple
 from django.contrib.auth.models import User
 
 class CancelForm(forms.Form):
@@ -10,7 +10,18 @@ class CancelForm(forms.Form):
     
 class LostLinkForm(forms.Form):
     email = forms.EmailField()
-
+    
+class DanceEventParticipationForm(forms.Form):
+    event = forms.IntegerField(required=True)
+    
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args,**kwargs)
+        dancer = Dancer.objects.get(user=user)
+        couple = Couple.objects.get_couple(dancer)
+        choices = [(str(d.id),str(d.id)) for d in couple]
+        self.fields['participant'] = forms.MultipleChoiceField(choices=choices,required=False)
+        self.fields['cancel'] = forms.MultipleChoiceField(choices=choices,required=False)
+        
 class ParticipationForm(forms.Form):
     first_name = forms.CharField(label="Etunimi")
     last_name = forms.CharField(label="Sukunimi")

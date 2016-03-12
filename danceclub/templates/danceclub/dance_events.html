@@ -1,6 +1,7 @@
-P
 {{ dancer }}
 {{ couple }}
+
+{{ form }}
 
 {% for e in events %}
 <div>
@@ -15,6 +16,7 @@ P
         {% if p.dancer in couple or request.user.is_staff %}
         <form method="POST">
             {% csrf_token %}
+            <input type="hidden" name="event" value="{{ e.id }}"/>
             <input type="hidden" name="cancel" value="{{ p.dancer.id }}"/>
             <button>Peru</button>
         </form>
@@ -23,22 +25,24 @@ P
     {% endfor %}
 </ul>
 {% if dancer %}
-{% if e.cost_per_participant or not e.participations.count %}
+{% if e.possible %}
 <br/>
 ilmoittaudu:<br/>
 
 <form method="POST">
     {% csrf_token %}
-{% for d in couple %}
-{{ d }}:
-<input type="checkbox" checked="checked" name="participant" value="{{ d.id }}" />
-<br/>
-{% endfor %}
-<button>Ilmoita</button>
+    <input type="hidden" name="event" value="{{ e.id }}"/>
+    {% for d in e.possible %}
+        {{ d }}:
+        <input type="checkbox" checked="checked" name="participant" value="{{ d.id }}" />
+        <br/>
+    {% endfor %}
+    <button>Ilmoita</button>
 </form>
 
 {% endif %}
 {% endif %}
+
 {% endfor %}
 
 {% if events.count == 0 %}
