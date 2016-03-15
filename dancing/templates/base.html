@@ -126,6 +126,11 @@
                     <!-- Nav Footer-->
                     <ul class="nav-footer">
                         {% show_menu 0 0 0 0 %}
+                        {% if not request.user.is_authenticated %}
+                         <li class="current child sibling"><a href="{% url "login" %}">Kirjaudu</a></li>
+                        {% else %}
+                         <li class="current child sibling"><a href="{% url "logout" %}">Kirjaudu ulos {{ request.user.first_name }}</a></li>
+                        {% endif %}
                     </ul>
                     <!-- End Nav Footer-->
                 </div>
