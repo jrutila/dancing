@@ -27,7 +27,7 @@
 
 <section class="container padding-top-mini">
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-6">
             <div class="panel-box">
                 <div class="titles">
                     <h4>Ilmoittautumislomake</h4>
@@ -43,6 +43,20 @@
         </button>
     {% endbuttons %}
 </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="panel-box">
+                <div class="titles">
+                    <h4>Hinnasto {% now "Y" %}</h4>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        {% static_placeholder "hinnasto" site or %}
+                            Aseta hinnasto!
+                        {% endstatic_placeholder %}
                     </div>
                 </div>
             </div>
@@ -64,11 +78,13 @@
                             {{ request.GET.lostlink }}
                         </div>
                         {% else %}
-                        Syötä sähköpostiosoitteesi
-                        <form method="POST" action="{% url 'lost-link' %}">
+                        <form class="form" method="POST" action="{% url 'lost-link' %}">
                             {% csrf_token %}
-                            <input type="email" name="email"/>
-                            <button type="submit">Lähetä linkki</button>
+                            <div class="form-group">
+                                <label for="forgot_email" class="sr-only">Syötä sähköpostiosoitteesi</label>
+                                <input type="email" name="email" id="forgot_email" placeholder="Sähköpostiosoitteesi"/>
+                                <button class="btn btn-primary" type="submit">Lähetä linkki</button>
+                            </div>
                         </form>
                         {% endif %}
                     </div>
