@@ -9,6 +9,7 @@ from filer.fields.image import FilerImageField
 from cms.toolbar_pool import toolbar_pool
 from cms.extensions.toolbar import ExtensionToolbar
 from django.utils.translation import ugettext_lazy as _
+import random
 
 class HomeSlide(CMSPlugin):
     slide_title = models.CharField(max_length=50, default="Moi")
@@ -39,3 +40,13 @@ class TitleImageExtensionToolbar(ExtensionToolbar):
                 # adds a toolbar item
                 current_page_menu.add_modal_item(_('Title Image'), url=url,
                                                  disabled=not self.toolbar.edit_mode)
+def get_random_color():
+    r = random.randint(0,126) + 127
+    g = random.randint(0,126) + 127
+    b = random.randint(0,126) + 127
+    
+    return "#" + ''.join('%02x'%i for i in  [r,g,b])
+                                                 
+class NameColor(models.Model):
+    name = models.CharField(max_length=200)
+    color = models.CharField(max_length=10, default=get_random_color)
