@@ -96,66 +96,7 @@
                 </li>
                 {% endfor %}
             </ul>
-            
-            {% for date in event_list %}
-                <div class="content">
-                <h1>{{ date.grouper|date:"d F Y" }}</h1>
-                {% for event in date.list %}
-                    {{ event }}
-                {% endfor %}
-                </div>
-            {% endfor %}
         </div>
     </section>
 </section>
 {% endblock %}
-{{ dancer }}
-{{ couple }}
-
-{{ form }}
-
-{% for e in events %}
-<div>
-<b>{{ e }}</b>
-</div>
-<span>{{ e.start }} - {{ e.end }}</span>
-<span>{{ e.cost }}&euro; {% if e.cost_per_participant %}/osallistuja{% endif %}</span>
-<ul>
-    {% for p in e.participations.all %}
-    <li>
-        {{ p.dancer }}
-        {% if p.dancer in couple or request.user.is_staff %}
-        <form method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="event" value="{{ e.id }}"/>
-            <input type="hidden" name="cancel" value="{{ p.dancer.id }}"/>
-            <button>Peru</button>
-        </form>
-        {% endif %}
-    </li>
-    {% endfor %}
-</ul>
-{% if dancer %}
-{% if e.possible %}
-<br/>
-ilmoittaudu:<br/>
-
-<form method="POST">
-    {% csrf_token %}
-    <input type="hidden" name="event" value="{{ e.id }}"/>
-    {% for d in e.possible %}
-        {{ d }}:
-        <input type="checkbox" checked="checked" name="participant" value="{{ d.id }}" />
-        <br/>
-    {% endfor %}
-    <button>Ilmoita</button>
-</form>
-
-{% endif %}
-{% endif %}
-
-{% endfor %}
-
-{% if events.count == 0 %}
-Ei tapahtumia, joihin voisi ilmoittautua
-{% endif %}
