@@ -23,6 +23,9 @@ from django.contrib.contenttypes.models import ContentType
 import datetime
 from django.core.mail import send_mail
 
+from functools import wraps
+from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
+
 def get_member_url(member):
     return reverse('member_info', kwargs={
         'member_id': member.token,
@@ -91,6 +94,21 @@ class DanceEventsView(FormView):
 class ParticipationView(FormView):
     template_name = 'danceclub/participate.html'
     form_class = ParticipationForm
+    
+    def dispatch(self, *args, **kwargs):
+        if self.request.user.is_authenticated():
+            dancer = Dancer.objects.filter(user=self.request.user)
+            if dancer and 'no_redirect' not in self.request.GET:
+                return HttpResponseRedirect(reverse('dance_events'))
+        return super().dispatch(*args, **kwargs)
+        
+    def get_initial(self):
+        initial = super().get_initial()
+        if self.request.user.is_authenticated():
+            initial['first_name'] = self.request.user.first_name
+            initial['last_name'] = self.request.user.last_name
+            initial['email'] = self.request.user.email
+        return initial
 
     @reversion.create_revision()
     def form_valid(self, form):

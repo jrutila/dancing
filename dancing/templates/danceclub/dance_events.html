@@ -22,7 +22,7 @@
             {% regroup events by start.date as event_list %}
             <ul class="events-carousel events-no-carousel">
                 {% for date in event_list %}
-                <li class="col-xs-12 col-sm-6 col-md-4">
+                <li class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
                     <div class="header-post">
                         <div class="date">
                             <span>
@@ -57,7 +57,7 @@
                             <div class="content">
                                 <div class="row">
                                 {% for p in e.participations.all %}
-                                 <span class="col-xs-6">
+                                 <span class="col-xs-6 col-sm-12 col-md-6 col-lg-12">
         {% if p.dancer in couple or request.user.is_staff %}
         {% if not p.created_at|hours_ago:2 or request.user.is_staff %}
         <form method="POST" style="display: inline-block">
@@ -84,7 +84,7 @@
         {{ d }}:
         </label>
     {% endfor %}
-    <button>Ilmoita</button>
+    <button class="btn btn-primary">Ilmoita</button>
 </form>
                                 </div>
                                 {% endif %}
@@ -96,6 +96,9 @@
                 </li>
                 {% endfor %}
             </ul>
+            <div class="col-xs-12">
+            <a href="{% url 'participate' %}?no_redirect">Halusitko ilmoittautua toimintaan?</a>
+            </div>
         </div>
     </section>
 </section>

@@ -17,8 +17,10 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
+from common.views import ProfileRedirectView
 
 urlpatterns = [
+    url(r'^accounts/profile/', ProfileRedirectView.as_view()),
     url(r'^admin/', admin.site.urls),
     url(r'^filer/', include('filer.urls')),
     url('^', include('django.contrib.auth.urls')),
