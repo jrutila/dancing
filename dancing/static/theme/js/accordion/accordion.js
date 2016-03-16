@@ -2,10 +2,12 @@
     (function() {
 
     var $container = $('.acc-container'),
-      $trigger   = $('.acc-trigger');
+      $trigger   = $('.acc-trigger'),
+      $startActives = $('.acc-trigger.active');
 
     $container.hide();
-    $trigger.first().addClass('active').next().show();
+    //$trigger.first().addClass('active').next().show();
+    $startActives.next().show();
 
     var fullWidth = $container.outerWidth(true);
     $trigger.css('width', fullWidth);

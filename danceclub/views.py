@@ -61,6 +61,7 @@ class DanceEventsView(FormView):
                     setattr(e, 'possible', [couple.man, couple.woman])
                     for p in e.participations.all():
                         if p.dancer in ctx['couple']:
+                            setattr(e, 'my', True)
                             e.possible.remove(p.dancer)
                         elif not e.cost_per_participant:
                             e.possible = []
