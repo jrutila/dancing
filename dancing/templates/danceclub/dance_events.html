@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load cms_tags menu_tags dancing_tags %}
+{% load bootstrap3 %}
+
+{% block base_content %}
+<section class="section-title img-feature" >
+    <div class="overlay-bg"></div>
+    <div class="container">
+        <h1>Tanssitapahtumat</h1>
+    </div>
+</section>
+<section class="content-info">
+        <div class="crumbs">
+            <div class="container">
+                <ul>
+                    {% show_breadcrumb %}
+                </ul>
+            </div>
+        </div>
+    <section class="container padding-top-mini">
+        <div class="row">
+            {% regroup events by start.date as event_list %}
+            <ul class="events-carousel events-no-carousel">
+                {% for date in event_list %}
+                <li class="col-xs-12 col-sm-6 col-md-4">
+                    <div class="header-post">
+                        <div class="date">
+                            <span>
+                                {{ date.grouper|date:"Y" }}
+                            </span>
+                                {{ date.grouper|date:"d. M" }}
+                        </div>
+                        <div style="height: 124px; background-color: lightBlue;"></div>
+                        <div class="meta-tag">
+                            <ul>
+                                <li>
+                                    <i class="fa fa-user"></i>
+                                    {{ date.list.0.who }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="info-post">
+                    <div class="accrodation">
+                    {% for e in date.list %}
+                        <span class="acc-trigger">
+                            <a href="#">
+                            {% if e.participations.count %}
+                                <i class="fa fa-check-square-o"></i>
+                            {% else %}
+                                <i class="fa fa-square-o"></i>
+                            {% endif %}
+                            {{ e.name }}&nbsp;({{ e.cost }}&euro;)&nbsp;{{ e.start|date:"H:m" }}-{{ e.end|date:"H:m" }}
+                            </a>
+                        </span>
+                        <div class="acc-container">
+                            <div class="content">
+                                <div class="row">
+                                {% for p in e.participations.all %}
+                                 <span class="col-xs-6">
+        {% if p.dancer in couple or request.user.is_staff %}
+        {% if not p.created_at|hours_ago:2 or request.user.is_staff %}
+        <form method="POST" style="display: inline-block">
+            {% csrf_token %}
+            <input type="hidden" name="event" value="{{ e.id }}"/>
+            <input type="hidden" name="cancel" value="{{ p.dancer.id }}"/>
+            <button class="btn btn-xs btn-danger"><i class="fa fa-times"></i></button>
+        </form>
+        {% endif %}
+        {% endif %}
+                                     {{ p.dancer }}
+                                </span>
+                                {% endfor %}
+                                </div>
+                                {% if dancer and e.possible %}
+                                <div class="row">
+                                    
+<form method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="event" value="{{ e.id }}"/>
+    {% for d in e.possible %}
+        <label class="checkbox-inline">
+            <input type="checkbox" checked="checked" name="participant" value="{{ d.id }}" />
+        {{ d }}:
+        </label>
+    {% endfor %}
+    <button>Ilmoita</button>
+</form>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            
+            {% for date in event_list %}
+                <div class="content">
+                <h1>{{ date.grouper|date:"d F Y" }}</h1>
+                {% for event in date.list %}
+                    {{ event }}
+                {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+</section>
+{% endblock %}
+{{ dancer }}
+{{ couple }}
+
+{{ form }}
+
+{% for e in events %}
+<div>
+<b>{{ e }}</b>
+</div>
+<span>{{ e.start }} - {{ e.end }}</span>
+<span>{{ e.cost }}&euro; {% if e.cost_per_participant %}/osallistuja{% endif %}</span>
+<ul>
+    {% for p in e.participations.all %}
+    <li>
+        {{ p.dancer }}
+        {% if p.dancer in couple or request.user.is_staff %}
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="event" value="{{ e.id }}"/>
+            <input type="hidden" name="cancel" value="{{ p.dancer.id }}"/>
+            <button>Peru</button>
+        </form>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% if dancer %}
+{% if e.possible %}
+<br/>
+ilmoittaudu:<br/>
+
+<form method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="event" value="{{ e.id }}"/>
+    {% for d in e.possible %}
+        {{ d }}:
+        <input type="checkbox" checked="checked" name="participant" value="{{ d.id }}" />
+        <br/>
+    {% endfor %}
+    <button>Ilmoita</button>
+</form>
+
+{% endif %}
+{% endif %}
+
+{% endfor %}
+
+{% if events.count == 0 %}
+Ei tapahtumia, joihin voisi ilmoittautua
+{% endif %}
