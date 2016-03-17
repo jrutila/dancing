@@ -7,7 +7,7 @@
 
     $container.hide();
     //$trigger.first().addClass('active').next().show();
-    $startActives.exnt().show();
+    $startActives.next().show();
 
     var fullWidth = $container.outerWidth(true);
     $trigger.css('width', fullWidth);
