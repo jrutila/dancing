@@ -6,6 +6,31 @@
     {% placeholder "home_slides" %}
     </section>
 
+    <section class="content-info">
+        
+    <div class="semiboxshadow text-center">
+        <img src="{% static 'theme/img/img-theme/shp.png' %}" class="img-responsive" alt="">
+    </div>
+    <div class="bg-dark dark-home">
+        <div class="row">
+            <div class="col-md-9">
+               <ul class="nav nav-tabs" id="myTab">
+                   <li class="active">
+                       <a href="#players-staff" data-toggle="tab">HARRASTUKSET</a>
+                   </li>
+               </ul> 
+               <div class="tab-content">
+                   <div id="players-staff" class="tab-pane active">
+                       <h3>Harrastukset</h3>
+                       <ul id="players-carousel" class="players">
+                           {% static_placeholder "activities" %}
+                       </ul>
+                   </div>
+               </div>
+            </div>
+        </div>
+    </div>
+        
     <div class="container padding-top">
         <div class="row">
             <div class="col-xs-12 col-md-6 col-lg-7">
@@ -39,4 +64,6 @@
             </div>
         </div>
     </aside>
+    
+    </section>
 {% endblock %}

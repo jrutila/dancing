@@ -165,6 +165,7 @@ CMS_TEMPLATES = (
     ('template_text.html', 'Text page'),
     ('home.html', 'Home'),
     ('template_contact.html', 'Contact page'),
+    ('template_activities.html', 'Activities page'),
 )
 
 CMS_PLACEHOLDER_CONF = {
@@ -176,6 +177,9 @@ CMS_PLACEHOLDER_CONF = {
     },
     'home_slides': {
         'plugins': ['SlidePlugin']
+    },
+    'activities': {
+        'plugins': ['ActivityPlugin']
     },
 }
 

@@ -14,7 +14,15 @@ $("#menu").tinyNav();
 
 $('ul.sf-menu').superfish();
 
-
+$("#players-carousel").owlCarousel({
+       autoPlay: 3200,      
+       items : 4,
+       navigation: false,
+       itemsDesktopSmall : [1024,3],
+       itemsTablet : [768,3],
+       itemsMobile : [600,2],
+       pagination: true
+   });
 //================================= Smartum carousel ==============================//
 $("#support").owlCarousel({
    autoPlay: 3200,

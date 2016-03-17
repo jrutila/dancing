@@ -1,0 +1,17 @@
+{% load thumbnail %}
+<!-- Action Item - Caption -->
+<li class="item-player">
+    <img src="{% thumbnail instance.activity_image 250x350 upscale crop %}" />
+<div class="info-player">
+<h4><a href="{{ instance.activity_page_link.get_absolute_url }}">{{ instance.activity_title }}</a></h4>
+
+<h5><span>{{ instance.activity_subtitle }}</span></h5>
+
+<div class="overlay-player">
+    <p>
+        {{ instance.activity_text }}
+    </p>
+</div>
+</div>
+</li>
+<!-- End Item - Caption  -->

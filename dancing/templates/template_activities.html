@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load cms_tags menu_tags extra_cms_tags sekizai_tags %}
+
+{% block base_content %}
+    {% include "_page_title.html" %}
+
+    <section class="content-info">
+        <div class="crumbs">
+            <div class="container">
+                <ul>
+                    {% show_breadcrumb %}
+                </ul>
+            </div>
+        </div>
+        <section class="container padding-top-mini">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel-box">
+                        <div class="titles">
+                            <h4>{% page_attribute "page_title" %}</h4>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul id="players-carousel" class="players">
+                                   {% static_placeholder "activities" %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel-box">
+                        <div class="titles">
+                            <h4>{% placeholder ilmoittautuminen or %}Ilmoittautuminen{% endplaceholder %}</h4>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {% placeholder ilmo_ohjeet %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel-box">
+                        <div class="titles">
+                            <h4>{% placeholder hinnasto_title or %}Hinnasto {% now "Y" %}{% endplaceholder %}</h4>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {% static_placeholder "hinnasto" site or %}
+                                Aseta hinnasto!
+                                {% endstatic_placeholder %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+{% endblock %}

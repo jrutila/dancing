@@ -17,6 +17,12 @@ class HomeSlide(CMSPlugin):
     slide_image = FilerImageField(related_name="slide_image")
     slide_page_link = PageField()
 
+class Activity(CMSPlugin):
+    activity_title = models.CharField(max_length=50,default="Moi")
+    activity_subtitle = models.CharField(max_length=50,default="Moi")
+    activity_text = models.CharField(max_length=300,default="Moi")
+    activity_image = FilerImageField(related_name="activity_image")
+    activity_page_link = PageField()
 
 class TitleImageExtension(PageExtension):
     title_image = FilerImageField(null=True, blank=True,
