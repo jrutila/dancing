@@ -73,7 +73,12 @@ class Member(models.Model):
     young = models.BooleanField(help_text="Olen alle 16-vuotias",blank=True)
 
     def __str__(self):
-        return self.user.first_name + " " + self.user.last_name
+        if self.user.first_name and self.user.last_name:
+            return self.user.first_name + " " + self.user.last_name
+        elif self.user.email:
+            return self.user.email
+        return "Vierailija"
+            
     
     def get_absolute_url(self):
         from .views import get_member_url
@@ -172,18 +177,18 @@ class DanceEvent(models.Model):
     
 class DanceEventParticipation(models.Model):
     event = models.ForeignKey(DanceEvent,related_name='participations')
-    dancer = models.ForeignKey(Dancer)
+    member = models.ForeignKey(Member)
     created_at = models.DateTimeField(default=timezone.now)
     
     def __str__(self):
-        return "%s - %s" % (str(self.dancer), str(self.event))
+        return "%s - %s" % (str(self.member), str(self.event))
         
 @receiver(post_save, sender=DanceEventParticipation)
 @receiver(post_delete, sender=DanceEventParticipation)
 def create_event_transaction(instance, **kwargs):
     cost = -1*instance.event.cost
     event = instance.event
-    dancer = instance.dancer
+    member = instance.member
     created_at = instance.created_at
     event_name = instance.event.name
     if not 'created' in kwargs:
@@ -191,19 +196,19 @@ def create_event_transaction(instance, **kwargs):
         tr = Transaction.objects.filter(
             source_type=ContentType.objects.get_for_model(event),
             source_id=event.id,
-            owner=dancer)
+            owner=member)
         tr.delete()
         
     if not event.cost_per_participant:
         parts = DanceEventParticipation.objects.filter(event=event)
         cost = cost/parts.count() if parts.count() > 0 else None
         for part in parts:
-            dancer = part.dancer
+            member = part.member
             created_at = part.created_at
             tr,cr = Transaction.objects.update_or_create(
                 source_type=ContentType.objects.get_for_model(event),
                 source_id=event.id,
-                owner=dancer,
+                owner=member,
                 defaults={
                 'amount': cost,
                 'created_at': created_at,
@@ -213,7 +218,7 @@ def create_event_transaction(instance, **kwargs):
             tr,cr = Transaction.objects.update_or_create(
                 source_type=ContentType.objects.get_for_model(event),
                 source_id=event.id,
-                owner=dancer,
+                owner=member,
                 defaults={
                 'amount': cost,
                 'created_at': created_at,

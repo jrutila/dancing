@@ -24,7 +24,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 urlpatterns = [
     #url(r'$', redirect('participate')),
     url(r'$', ParticipationView.as_view(), name='participate'),
-    url(r'info/(?P<member_id>[^/]+)/(?P<member_name>\w+)/$', MemberView.as_view(), name='member_info'),
+    url(r'info/(?P<member_id>[^/]+)/$', MemberView.as_view(), name='member_info'),
     url(r'cancel/$', CancelView.as_view(), name='cancel'),
     url(r'lostlink/$', LostLinkView.as_view(), name='lost-link'),
     

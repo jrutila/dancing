@@ -28,8 +28,7 @@ from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
 
 def get_member_url(member):
     return reverse('member_info', kwargs={
-        'member_id': member.token,
-        'member_name': member.user.last_name
+        'member_id': member.token
         })
     
 class DanceEventsView(FormView):
@@ -60,9 +59,9 @@ class DanceEventsView(FormView):
                 for e in events:
                     setattr(e, 'possible', [couple.man, couple.woman])
                     for p in e.participations.all():
-                        if p.dancer in ctx['couple']:
+                        if p.member.id in [c.id for c in ctx['couple']]:
                             setattr(e, 'my', True)
-                            e.possible.remove(p.dancer)
+                            e.possible = [c for c in e.possible if c.id != p.member.id]
                         elif not e.cost_per_participant:
                             e.possible = []
             except Dancer.DoesNotExist:
@@ -82,14 +81,14 @@ class DanceEventsView(FormView):
             pp = Dancer.objects.get(pk=p)
             dep,cr = DanceEventParticipation.objects.get_or_create(
                 event=event,
-                dancer=pp
+                member=pp
                 )
                 
         for c in cancels:
             pp = Dancer.objects.get(pk=c)
             DanceEventParticipation.objects.get(
                 event=event,
-                dancer=pp).delete()
+                member=pp).delete()
         return super().form_valid(form)
 
 class ParticipationView(FormView):
@@ -178,9 +177,9 @@ class LostLinkView(FormView):
 class MemberView(TemplateView):
     template_name = 'danceclub/member.html'
     
-    def get_context_data(self, member_id, member_name):
+    def get_context_data(self, member_id):
         ctx = super().get_context_data()
-        member = get_object_or_404(Member, token=member_id, user__last_name__iexact=member_name)
+        member = get_object_or_404(Member, token=member_id)
         ctx["season"] = Season.objects.current_season()
         ctx["member"] = member
         transactions = Transaction.objects.filter(owner=member)

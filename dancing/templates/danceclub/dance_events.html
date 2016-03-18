@@ -58,17 +58,17 @@
                                 <div class="row">
                                 {% for p in e.participations.all %}
                                  <span class="col-xs-6 col-sm-12 col-md-6 col-lg-12">
-        {% if p.dancer in couple or request.user.is_staff %}
+        {% if p.member in couple or request.user.is_staff %}
         {% if not p.created_at|hours_ago:2 or request.user.is_staff %}
         <form method="POST" style="display: inline-block">
             {% csrf_token %}
             <input type="hidden" name="event" value="{{ e.id }}"/>
-            <input type="hidden" name="cancel" value="{{ p.dancer.id }}"/>
+            <input type="hidden" name="cancel" value="{{ p.member.id }}"/>
             <button class="btn btn-xs btn-danger"><i class="fa fa-times"></i></button>
         </form>
         {% endif %}
         {% endif %}
-                                     {{ p.dancer }}
+                                     {{ p.member }}
                                 </span>
                                 {% endfor %}
                                 </div>
