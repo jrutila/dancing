@@ -14,6 +14,17 @@ $("#menu").tinyNav();
 
 $('ul.sf-menu').superfish();
 
+$("#events-carousel").owlCarousel({
+   autoPlay: 3200,      
+   items : 3,
+   navigation: false,
+   itemsDesktop : [1199,3],
+   itemsDesktopSmall : [1024,3],
+   itemsTablet: [1000,2],
+   itemsMobile : [480,1],
+   pagination: true
+});
+
 $("#players-carousel").owlCarousel({
        autoPlay: 3200,      
        items : 4,

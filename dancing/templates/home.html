@@ -15,15 +15,23 @@
         <div class="row">
             <div class="col-md-9">
                <ul class="nav nav-tabs" id="myTab">
-                   <li class="active">
+                   <li>
                        <a href="#players-staff" data-toggle="tab">HARRASTUKSET</a>
+                   </li>
+                   <li class="active">
+                       <a href="#feature-news" data-toggle="tab">VAPAAT YKSÄRIT</a>
                    </li>
                </ul> 
                <div class="tab-content">
-                   <div id="players-staff" class="tab-pane active">
+                   <div id="players-staff" class="tab-pane">
                        <h3>Harrastukset</h3>
                        <ul id="players-carousel" class="players">
                            {% static_placeholder "activities" %}
+                       </ul>
+                   </div>
+                   <div id="feature-news" class="tab-pane active">
+                       <ul id="events-carousel" class="events-carousel padding-top">
+                           {% placeholder "possible_events" %}
                        </ul>
                    </div>
                </div>

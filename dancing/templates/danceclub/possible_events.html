@@ -1,0 +1,28 @@
+{% load dancing_tags %}
+
+{% for e in events %}
+    <li>
+        <div class="header-post">
+            <div class="date">
+                <span>
+                    {{ e.start|date:"Y" }}
+                </span>
+                    {{ e.start|date:"D d.n." }}
+            </div>
+            <div style="height: 124px; background-color: {{ e.who|to_color }};"></div>
+            <div class="meta-tag">
+                <ul>
+                    <li>
+                        <i class="fa fa-user"></i>
+                        {{ e.who }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="info-post">
+            <h4>{{ e.start|date:"H:m" }} - {{ e.end|date:"H:m" }}</h4>
+            <p>Voit varata itsellesi ammattivalmentajan tämän yksityistunnin, vaikka et olisi seuran jäsen.</p>
+            <p><a href="#">Varaukseen <i class="fa fa-long-arrow-right"></i></a></p>
+        </div>
+    </li>
+{% endfor %}
