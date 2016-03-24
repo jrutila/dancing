@@ -1,5 +1,6 @@
 {% load dancing_tags %}
 
+{% if events %}
 {% for e in events %}
     <li>
         <div class="header-post">
@@ -7,7 +8,7 @@
                 <span>
                     {{ e.start|date:"Y" }}
                 </span>
-                    {{ e.start|date:"D d.n." }}
+                    {{ e.start|date:"D" }}<br/>{{ e.start|date:"j.n." }}
             </div>
             <div style="height: 124px; background-color: {{ e.who|to_color }};"></div>
             <div class="meta-tag">
@@ -20,9 +21,16 @@
             </div>
         </div>
         <div class="info-post">
-            <h4>{{ e.start|date:"H:m" }} - {{ e.end|date:"H:m" }}</h4>
+            <h4>{{ e.start|date:"H:i" }} - {{ e.end|date:"H:i" }}</h4>
+            {% if e.public %}
             <p>Voit varata itsellesi ammattivalmentajan tämän yksityistunnin, vaikka et olisi seuran jäsen.</p>
-            <p><a href="#">Varaukseen <i class="fa fa-long-arrow-right"></i></a></p>
+            {% else %}
+            <p>Tämä tunti ei näy ulkopuolisille. {% if e.public_since %} Se tulee näkyviin {{ e.public_since }} {% endif %}</p>
+            {% endif %}
+            <p><a href="{% url 'dance_participate' e.id %}">Varaukseen <i class="fa fa-long-arrow-right"></i></a></p>
         </div>
     </li>
 {% endfor %}
+{% else %}
+<h3>Ei vapaita yksäreitä tällä hetkellä!</h3>
+{% endif %}

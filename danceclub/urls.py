@@ -17,13 +17,14 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import ParticipationView, MemberView, CancelView, LostLinkView, MassTransactionView, DanceEventsView
+from .views import ParticipationView, MemberView, CancelView, LostLinkView, MassTransactionView, DanceEventsView, DanceEventParticipationView
 from django.shortcuts import redirect
 from django.contrib.admin.views.decorators import staff_member_required
 
 urlpatterns = [
     #url(r'$', redirect('participate')),
     url(r'$', ParticipationView.as_view(), name='participate'),
+    url(r'(?P<event_id>\d+)$', DanceEventParticipationView.as_view(), name='dance_participate'),
     url(r'info/(?P<member_id>[^/]+)/$', MemberView.as_view(), name='member_info'),
     url(r'cancel/$', CancelView.as_view(), name='cancel'),
     url(r'lostlink/$', LostLinkView.as_view(), name='lost-link'),

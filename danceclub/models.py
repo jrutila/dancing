@@ -65,12 +65,47 @@ class ReferenceNumber(models.Model):
     
     def __str__(self):
         return "%s: %s" % (self.number, str(self.object))
+        
+class MemberManager(models.Manager):
+    def get_or_create(self, email, first_name, last_name, defaults={'young': False}):
+        member = None
+        created = False
+        if email:
+            try:
+                member = self.get(user__email=email)
+                member.user.first_name = first_name
+                member.user.last_name = last_name
+                member.user.save()
+            except Member.DoesNotExist:
+                member = None
+        if not member:
+            try:
+                member = self.get(
+                        user__first_name=first_name,
+                        user__last_name=last_name,
+                        user__email='')
+                if email:
+                    member.user.email = email
+                    member.user.save()
+            except Member.DoesNotExist:
+                member = None
+        if not member:
+            # Member does not exist! Create one!
+            user = User.objects.create(
+                first_name=first_name,
+                last_name=last_name,
+                email=email)
+            member = self.create(user=user,**defaults)
+            created = True
+        return member,created
 
 class Member(models.Model):
     user = models.ForeignKey(User)
     reference_numbers = GenericRelation(ReferenceNumber, content_type_field='object_type')
     token = models.UUIDField(unique=True,blank=False,null=False,default=uuid.uuid4, editable=False)
     young = models.BooleanField(help_text="Olen alle 16-vuotias",blank=True)
+    
+    objects = MemberManager()
 
     def __str__(self):
         if self.user.first_name and self.user.last_name:
@@ -171,6 +206,7 @@ class DanceEvent(models.Model):
     extra = models.TextField(help_text="Lisätietoja", blank=True)
     cost = models.DecimalField(decimal_places=2, max_digits=6)
     cost_per_participant = models.BooleanField(help_text="Valitse tämä, jos maksu on per osallistuja")
+    public_since = models.DateTimeField(help_text="Mistä hetkestä eteenpäin vapaasti varattavissa", blank=True, null=True)
     
     def __str__(self):
         return "%s: %s - %s" % (self.who, self.name, timezone.get_current_timezone().normalize(self.start))

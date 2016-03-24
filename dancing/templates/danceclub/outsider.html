@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load cms_tags menu_tags %}
+{% load bootstrap3 %}
+
+{% block base_content %}
+<section class="section-title img-feature" >
+    <div class="overlay-bg"></div>
+    <div class="container">
+        <h1>{% page_attribute "page_title" %}</h1>
+    </div>
+</section>
+
+<section class="content-info">
+        <div class="crumbs">
+            <div class="container">
+                <ul>
+                    {% show_breadcrumb %}
+                </ul>
+            </div>
+        </div>
+        
+{% if messages %}
+    {% for message in messages %}
+    <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<section class="container padding-top-mini">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="panel-box">
+                <div class="titles">
+                    <h4>Ilmoittautumislomake</h4>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        Olet ilmoittautumassa seuraavalle yksityistunnille:
+                        {{ event }}
+                        
+                        Hinta: {{ event.cost }}
+                        
+                        {% if not request.user.is_authenticated and event.participations.count %}
+                            Tunti on jo varattu: {{ event.participations.first }}
+                        {% else %}
+
+<form method="POST" action="">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    {% buttons %}
+        <button type="submit" class="btn btn-primary">
+            {% bootstrap_icon "star" %} Ilmoittaudu
+        </button>
+    {% endbuttons %}
+</form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel-box">
+                <div class="titles">
+                    <h4>Hävititkö maksutiedot?</h4>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        {% if request.GET.failed %}
+                        <div class="alert alert-danger">
+                            {{ request.GET.failed }}
+                        </div>
+                        {% endif %}
+                        {% if request.GET.lostlink %}
+                        <div class="alert alert-success">
+                            {{ request.GET.lostlink }}
+                        </div>
+                        {% else %}
+                        <form class="form" method="POST" action="{% url 'lost-link' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="forgot_email" class="sr-only">Syötä sähköpostiosoitteesi</label>
+                                <input type="email" name="email" id="forgot_email" placeholder="Sähköpostiosoitteesi"/>
+                                <button class="btn btn-primary" type="submit">Lähetä linkki</button>
+                            </div>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</section>
+{% endblock %}

@@ -22,6 +22,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 import datetime
 from django.core.mail import send_mail
+from django.http import Http404
 
 from functools import wraps
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
@@ -30,19 +31,16 @@ def get_member_url(member):
     return reverse('member_info', kwargs={
         'member_id': member.token
         })
+        
+def send_payment_email(request, member):
+    send_mail(
+        'Maksutietosi Dancingille',
+        'Hei,\nkiitos osallistumisestasi.\nTarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing' % request.build_absolute_uri(get_member_url(member)),
+        'sihteeri@dancing.fi',
+        [member.user.email], fail_silently=False)
     
-class DanceEventsView(FormView):
+class DanceEventsView(TemplateView):
     template_name = 'danceclub/dance_events.html'
-    form_class = DanceEventParticipationForm
-    
-    def get_form(self, *args, **kwargs):
-        #form = super().get_form(*args, **kwargs)
-        #form.user = self.request.user
-        form = DanceEventParticipationForm(self.request.user, **self.get_form_kwargs())
-        return form
-    
-    def get_success_url(self):
-        return reverse('dance_events')
     
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data()
@@ -65,31 +63,57 @@ class DanceEventsView(FormView):
                         elif not e.cost_per_participant:
                             e.possible = []
             except Dancer.DoesNotExist:
-                pass
+                raise Http404()
         return ctx
         
-    def form_invalid(self, form):
-        raise Http500
+class DanceEventParticipationView(FormView):
+    template_name = 'danceclub/outsider.html'
+    
+    def dispatch(self, *args, **kwargs):
+        self.event_id = kwargs['event_id']
+        self.event = DanceEvent.objects.get(id=self.event_id)
+        if self.event.start <= timezone.now():
+            raise Http404()
+        if self.request.user.is_authenticated():
+            pass
+        elif 'lastpart' in self.request.session and self.request.session['lastpart'] == self.event.id:
+            pass
+        elif self.event.public_since == None or self.event.public_since > timezone.now():
+            raise Http404()
+        elif self.event.participations.count():
+            raise Http404()
+        return super().dispatch(*args, **kwargs)
+        
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+        ctx['event'] = self.event
+        return ctx
+        
+    def get_form(self, *args, **kwargs):
+        form = DanceEventParticipationForm(self.request.user, self.event, **self.get_form_kwargs())
+        return form
         
     def form_valid(self, form):
-        parts = form.cleaned_data['participant'] if 'participant' in form.cleaned_data else []
-        cancels = form.cleaned_data['cancel'] if 'cancel' in form.cleaned_data else []
-        eid = form.cleaned_data['event']
-        event = DanceEvent.objects.get(pk=eid)
-        
-        for p in parts:
-            pp = Dancer.objects.get(pk=p)
-            dep,cr = DanceEventParticipation.objects.get_or_create(
-                event=event,
-                member=pp
-                )
-                
-        for c in cancels:
-            pp = Dancer.objects.get(pk=c)
-            DanceEventParticipation.objects.get(
-                event=event,
-                member=pp).delete()
+        parts, created = form.update_parts()
+        self.created = created
+        if not self.request.user.is_authenticated():
+            self.member = parts[0].member
+            self.request.session['lastpart'] = self.event.id
+            try:
+                send_payment_email(self.request, self.member)
+                self.mail_sent = True
+                messages.add_message(self.request, messages.SUCCESS, 'Maksutiedot lähetetty osoitteeseen %s' % self.member.user.email)
+            except smtplib.SMTPException:
+                messages.add_message(self.request, messages.ERROR, 'Sähköpostin lähetys epäonnistui!')
         return super().form_valid(form)
+        
+    def get_success_url(self):
+        if self.created:
+            # Message not sent to email or this is a new user
+            return get_member_url(self.member)
+        if self.request.user.is_authenticated():
+            return reverse('dance_events')
+        return reverse('dance_participate', kwargs={'event_id': self.event.id})
 
 class ParticipationView(FormView):
     template_name = 'danceclub/participate.html'
@@ -120,11 +144,7 @@ class ParticipationView(FormView):
         self.mail_sent = False
         if self.member.user.email:
             try:
-                send_mail(
-                    'Maksutietosi Dancingille',
-                    'Hei,\nkiitos osallistumisestasi.\nTarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing' % self.request.build_absolute_uri(get_member_url(self.member)),
-                    'sihteeri@dancing.fi',
-                    [self.member.user.email], fail_silently=False)
+                send_payment_email(self.request, self.member)
                 self.mail_sent = True
                 messages.add_message(self.request, messages.SUCCESS, 'Maksutiedot lähetetty osoitteeseen %s' % self.member.user.email)
             except smtplib.SMTPException:

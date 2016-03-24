@@ -98,11 +98,15 @@ admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
 from django.db.models.signals import pre_save
-def get_unique_username(first_name, last_name):
-    return first_name.lower()+"."+last_name.lower()
+def get_unique_username(first_name, last_name, email):
+    if first_name and last_name:
+        return first_name.lower()+"."+last_name.lower()
+    elif email:
+        return email
+    
 def my_callback(sender, **kwargs):
     obj = kwargs['instance']
     if not obj.id and not obj.username:
-       username = get_unique_username(obj.first_name, obj.last_name) # method that combines first name and last name then query on User model, if record found, will append integer 1 and then query again, until found unique username
+       username = get_unique_username(obj.first_name, obj.last_name, obj.email) # method that combines first name and last name then query on User model, if record found, will append integer 1 and then query again, until found unique username
        obj.username = username
 pre_save.connect(my_callback, sender=User)

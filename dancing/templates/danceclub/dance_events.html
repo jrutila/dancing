@@ -28,7 +28,7 @@
                             <span>
                                 {{ date.grouper|date:"Y" }}
                             </span>
-                                {{ date.grouper|date:"d.n." }}
+                                {{ date.grouper|date:"D" }}<br/>{{ date.grouper|date:"j.n." }}
                         </div>
                         <div style="height: 124px; background-color: {{ date.list.0.who|to_color }};"></div>
                         <div class="meta-tag">
@@ -50,7 +50,7 @@
                             {% else %}
                                 <i class="fa fa-square-o"></i>
                             {% endif %}
-                            {{ e.name }}&nbsp;({{ e.cost }}&euro;)&nbsp;{{ e.start|date:"H:m" }}-{{ e.end|date:"H:m" }}
+                            {{ e.name }}&nbsp;({{ e.cost }}&euro;)&nbsp;{{ e.start|date:"H:i" }}-{{ e.end|date:"H:i" }}
                             </a>
                         </span>
                         <div class="acc-container">
@@ -60,7 +60,7 @@
                                  <span class="col-xs-6 col-sm-12 col-md-6 col-lg-12">
         {% if p.member in couple or request.user.is_staff %}
         {% if not p.created_at|hours_ago:2 or request.user.is_staff %}
-        <form method="POST" style="display: inline-block">
+        <form action="{% url 'dance_participate' e.id %}" method="POST" style="display: inline-block">
             {% csrf_token %}
             <input type="hidden" name="event" value="{{ e.id }}"/>
             <input type="hidden" name="cancel" value="{{ p.member.id }}"/>
@@ -75,7 +75,7 @@
                                 {% if dancer and e.possible %}
                                 <div class="row">
                                     
-<form method="POST">
+<form action="{% url 'dance_participate' e.id %}" method="POST">
     {% csrf_token %}
     <input type="hidden" name="event" value="{{ e.id }}"/>
     {% for d in e.possible %}
