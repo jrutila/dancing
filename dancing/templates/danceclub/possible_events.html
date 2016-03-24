@@ -31,6 +31,8 @@
         </div>
     </li>
 {% endfor %}
+{% elif request.user.is_authenticated %}
+<h3 style="color: white;">Tässä näytetään vain vapaat yksärit seuraavalta neljältä päivältä</h3>
 {% else %}
-<h3>Ei vapaita yksäreitä tällä hetkellä!</h3>
+<h3 style="color: white;">Ei vapaita yksäreitä tällä hetkellä!</h3>
 {% endif %}

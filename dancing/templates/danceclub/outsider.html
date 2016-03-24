@@ -34,13 +34,20 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        Olet ilmoittautumassa seuraavalle yksityistunnille:
-                        {{ event }}
+                        <h4>{{ event.name }}</h4>
+                        <ul class="list icons list-unstyled">
+                            <li><i class="fa fa-user"></i>{{ event.who }}</li>
+                            <li><i class="fa fa-clock"></i>{{ event.start|date:"D j.n. H:i" }}-{{ event.end|date:"H:i" }}</li>
+                            <li><i class="fa fa-euro"></i>{{ event.cost }}</li>
+                        </ul>
                         
-                        Hinta: {{ event.cost }}
-                        
-                        {% if not request.user.is_authenticated and event.participations.count %}
-                            Tunti on jo varattu: {{ event.participations.first }}
+                        {% if event.participations.count %}
+                            <h5>Tunti on jo varattu</h5>
+                            <ul>
+                            {% for p in event.participations.all %}
+                                <li>{{ p.member }}</li>
+                            {% endfor %}
+                            </ul>
                         {% else %}
 
 <form method="POST" action="">
