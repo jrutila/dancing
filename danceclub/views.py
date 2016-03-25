@@ -50,18 +50,23 @@ class DanceEventsView(TemplateView):
         ctx['events'] = events
         ctx['dancer'] = None
         ctx['couple'] = None
+        ctx['myp'] = []
         if self.request.user.is_authenticated():
             try:
                 ctx['dancer'] = dancer = Dancer.objects.get(user=self.request.user)
                 ctx['couple'] = couple = Couple.objects.filter(Q(man=dancer) | Q(woman=dancer)).filter(ended__isnull=True).first()
                 for e in events:
                     setattr(e, 'possible', [couple.man, couple.woman])
-                    for p in e.participations.all():
-                        if p.member.id in [c.id for c in ctx['couple']]:
-                            setattr(e, 'my', True)
-                            e.possible = [c for c in e.possible if c.id != p.member.id]
-                        elif not e.cost_per_participant:
-                            e.possible = []
+                    if e.deadline and e.deadline < timezone.now():
+                        e.possible = []
+                    else:
+                        for p in e.participations.all():
+                            if p.member.id in [c.id for c in couple]:
+                                setattr(e, 'my', True)
+                                ctx['myp'].append(p.id)
+                                e.possible = [c for c in e.possible if c.id != p.member.id]
+                            elif not e.cost_per_participant:
+                                e.possible = []
             except Dancer.DoesNotExist:
                 raise Http404()
         return ctx

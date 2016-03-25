@@ -11,7 +11,7 @@
 
     var fullWidth = $container.outerWidth(true);
     $trigger.css('width', fullWidth);
-    $container.css('width', fullWidth);
+    $container.css('width', "100%");
     
     $trigger.on('click', function(e) {
       if( $(this).next().is(':hidden') ) {

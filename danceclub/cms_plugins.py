@@ -29,6 +29,7 @@ class PossibleEventsPlugin(CMSPluginBase):
             public=ExpressionWrapper(public_filter, output_field=BooleanField())
             ).filter(
             end__gte=timezone.now(),
+            deadline__gte=timezone.now(),
             part_count=0
             ).filter(dancer_filter).order_by('start')
         return context

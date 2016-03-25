@@ -207,6 +207,7 @@ class DanceEvent(models.Model):
     cost = models.DecimalField(decimal_places=2, max_digits=6)
     cost_per_participant = models.BooleanField(help_text="Valitse tämä, jos maksu on per osallistuja")
     public_since = models.DateTimeField(help_text="Mistä hetkestä eteenpäin vapaasti varattavissa", blank=True, null=True)
+    deadline = models.DateTimeField(help_text="Ilmoittautumaan pystyy ennen tätä hetkeä", blank=True, null=True)
     
     def __str__(self):
         return "%s: %s - %s" % (self.who, self.name, timezone.get_current_timezone().normalize(self.start))

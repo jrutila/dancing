@@ -37,6 +37,10 @@
                                     <i class="fa fa-user"></i>
                                     {{ date.list.0.who }}
                                 </li>
+                                <li class="text-right">
+                                    ilm. viim.
+                                    {{ date.list.0.deadline|date:"j.n. H:i" }}
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -58,7 +62,7 @@
                                 <div class="row">
                                 {% for p in e.participations.all %}
                                  <span class="col-xs-6 col-sm-12 col-md-6 col-lg-12">
-        {% if p.member in couple or request.user.is_staff %}
+        {% if p.id in myp or request.user.is_staff %}
         {% if not p.created_at|hours_ago:2 or request.user.is_staff %}
         <form action="{% url 'dance_participate' e.id %}" method="POST" style="display: inline-block">
             {% csrf_token %}
@@ -81,7 +85,7 @@
     {% for d in e.possible %}
         <label class="checkbox-inline">
             <input type="checkbox" checked="checked" name="participant" value="{{ d.id }}" />
-        {{ d }}:
+        {{ d }}
         </label>
     {% endfor %}
     <button class="btn btn-primary">Ilmoita</button>
