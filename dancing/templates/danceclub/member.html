@@ -11,6 +11,13 @@
 </section>
 
 <section class="content-info">
+    
+{% if messages %}
+    {% for message in messages %}
+    <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
 <section class="container padding-top-mini">
     <div class="row">
         <div class="col-md-12">

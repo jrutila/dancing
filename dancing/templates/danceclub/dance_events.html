@@ -47,7 +47,7 @@
                     <div class="info-post">
                     <div class="accrodation">
                     {% for e in date.list %}
-                        <span class="acc-trigger{% if e.my %} active{% endif %}">
+                        <span class="acc-trigger{% if e.id in mye %} active{% endif %}">
                             <a href="#">
                             {% if e.participations.count %}
                                 <i class="fa fa-check-square-o"></i>

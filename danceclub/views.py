@@ -51,6 +51,7 @@ class DanceEventsView(TemplateView):
         ctx['dancer'] = None
         ctx['couple'] = None
         ctx['myp'] = []
+        ctx['mye'] = []
         if self.request.user.is_authenticated():
             try:
                 ctx['dancer'] = dancer = Dancer.objects.get(user=self.request.user)
@@ -62,7 +63,7 @@ class DanceEventsView(TemplateView):
                     else:
                         for p in e.participations.all():
                             if p.member.id in [c.id for c in couple]:
-                                setattr(e, 'my', True)
+                                ctx['mye'].append(e.id)
                                 ctx['myp'].append(p.id)
                                 e.possible = [c for c in e.possible if c.id != p.member.id]
                             elif not e.cost_per_participant:
@@ -76,7 +77,7 @@ class DanceEventParticipationView(FormView):
     
     def dispatch(self, *args, **kwargs):
         self.event_id = kwargs['event_id']
-        self.event = DanceEvent.objects.get(id=self.event_id)
+        self.event = get_object_or_404(DanceEvent, id=self.event_id)
         if self.event.start <= timezone.now():
             raise Http404()
         if self.request.user.is_authenticated():
@@ -96,6 +97,8 @@ class DanceEventParticipationView(FormView):
         
     def get_form(self, *args, **kwargs):
         form = DanceEventParticipationForm(self.request.user, self.event, **self.get_form_kwargs())
+        if form.fields['participant'].choices == [] and form.fields['cancel'].choices == []:
+            return None
         return form
         
     def form_valid(self, form):
