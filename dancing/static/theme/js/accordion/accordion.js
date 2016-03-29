@@ -15,8 +15,10 @@
     
     $trigger.on('click', function(e) {
       if( $(this).next().is(':hidden') ) {
-        $trigger.removeClass('active').next().slideUp(300);
+        //$trigger.removeClass('active').next().slideUp(300);
         $(this).toggleClass('active').next().slideDown(300);
+      } else {
+        $(this).toggleClass('active').next().slideUp(300);
       }
       e.preventDefault();
     });
