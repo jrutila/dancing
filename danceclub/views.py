@@ -60,14 +60,13 @@ class DanceEventsView(TemplateView):
                     setattr(e, 'possible', [couple.man, couple.woman])
                     if e.deadline and e.deadline < timezone.now():
                         e.possible = []
-                    else:
-                        for p in e.participations.all():
-                            if p.member.id in [c.id for c in couple]:
-                                ctx['mye'].append(e.id)
-                                ctx['myp'].append(p.id)
-                                e.possible = [c for c in e.possible if c.id != p.member.id]
-                            elif not e.cost_per_participant:
-                                e.possible = []
+                    for p in e.participations.all():
+                        if p.member.id in [c.id for c in couple]:
+                            ctx['mye'].append(e.id)
+                            ctx['myp'].append(p.id)
+                            e.possible = [c for c in e.possible if c.id != p.member.id]
+                        elif not e.cost_per_participant:
+                            e.possible = []
             except Dancer.DoesNotExist:
                 raise Http404()
         return ctx
@@ -97,7 +96,11 @@ class DanceEventParticipationView(FormView):
         
     def get_form(self, *args, **kwargs):
         form = DanceEventParticipationForm(self.request.user, self.event, **self.get_form_kwargs())
-        if form.fields['participant'].choices == [] and form.fields['cancel'].choices == []:
+        if 'participant' in form.fields and 'cancel' in form.fields:
+            # Logged in user
+            if form.fields['participant'].choices == [] and form.fields['cancel'].choices == []:
+                return None
+        elif self.event.participations.count():
             return None
         return form
         
