@@ -6,6 +6,9 @@ from .models import Member, Dancer, Couple, Activity, ActivityParticipation, Tra
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django import forms
 from reversion.admin import VersionAdmin
+from django.contrib.auth.hashers import make_password
+import random
+import string
 
 class RefNumberInlineForm(forms.ModelForm):
     def has_changed(self):
@@ -71,13 +74,14 @@ class UserCreateForm(UserCreationForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        cleaned_data["username"] = get_unique_username(self.cleaned_data['first_name'], self.cleaned_data['last_name'])
+        cleaned_data["username"] = get_unique_username(self.cleaned_data['first_name'], self.cleaned_data['last_name'], self.cleaned_data['email'])
         del self.errors['password1']
         del self.errors['password2']
         return cleaned_data
 
     def save(self, commit=True):
         user = super(UserCreationForm, self).save(commit=False)
+        user.password = make_password(''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(10)))
         if commit:
             user.save()
         return user
@@ -99,10 +103,10 @@ admin.site.register(User, UserAdmin)
 
 from django.db.models.signals import pre_save
 def get_unique_username(first_name, last_name, email):
-    if first_name and last_name:
-        return first_name.lower()+"."+last_name.lower()
-    elif email:
+    if email:
         return email
+    elif first_name and last_name:
+        return first_name.lower()+"."+last_name.lower()
     
 def my_callback(sender, **kwargs):
     obj = kwargs['instance']

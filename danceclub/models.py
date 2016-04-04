@@ -150,7 +150,7 @@ class Couple(models.Model):
     def __str__(self):
         if (self.level_standard == None and self.level_latin == None):
             level = ""
-        elif (self.level_standard >= self.level_latin):
+        elif (self.level_latin == None or self.level_standard >= self.level_latin):
             level = self.level_standard
         else:
             level = self.level_latin
