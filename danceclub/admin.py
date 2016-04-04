@@ -103,10 +103,11 @@ admin.site.register(User, UserAdmin)
 
 from django.db.models.signals import pre_save
 def get_unique_username(first_name, last_name, email):
-    if email:
+    if email and len(email) <= 30:
         return email
     elif first_name and last_name:
-        return first_name.lower()+"."+last_name.lower()
+        username = first_name.lower()+"."+last_name.lower()
+        return username[:30]
     
 def my_callback(sender, **kwargs):
     obj = kwargs['instance']
