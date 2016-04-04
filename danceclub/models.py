@@ -236,30 +236,31 @@ def create_event_transaction(instance, **kwargs):
             owner=member)
         tr.delete()
         
-    if not event.cost_per_participant:
-        parts = DanceEventParticipation.objects.filter(event=event)
-        cost = cost/parts.count() if parts.count() > 0 else None
-        for part in parts:
-            member = part.member
-            created_at = part.created_at
-            tr,cr = Transaction.objects.update_or_create(
-                source_type=ContentType.objects.get_for_model(event),
-                source_id=event.id,
-                owner=member,
-                defaults={
-                'amount': cost,
-                'created_at': created_at,
-                'title': "%s" % str(event)})
-    if 'created' in kwargs:
-        if event.cost_per_participant:
-            tr,cr = Transaction.objects.update_or_create(
-                source_type=ContentType.objects.get_for_model(event),
-                source_id=event.id,
-                owner=member,
-                defaults={
-                'amount': cost,
-                'created_at': created_at,
-                'title': "%s" % str(event)})
+    if cost < Decimal('0.00'):
+        if not event.cost_per_participant:
+            parts = DanceEventParticipation.objects.filter(event=event)
+            cost = cost/parts.count() if parts.count() > 0 else None
+            for part in parts:
+                member = part.member
+                created_at = part.created_at
+                tr,cr = Transaction.objects.update_or_create(
+                    source_type=ContentType.objects.get_for_model(event),
+                    source_id=event.id,
+                    owner=member,
+                    defaults={
+                    'amount': cost,
+                    'created_at': created_at,
+                    'title': "%s" % str(event)})
+        if 'created' in kwargs:
+            if event.cost_per_participant:
+                tr,cr = Transaction.objects.update_or_create(
+                    source_type=ContentType.objects.get_for_model(event),
+                    source_id=event.id,
+                    owner=member,
+                    defaults={
+                    'amount': cost,
+                    'created_at': created_at,
+                    'title': "%s" % str(event)})
 
 @receiver(post_save, sender=ActivityParticipation)
 @receiver(post_delete, sender=ActivityParticipation)
