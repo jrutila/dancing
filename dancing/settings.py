@@ -247,6 +247,8 @@ STATICFILES_DIRS = (
 
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
+DEFAULT_FROM_EMAIL = 'webmaster@dancing.fi'
+
 if ON_PAAS:
     EMAIL_HOST = 'smtp.sendgrid.net'
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
