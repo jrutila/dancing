@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET', '=5sw8a93)(&v1h5^3w7h9ud3!i1x2zrxe@p)zngx@l=382o=g&')
 
-IS_PRODUCTION = os.environ.get('DEPLOYMENT', 'development') == 'production'
+ON_PAAS = os.environ.get('DEPLOYMENT', 'development') == 'production'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
