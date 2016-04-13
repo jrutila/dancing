@@ -75,8 +75,8 @@ class DanceEventsCreationForm(forms.Form):
     
     def get_times(self, tim):
         date = self.cleaned_data['date']
-        start = tim.split("-")[0]
-        end = tim.split("-")[1]
+        start = tim.split("-")[0].strip()
+        end = tim.split("-")[1].strip()
         start = datetime.combine(date, datetime.fromtimestamp(time.mktime(time.strptime(start, "%H%M"))).time())
         end = datetime.combine(date, datetime.fromtimestamp(time.mktime(time.strptime(end, "%H%M"))).time())
         start = timezone.make_aware(start)
