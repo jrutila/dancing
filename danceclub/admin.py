@@ -9,6 +9,10 @@ from reversion.admin import VersionAdmin
 from django.contrib.auth.hashers import make_password
 import random
 import string
+from django.conf.urls import url, include
+from datetime import datetime
+import time
+from django.utils import timezone
 
 class RefNumberInlineForm(forms.ModelForm):
     def has_changed(self):
@@ -56,9 +60,101 @@ class DancerCreateForm(forms.ModelForm):
 class DancerAdmin(admin.ModelAdmin):
     form = DancerCreateForm
 
+from django.shortcuts import render
+
+class DanceEventsCreationForm(forms.Form):
+    date = forms.DateField()
+    who = forms.CharField()
+    deadline = forms.DateTimeField()
+    public_since = forms.DateTimeField(required=False)
+    private_cost = forms.DecimalField()
+    public_cost = forms.DecimalField()
+    
+    privates = forms.CharField(widget=forms.Textarea, help_text="Syötä erillisille riveille kellonajat näin: 1315-1400. Nimeksi tulee 'Yksäri'")
+    publics = forms.CharField(widget=forms.Textarea, help_text="Syötä erillisille riveille kellonajat ja nimi näin: 1400-1445 Ryhmä E-A Vakiot")
+    
+    def get_times(self, tim):
+        date = self.cleaned_data['date']
+        start = tim.split("-")[0]
+        end = tim.split("-")[1]
+        start = datetime.combine(date, datetime.fromtimestamp(time.mktime(time.strptime(start, "%H%M"))).time())
+        end = datetime.combine(date, datetime.fromtimestamp(time.mktime(time.strptime(end, "%H%M"))).time())
+        start = timezone.make_aware(start)
+        end = timezone.make_aware(end)
+        return start,end
+        
+    def clean_publics(self):
+        pu = self.cleaned_data['publics'].split("\n")
+        for p in pu:
+            if len(p.split(" ",1)) != 2:
+                self.add_error("publics", "Kirjoita myös tunnin nimi")
+        return self.cleaned_data['publics']
+    
+    def save(self, commit=True):
+        who = self.cleaned_data['who']
+        date = self.cleaned_data['date']
+        deadline = self.cleaned_data['deadline']
+        public_since = self.cleaned_data['public_since']
+        private_cost = self.cleaned_data['private_cost']
+        public_cost = self.cleaned_data['public_cost']
+        publics = self.cleaned_data['publics']
+        
+        for pr in self.cleaned_data['privates'].split('\n'):
+            start,end = self.get_times(pr)
+            DanceEvent.objects.update_or_create(
+                start=start,
+                end=end,
+                defaults={
+                    "who": who,
+                    "name": "Yksäri",
+                    "cost": private_cost,
+                    "cost_per_participant": True,
+                    "public_since": public_since,
+                    "deadline": deadline
+                }
+                )
+                
+        for pr in self.cleaned_data['publics'].split('\n'):
+            tim = pr.split(" ",1)[0]
+            name = pr.split(" ",1)[1]
+            start,end = self.get_times(tim)
+            DanceEvent.objects.update_or_create(
+                start=start,
+                end=end,
+                defaults={
+                    "who": who,
+                    "name": name,
+                    "cost": public_cost,
+                    "cost_per_participant": False,
+                    "public_since": public_since,
+                    "deadline": deadline
+                }
+                )
+    
+class DanceEventAdmin(admin.ModelAdmin):
+    model = DanceEvent
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            url(r'^mass_add/$', self.admin_site.admin_view(self.mass_add_view)),
+        ]
+        return my_urls + urls
+        
+    def mass_add_view(self, request):
+        if request.method == 'POST':
+            form = DanceEventsCreationForm(request.POST)
+            if form.is_valid():
+                form.save()
+                # TODO: Redirect
+        else:
+            form = DanceEventsCreationForm()
+            
+        return render(request, 'danceclub/admin_form.html', {'form': form})
+
 admin.site.register(Member, MemberAdmin)
 admin.site.register(Dancer, DancerAdmin)
-admin.site.register(DanceEvent)
+admin.site.register(DanceEvent, DanceEventAdmin)
 admin.site.register(DanceEventParticipation)
 admin.site.register(Couple)
 admin.site.register(Activity)
