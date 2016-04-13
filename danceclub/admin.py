@@ -126,7 +126,6 @@ class DanceEventsCreationForm(forms.Form):
                     "name": name,
                     "cost": public_cost,
                     "cost_per_participant": False,
-                    "public_since": public_since,
                     "deadline": deadline
                 }
                 )
