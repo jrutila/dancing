@@ -70,8 +70,8 @@ class DanceEventsCreationForm(forms.Form):
     private_cost = forms.DecimalField()
     public_cost = forms.DecimalField()
     
-    privates = forms.CharField(widget=forms.Textarea, help_text="Syötä erillisille riveille kellonajat näin: 1315-1400. Nimeksi tulee 'Yksäri'")
-    publics = forms.CharField(widget=forms.Textarea, help_text="Syötä erillisille riveille kellonajat ja nimi näin: 1400-1445 Ryhmä E-A Vakiot")
+    privates = forms.CharField(widget=forms.Textarea, help_text="Syötä erillisille riveille kellonajat näin: 1315-1400. Nimeksi tulee 'Yksäri'",required=False)
+    publics = forms.CharField(widget=forms.Textarea, help_text="Syötä erillisille riveille kellonajat ja nimi näin: 1400-1445 Ryhmä E-A Vakiot",required=False)
     
     def get_times(self, tim):
         date = self.cleaned_data['date']

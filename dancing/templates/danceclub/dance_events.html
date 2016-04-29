@@ -100,8 +100,11 @@
                 </li>
                 {% endfor %}
             </ul>
-            <div class="col-xs-12">
+            <div class="col-xs-6">
             <a href="{% url 'participate' %}?no_redirect">Halusitko ilmoittautua toimintaan?</a>
+            </div>
+            <div class="col-xs-6">
+            <a href="{% page_url 'contact' %}">Lähetä viestiä jos ei onnistu tai haluat ilmoittautua myöhässä</a>
             </div>
         </div>
     </section>
