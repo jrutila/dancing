@@ -185,6 +185,8 @@ CMS_PLACEHOLDER_CONF = {
     },
 }
 
+CMS_PERMISSION=True
+
 LANGUAGES = [
   ('fi-fi', 'Finnish'),
 ]
