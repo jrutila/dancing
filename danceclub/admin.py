@@ -108,7 +108,7 @@ class DanceEventsCreationForm(forms.Form):
                     "who": who,
                     "name": "Yksäri",
                     "cost": private_cost,
-                    "cost_per_participant": True,
+                    "cost_per_participant": False,
                     "public_since": public_since,
                     "deadline": deadline
                 }
@@ -125,7 +125,7 @@ class DanceEventsCreationForm(forms.Form):
                     "who": who,
                     "name": name,
                     "cost": public_cost,
-                    "cost_per_participant": False,
+                    "cost_per_participant": True,
                     "deadline": deadline
                 }
                 )
