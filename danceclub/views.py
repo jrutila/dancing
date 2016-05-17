@@ -68,7 +68,7 @@ class DanceEventsView(TemplateView):
                         elif not e.cost_per_participant:
                             e.possible = []
             except Dancer.DoesNotExist:
-                raise Http404()
+                pass
         return ctx
         
 class DanceEventParticipationView(FormView):
