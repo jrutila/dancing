@@ -65,7 +65,7 @@ from django.shortcuts import render
 class DanceEventsCreationForm(forms.Form):
     date = forms.DateField()
     who = forms.CharField()
-    deadline = forms.DateTimeField()
+    deadline = forms.DateTimeField(required=False)
     public_since = forms.DateTimeField(required=False)
     private_cost = forms.DecimalField()
     public_cost = forms.DecimalField()
