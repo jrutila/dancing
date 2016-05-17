@@ -23,6 +23,7 @@ from django.contrib.contenttypes.models import ContentType
 import datetime
 from django.core.mail import send_mail
 from django.http import Http404
+import re
 
 from functools import wraps
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
@@ -261,29 +262,31 @@ class MassTransactionView(FormView):
                 tr['created_at'] = datetime.datetime.strptime(row[0], '%d.%m.%Y')
             except ValueError:
                 continue
-            tr['amount'] = Decimal(row[2].replace(',','.'))
+            tr['amount'] = Decimal(row[4].replace(',','.'))
             if tr['amount'] <= 0:
                 continue
-            tr['title'] = row[4] + " " + row[5]
+            tr['title'] = row[2]
+            tr['ref'] = int(re.sub('[^0-9]', '', row[3]))
             if 'ref' not in tr or tr['ref'] == '':
                 messages.add_message(self.request, messages.ERROR, 'Empty reference number: ' + str(tr) )
                 continue
-            tr['ref'] = int(row[7])
             transactions.append(tr)
             #messages.add_message(self.request, messages.SUCCESS, row)
         succeeded = len(transactions)
         for tr in transactions:
             try:
-                tr = Transaction.objects.add_transaction(**tr)
+                tra = Transaction.objects.add_transaction(**tr)
+                setattr(tra, 'ref', tr['ref'])
             except ReferenceNumber.DoesNotExist:
-                messages.add_message(self.request, messages.ERROR, 'No such reference number %s' % tr['source'])
+                messages.add_message(self.request, messages.ERROR, 'No such reference number %s' % tr)
                 succeeded = succeeded - 1
                 continue
             except AlreadyExists:
+                messages.add_message(self.request, messages.INFO, "Already exists: %s" % tr)
                 succeeded = succeeded - 1
                 continue
 
-            messages.add_message(self.request, messages.SUCCESS, tr)
+            messages.add_message(self.request, messages.SUCCESS, tra)
         messages.add_message(self.request, messages.SUCCESS, '%d transactions uploaded!' % succeeded)
 
         return super().form_valid(form)
