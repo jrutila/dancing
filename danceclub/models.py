@@ -219,6 +219,11 @@ class DanceEventParticipation(models.Model):
     
     def __str__(self):
         return "%s - %s" % (str(self.member), str(self.event))
+    
+    class Meta:
+        permissions = (
+            ("view_danceeventparticipation", "Can see all dance event participations"),
+        )
         
 @receiver(post_save, sender=DanceEventParticipation)
 @receiver(post_delete, sender=DanceEventParticipation)

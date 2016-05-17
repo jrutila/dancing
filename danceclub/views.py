@@ -68,7 +68,11 @@ class DanceEventsView(TemplateView):
                         elif not e.cost_per_participant:
                             e.possible = []
             except Dancer.DoesNotExist:
-                pass
+                # If not dancer but can see participations
+                if self.request.user.has_perm("danceclub.view_danceeventparticipation"):
+                    for e in events:
+                        if e.participations.count():
+                            ctx['mye'].append(e.id)
         return ctx
         
 class DanceEventParticipationView(FormView):
@@ -133,8 +137,9 @@ class ParticipationView(FormView):
     def dispatch(self, *args, **kwargs):
         if self.request.user.is_authenticated():
             dancer = Dancer.objects.filter(user=self.request.user)
-            if dancer and 'no_redirect' not in self.request.GET:
-                return HttpResponseRedirect(reverse('dance_events'))
+            if dancer or self.request.user.has_perm("danceclub.view_danceeventparticipation"):
+                if 'no_redirect' not in self.request.GET:
+                    return HttpResponseRedirect(reverse('dance_events'))
         return super().dispatch(*args, **kwargs)
         
     def get_initial(self):
