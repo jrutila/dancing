@@ -23,6 +23,7 @@ from .forms import EmailAuthenticationForm
 urlpatterns = [
     url(r'^accounts/profile/', ProfileRedirectView.as_view()),
     url(r'^admin/', admin.site.urls),
+    url(r'^admin/', include('loginas.urls')),
     url(r'^filer/', include('filer.urls')),
     url('^', include('django.contrib.auth.urls')),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', { 'authentication_form': EmailAuthenticationForm }, name='login'),

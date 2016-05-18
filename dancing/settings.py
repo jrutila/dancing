@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     'common',
     'bootstrap3',
 
+    'loginas',
+
     #Filer
     'filer',
     'easy_thumbnails',
