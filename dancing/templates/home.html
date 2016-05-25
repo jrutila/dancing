@@ -15,28 +15,30 @@
         <div class="row">
             <div class="col-md-9">
                <ul class="nav nav-tabs" id="myTab">
-                   <li>
+                   <li class="active">
                        <a href="#players-staff" data-toggle="tab">HARRASTUKSET</a>
                    </li>
+                   {% if request.user.is_authenticated %}
                    <li>
                        <a href="#feature-news" data-toggle="tab">VAPAAT YKSÄRIT</a>
                    </li>
+                   {% endif %}
                </ul> 
                <div class="tab-content">
-                   <div id="players-staff" class="tab-pane">
+                   <div id="players-staff" class="tab-pane active">
                        <h3>Harrastukset</h3>
                        <ul id="players-carousel" class="players">
                            {% static_placeholder "activities" %}
                        </ul>
                    </div>
+                   {% if request.user.is_authenticated %}
                    <div id="feature-news" class="tab-pane">
                        <ul id="events-carousel" class="events-carousel padding-top">
                            {% placeholder "possible_events" %}
                        </ul>
-                       {% if request.user.is_authenticated %}
                        <a href="{% url 'dance_events' %}">Lisää tunteja "Ilmoittaudu"-linkin takana</a>
-                       {% endif %}
                    </div>
+                   {% endif %}
                </div>
             </div>
         </div>
