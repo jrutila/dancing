@@ -7,12 +7,14 @@
 {% for news in latest %}
 <div class="post-item">
     <div class="row">
+        {% if news.images.count %}
         <div class="col-md-4">
             <div class="img-hover">
                 <img src="{{ news.images.first.image.url }}" alt="" class="img-responsive"/>
                 <div class="overlay"><a href="{{ news.get_absolute_url }}">+</a></div>
             </div>
         </div>
+        {% endif %}
         <div class="col-md-8">
             <h4><a href="{{ news.get_absolute_url }}">{{ news.title }}</a></h4>
             <p class="data-info">{{ news.pub_date }}</p>

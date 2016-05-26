@@ -8,12 +8,14 @@
     {% for object in latest %}
     <div class="post-item">
         <div class="row">
+            {% if object.images.count %}
             <div class="col-md-4">
                 <div class="img-hover">
                     <img src="{{ object.images.first.image.url }}" alt="" class="img-responsive"/>
                     <div class="overlay"><a href="{{ object.get_absolute_url }}">+</a></div>
                 </div>
             </div>
+            {% endif %}
             <div class="col-md-8">
                 <h4><a href="{{ object.get_absolute_url }}">{{ object.title }}</a></h4>
                 <p class="data-info">{{ object.pub_date }}</p>
