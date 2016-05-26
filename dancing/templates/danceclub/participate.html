@@ -37,11 +37,15 @@
 <form method="POST" action="">
     {% csrf_token %}
     {% bootstrap_form form %}
+    {% if form.activities %}
     {% buttons %}
         <button type="submit" class="btn btn-primary">
             {% bootstrap_icon "star" %} Ilmoittaudu
         </button>
     {% endbuttons %}
+    {% else %}
+    Ei mahdollisia ilmoittautumisia kaudelle {{ season }}
+    {% endif %}
 </form>
                     </div>
                 </div>

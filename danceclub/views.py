@@ -143,6 +143,11 @@ class ParticipationView(FormView):
                     return HttpResponseRedirect(reverse('dance_events'))
         return super().dispatch(*args, **kwargs)
         
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['season'] = Season.objects.current_or_next_season()
+        return context
+        
     def get_initial(self):
         initial = super().get_initial()
         if self.request.user.is_authenticated():
