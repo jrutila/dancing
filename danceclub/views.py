@@ -271,7 +271,9 @@ class MassTransactionView(FormView):
             if tr['amount'] <= 0:
                 continue
             tr['title'] = row[2]
-            tr['ref'] = int(re.sub('[^0-9]', '', row[3]))
+            reff = re.sub('[^0-9]', '', row[3])
+            if reff:
+                tr['ref'] = int(reff)
             if 'ref' not in tr or tr['ref'] == '':
                 messages.add_message(self.request, messages.ERROR, 'Empty reference number: ' + str(tr) )
                 continue
