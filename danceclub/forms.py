@@ -98,7 +98,7 @@ class DanceEventParticipationForm(forms.Form):
 class ParticipationForm(forms.Form):
     first_name = forms.CharField(label="Etunimi")
     last_name = forms.CharField(label="Sukunimi")
-    email = forms.EmailField(label="Sähköpostiosoite", required=False, help_text="Saat sähköpostiisi maksamiseen liittyvät ohjeet. Jos sinulla ei ole sähköpostia, pyydä maksuohje salilta.")
+    email = forms.EmailField(label="Sähköpostiosoite", required=False, help_text="Saat sähköpostiisi maksamiseen liittyvät ohjeet. Jos sinulla ei ole sähköpostia, ilmoittaudu ilman sähköpostia.")
     young = forms.BooleanField(label="Olen alle 16-vuotias",required=False)
     
     activities = forms.ModelMultipleChoiceField(
