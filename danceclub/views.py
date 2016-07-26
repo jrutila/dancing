@@ -226,7 +226,16 @@ class MemberView(TemplateView):
         ctx["member"] = member
         transactions = Transaction.objects.filter(owner=member)
         saldo = transactions.aggregate(Sum('amount'))['amount__sum']
-        ctx["transactions"] = list(transactions.order_by('created_at'))
+        # Limit transactions to only show the latest
+        ctx["transactions"] = []
+        sld = 0
+        for tr in list(transactions.order_by('created_at')):
+            sld = sld + tr.amount
+            if sld >= Decimal('0.00'):
+                ctx["transactions"] = []
+            if sld != Decimal('0.00'):
+                ctx["transactions"].append(tr)
+
         ctx['acts'] = ActivityParticipation.objects.filter_canceable(member=member)
         for a in ctx['acts']:
             tr = [x for x in ctx['transactions'] if x.source == a.activity]
