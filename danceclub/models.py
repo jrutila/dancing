@@ -162,10 +162,13 @@ class Couple(models.Model):
 
 class ActivityManager(models.Manager):
     def current_or_next(self):
-        season = Season.objects.current_or_next_season()
-        if not season:
+        curr_season = Season.objects.current_season()
+        next_season = Season.objects.next_season()
+        if not curr_season and not next_season:
             return self.filter(start__gte=timezone.now())
-        return self.filter(start__gte=season.start, end__lte=season.end)
+        return self.filter(
+            start__gte=curr_season.start if curr_season else next_season.start,
+            end__lte=next_season.end if next_season else curr_season.end).order_by('start')
 
 class Activity(models.Model):
     type = models.CharField(max_length=10,help_text="Tekninen nimi, joka kertoo minkä otsikon alle tapahtumat tulevat")
@@ -363,7 +366,10 @@ class Transaction(models.Model):
     
 class SeasonManager(models.Manager):
     def current_season(self):
-        return self.get(start__lte=timezone.now(), end__gte=timezone.now())
+        return self.filter(start__lte=timezone.now(), end__gte=timezone.now()).first()
+        
+    def next_season(self):
+        return self.filter(start__gte=timezone.now(), end__gte=timezone.now()).order_by("start").first()
 
     def current_or_next_season(self):
         return self.filter(end__gte=timezone.now()).order_by("start").first()
