@@ -26,8 +26,7 @@ normal_costs = {
     }
     
 youth_costs = {
-    'dancing': [Decimal("80.00"), Decimal("25.00"), Decimal("20.00")],
-    '*': [Decimal("25.00"), Decimal("25.00"), Decimal("20.00")],
+    '*': [Decimal("5.00"), Decimal("10.00"), Decimal("5.00")],
     }
     
     
