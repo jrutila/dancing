@@ -22,9 +22,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get('DJANGO_SECRET', '=5sw8a93)(&v1h5^3w7h9ud3!i1x2zrxe@p)zngx@l=382o=g&')
 
 ON_PAAS = os.environ.get('DEPLOYMENT', 'development') == 'production'
+FORCE_DEBUG = os.environ.get('FORCE_DEBUG', False)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = FORCE_DEBUG or not ON_PAAS
 
 ALLOWED_HOSTS = []
 
@@ -90,7 +91,7 @@ THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.filters',
     'easy_thumbnails.processors.background',
 )
-FILER_DEBUG=True
+FILER_DEBUG=DEBUG
 
 MIDDLEWARE_CLASSES = [
     'reversion.middleware.RevisionMiddleware',
