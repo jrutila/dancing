@@ -27,6 +27,7 @@ import re
 
 from functools import wraps
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
+from .models import Activity
 
 def get_member_url(member):
     return reverse('member_info', kwargs={
@@ -146,6 +147,7 @@ class ParticipationView(FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['season'] = Season.objects.current_or_next_season()
+        context['disabled'] = Activity.objects.current_or_next(True).filter(active=False)
         return context
         
     def get_initial(self):

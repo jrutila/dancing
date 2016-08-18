@@ -160,14 +160,17 @@ class Couple(models.Model):
         yield self.woman
 
 class ActivityManager(models.Manager):
-    def current_or_next(self):
+    def current_or_next(self, also_disabled=False):
         curr_season = Season.objects.current_season()
         next_season = Season.objects.next_season()
         if not curr_season and not next_season:
             return self.filter(start__gte=timezone.now())
-        return self.filter(
+        f = self.filter(
             start__gte=curr_season.start if curr_season else next_season.start,
-            end__lte=next_season.end if next_season else curr_season.end).order_by('start')
+            end__lte=next_season.end if next_season else curr_season.end)
+        if (not also_disabled):
+            f = f.filter(active=True)
+        return f.order_by('start')
 
 class Activity(models.Model):
     type = models.CharField(max_length=10,help_text="Tekninen nimi, joka kertoo minkä otsikon alle tapahtumat tulevat")
@@ -176,6 +179,8 @@ class Activity(models.Model):
     end = models.DateField()
     when = models.CharField(max_length=50, help_text="Milloin tapahtuu. Esim (To klo 15:00 - 16:00)")
     who = models.CharField(max_length=200, help_text="Kuka vetää?")
+    active = models.BooleanField(default=True, help_text="Ota täppä pois jos haluat pois päältä")
+    message = models.TextField(help_text="Teksti, joka näytetään ilmoittautumisen yhteydessä", null=True, blank=True)
 
     objects = ActivityManager()
     

@@ -37,6 +37,9 @@
 <form method="POST" action="">
     {% csrf_token %}
     {% bootstrap_form form %}
+    {% for d in disabled %}
+    <span class="disabled">{{ d }}</span> <strong>{{ d.message }}</strong>
+    {% endfor %}
     {% if form.activities %}
     {% buttons %}
         <button type="submit" class="btn btn-primary">
