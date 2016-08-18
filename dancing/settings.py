@@ -135,6 +135,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'dancing.wsgi.application'
 
+GOOGLE_ANALYTICS_CODE = 'UA-75941916-1'
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
