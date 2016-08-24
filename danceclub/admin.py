@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from .models import Member, Dancer, Couple, Activity, ActivityParticipation, Transaction, Season, ReferenceNumber, DanceEvent, DanceEventParticipation
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django import forms
+from django.db.models import Sum
 from reversion.admin import VersionAdmin
 from django.contrib.auth.hashers import make_password
 import random
@@ -151,13 +152,40 @@ class DanceEventAdmin(admin.ModelAdmin):
             
         return render(request, 'danceclub/admin_form.html', {'form': form})
 
+class CurrentActivities(admin.SimpleListFilter):
+    title = "Nykyiset"
+    parameter_name = "active"
+
+    def lookups(self, request, model_admin):
+        return (
+            ('now', "Nykyiset"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'now':
+            return queryset.filter(activity__end__gte=timezone.now())
+        return queryset
+        
+class ActivitiesList(admin.RelatedFieldListFilter):
+    def __init__(self, field, request, *args, **kwargs):
+        super(ActivitiesList, self).__init__(field, request, *args, **kwargs)
+        acts = Activity.objects.current_or_next(also_disabled=True)
+        self.lookup_choices = [ (x.id, x) for x in acts ]
+
+def member_saldo(obj):
+    return Transaction.objects.filter(owner=obj.member).aggregate(Sum('amount'))['amount__sum']
+
+class ActivityParticipationAdmin(VersionAdmin):
+    list_filter = (CurrentActivities, ('activity', ActivitiesList),)
+    list_display = ('activity', 'member', member_saldo)
+
 admin.site.register(Member, MemberAdmin)
 admin.site.register(Dancer, DancerAdmin)
 admin.site.register(DanceEvent, DanceEventAdmin)
 admin.site.register(DanceEventParticipation)
 admin.site.register(Couple)
 admin.site.register(Activity)
-admin.site.register(ActivityParticipation, VersionAdmin)
+admin.site.register(ActivityParticipation, ActivityParticipationAdmin)
 admin.site.register(Transaction)
 admin.site.register(Season)
 admin.site.register(ReferenceNumber)
