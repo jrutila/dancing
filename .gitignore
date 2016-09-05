@@ -62,3 +62,6 @@ target/
 venv
 
 .idea
+
+media
+*.sqlite
