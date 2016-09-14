@@ -1,4 +1,5 @@
 from django.db import models
+from django import forms
 from django.contrib.auth.models import User
 from datetime import date
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -16,6 +17,7 @@ import uuid
 from collections import defaultdict
 
 LEVELS = (('F', 'F'), ('E', 'E'), ('D', 'D'), ('C','C'), ('B','B'), ('A', 'A'))
+COMP_LEVELS = (('CUP', 'C-A Cup'), ('BA', 'B-A'))
 AGES = (('L1', 'Lapsi I'), ('L2', 'Lapsi II'), ('J1', 'Juniori I'), ('J2','Juniori II'), ('N','Nuoriso'), ('Y', 'Yleinen'), ('S1', 'Seniori I'),
         ('S2', 'Seniori II'), ('S3', 'Seniori III'), ('S4', 'Seniori IV'))
         
@@ -392,3 +394,97 @@ class Season(models.Model):
     def __str__(self):
         return self.name
         
+def parse_list(value):
+    if type(value) is list:
+        return " ".join(value)
+    vals = value.split(" ")
+    return vals
+    
+class MultiSelectFormField(forms.MultipleChoiceField):
+    widget = forms.CheckboxSelectMultiple
+    
+    def __init__(self, *args, **kwargs):
+        self.max_choices = kwargs.pop('max_choices', 0)
+        super(MultiSelectFormField, self).__init__(*args, **kwargs)
+
+    def clean(self, value):
+        if not value and self.required:
+            raise forms.ValidationError(self.error_messages['required'])
+        if value and self.max_choices and len(value) > self.max_choices:
+            raise forms.ValidationError('You must select a maximum of %s choice%s.'
+                    % (apnumber(self.max_choices), pluralize(self.max_choices)))
+        return value
+        
+from django.contrib.admin.widgets import FilteredSelectMultiple
+class AgeLevelField(models.Field):
+    #__metaclass__ = models.SubfieldBase
+    
+    def __init__(self, *args, **kwargs):
+        c=[]
+        for ak,ad in AGES:
+            for lk, ld in LEVELS+COMP_LEVELS:
+                for sk,sd in [('ltn', 'Latin'), ('std', 'Vakio'), ('all', 'Kaikki')]:
+                    c.append(("%s-%s-%s" % (sk,ak,lk), "%s %s %s" % (ad, ld, sd)))
+        kwargs["choices"] = c
+        super(AgeLevelField, self).__init__(*args, **kwargs)
+
+    #def db_type(self, connection):
+        #return "CharField"
+        
+    def get_db_prep_save(self, value, connection):
+        return " ".join(value)
+        
+    def validate(self, value, model_instance):
+        return
+        
+    def from_db_value(self, value, expression, connection, context):
+        if value is None:
+            return value
+        return parse_list(value)
+    """
+            
+        
+    def to_python(self, value):
+        print("topython")
+        if value is None:
+            return value
+        return [x for x in self.choices if x[0] in value]
+        #return parse_list(value)
+        
+    def get_prep_value(self, value):
+        print("prep value")
+        return ' '.join(value)
+        
+    """
+    def formfield(self, **kwargs):
+        # don't call super, as that overrides default widget if it has choices
+        defaults = {'required': not self.blank,
+                    'label': self.verbose_name, 
+                    'help_text': self.help_text,
+                    'choices':self.choices
+        }
+        if self.has_default():
+            defaults['initial'] = self.get_default()
+        defaults["widget"] = FilteredSelectMultiple("Age levels", False, attrs={'rows': '10'})
+        defaults.update(kwargs)
+        return forms.MultipleChoiceField(**defaults)
+        
+class Competition(models.Model):
+    class Meta:
+        abstract = True
+    date = models.DateField()
+    name = models.CharField(max_length=500)
+    
+class OtherCompetition(Competition):
+    # If arranger is null, it is our own competition
+    city = models.CharField(max_length=30)
+    arranger = models.CharField(max_length=500, null=True, blank=True, help_text="Jätä tyhjäksi, jos kyseessä omat kisat")
+    link = models.URLField(null=True,blank=True)
+    
+class OwnCompetition(Competition):
+    start = models.TimeField(null=True, blank=True, help_text="Etusivua varten, kun asetettu, laskuri tulee etusivulle")
+    cost = models.DecimalField(decimal_places=2, max_digits=6, help_text="Hinta per pari")
+    cost_after_deadline = models.DecimalField(decimal_places=2, max_digits=6, help_text="Hinta deadlinen jälkeen")
+    cost_deadline = models.DateTimeField()
+    
+    agelevels = AgeLevelField()

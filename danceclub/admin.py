@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Member, Dancer, Couple, Activity, ActivityParticipation, Transaction, Season, ReferenceNumber, DanceEvent, DanceEventParticipation
+from .models import Member, Dancer, Couple, Activity, ActivityParticipation, Transaction, Season, ReferenceNumber, DanceEvent, DanceEventParticipation, OwnCompetition
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django import forms
 from django.db.models import Sum
@@ -189,6 +189,7 @@ admin.site.register(ActivityParticipation, ActivityParticipationAdmin)
 admin.site.register(Transaction)
 admin.site.register(Season)
 admin.site.register(ReferenceNumber)
+admin.site.register(OwnCompetition)
 
 class UserCreateForm(UserCreationForm):
     class Meta:
