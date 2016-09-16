@@ -1,0 +1,39 @@
+{% load sekizai_tags %}
+{% addtoblock "js" %}
+<script type="text/javascript">
+$('#event-one').countdown('{{ own.date|date:"Y-m-d" }} {{ own.start|time:"H:i" }}', function(event) {
+  var $this = $(this).html(event.strftime(''
+  + '<span>%D <br> <small>days</small></span>  '
+  + '<span>%H <br> <small>hr</small> </span>  '
+  + '<span>%M <br> <small>min</small> </span>  '
+  + '<span>%S <br> <small>sec</small></span> '));
+});
+</script>
+{% endaddtoblock %}
+<div class="title-color text-center">
+    <h4>{{ own.name }}</h4>
+</div>
+<div class="content-counter content-counter-home">
+    <p class="text-center">
+        <i class="fa fa-clock-o"></i>
+        Kilpailu starttaa...
+    </p>
+    <div id="event-one" class="counter">
+        Kilpailut ohi!
+    </div>
+    <ul class="post-options">
+        <li>
+            <i class="fa fa-calendar"></i>
+            {{ own.date }}
+        </li>
+        <li>
+            <i class="fa fa-clock-o"></i>
+            {{ own.start }}
+        </li>
+    </ul>
+    <p>Lorem ipsum solor damet...</p>
+    <a class="btn btn-primary" href="#">
+        Kilpailusivulle...
+        <i class="fa fa-trophy"></i>
+    </a>
+</div>

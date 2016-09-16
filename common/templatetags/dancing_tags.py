@@ -29,7 +29,7 @@ class ShowGoogleAnalyticsJS(template.Node):
 		if not code:
 			return "<!-- Goggle Analytics not included because you haven't set the settings.GOOGLE_ANALYTICS_CODE variable! -->"
 
-		#if 'user' in context and context['user'] and context['user'].is_staff:
+		#if 'user' in context and context['user'] and context['user'].is_staff:h
 			#return "<!-- Goggle Analytics not included because you are a staff user! -->"
 
 		if settings.DEBUG:
@@ -50,3 +50,17 @@ class ShowGoogleAnalyticsJS(template.Node):
 @register.tag
 def googleanalyticsjs(parser, token):
 	return ShowGoogleAnalyticsJS()
+	
+from cms.templatetags.cms_tags import RenderPlaceholder
+from ..models import CompetitionPage
+
+class CompetitionPlaceholder(RenderPlaceholder):
+	name = 'competition_placeholder'
+	
+	def _get_value(self, context, editable=True, **kwargs):
+		ph = kwargs['placeholder']
+		comp = CompetitionPage.objects.get_or_create(competition=context['competition'])[0]
+		kwargs['placeholder'] = getattr(comp, ph)
+		return super()._get_value(context, editable, **kwargs)
+
+register.tag(CompetitionPlaceholder)

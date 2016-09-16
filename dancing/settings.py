@@ -177,6 +177,7 @@ CMS_TEMPLATES = (
     ('home.html', 'Home'),
     ('template_contact.html', 'Contact page'),
     ('template_activities.html', 'Activities page'),
+    ('template_competition.html', 'Competition page'),
 )
 
 CMS_PLACEHOLDER_CONF = {

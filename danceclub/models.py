@@ -423,13 +423,16 @@ class AgeLevelField(models.Field):
         c=[]
         for ak,ad in AGES:
             for lk, ld in LEVELS+COMP_LEVELS:
-                for sk,sd in [('ltn', 'Latin'), ('std', 'Vakio'), ('all', 'Kaikki')]:
-                    c.append(("%s-%s-%s" % (sk,ak,lk), "%s %s %s" % (ad, ld, sd)))
+                if lk not in ['F', 'E', 'D']:
+                    for sk,sd in [('ltn', 'Latin'), ('std', 'Vakio'), ('all', '10-tanssi')]:
+                        c.append(("%s-%s-%s" % (sk,ak,lk), "%s %s %s" % (ad, ld, sd)))
+                else:
+                    c.append(("all-%s-%s" % (ak,lk), "%s %s" % (ad, ld)))
         kwargs["choices"] = c
         super(AgeLevelField, self).__init__(*args, **kwargs)
 
-    #def db_type(self, connection):
-        #return "CharField"
+    def db_type(self, connection):
+        return models.TextField().db_type(connection)
         
     def get_db_prep_save(self, value, connection):
         return " ".join(value)
@@ -482,9 +485,19 @@ class OtherCompetition(Competition):
     link = models.URLField(null=True,blank=True)
     
 class OwnCompetition(Competition):
+    slug = models.SlugField()
     start = models.TimeField(null=True, blank=True, help_text="Etusivua varten, kun asetettu, laskuri tulee etusivulle")
+    deadline = models.DateTimeField(help_text="Mihin asti saa ilmoittautua netin kautta")
+    
+    official_info = models.URLField(help_text="Linkki kilpailukutsuun")
+    official_timetable = models.URLField(help_text="Linkki aikatauluun", null=True, blank=True)
+    official_results = models.URLField(help_text="Linkki tuloksiin", null=True, blank=True)
+    
     cost = models.DecimalField(decimal_places=2, max_digits=6, help_text="Hinta per pari")
     cost_after_deadline = models.DecimalField(decimal_places=2, max_digits=6, help_text="Hinta deadlinen jälkeen")
     cost_deadline = models.DateTimeField()
     
     agelevels = AgeLevelField()
+    
+    place_name = models.CharField(max_length=50, help_text="Paikan nimi")
+    address = models.CharField(max_length=50, help_text="Osoite")

@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% load cms_tags menu_tags extra_cms_tags sekizai_tags staticfiles %}
+{% load danceclub_tags dancing_tags %}
+
+{% block base_content %}
+    <section class="section-title img-feature" >
+        <div class="overlay-bg"></div>
+        <div class="container">
+            <h1>{{ competition.name }}</h1>
+        </div>
+    </section>
+
+    <section class="content-info">
+        <div class="crumbs">
+            <div class="container">
+                <ul>
+                    {% show_breadcrumb %}
+                </ul>
+            </div>
+        </div>
+        <section class="container padding-top-mini">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="panel-box">
+                        <div class="titles">
+                            <h4>{{ competition.date }}</h4>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {% competition_placeholder "description" %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-box">
+                        <div class="titles">
+                            <h4>{{ competition.place_name }}</h4>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p><strong>Osoite:</strong> {{ competition.address }}</p>
+                                <p><div id="map"></div></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <aside class="col-md-4">
+                    <div class="panel-box">
+                        <div class="titles">
+                            <h4>Liput ja Hinnat</h4>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {% competition_placeholder "tickets" %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-box">
+                        <div class="titles">
+                            <h4>Luokat</h4>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="list">
+                                    {% for al in competition.agelevels %}
+                                    <li>
+                                        <i class="fa fa-check"></i>
+                                        {{ al|agelevel }}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-box">
+                        <div class="titles">
+                            <h4>Ajantasaiset linkit</h4>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="list">
+                                    <li> <a href="{{ competition.official_info }}">
+                                            <i class="fa fa-external-link"></i>
+                                            Kilpailukutsu
+                                    </a> </li>
+                                    <li> 
+                                    {% if competition.official_timetable %}
+                                        <a href="{{ competition.official_timetable }}">
+                                    {% else %}
+                                        <s>
+                                    {% endif %}
+                                            <i class="fa fa-external-link"></i>
+                                            Aikataulu
+                                    {% if competition.official_timetable %}
+                                        </a> 
+                                    {% else %}
+                                        </s>
+                                    {% endif %}
+                                    </li>
+                                    <li> 
+                                    {% if competition.official_results %}
+                                        <a href="{{ competition.official_results }}">
+                                    {% else %}
+                                        <s>
+                                    {% endif %}
+                                            <i class="fa fa-external-link"></i>
+                                            Tulokset
+                                    {% if competition.official_results %}
+                                        </a> 
+                                    {% else %}
+                                        </s>
+                                    {% endif %}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-box">
+                        <div class="titles">
+                            <h4>Ilmoittautuminen</h4>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {% if competition.deadline > now %}
+                                    <p>Ilmoittautuminen kisoihin tapahtuu tämän
+                                    linkin takaa. <strong>Jokaisella osallistujalla
+                                    pitää olla sähköpostiosoite tiedossa!</strong></p>
+                                    <p>Ilmoittaudu ennen {{ competition.deadline }}</p>
+                                {% else %}
+                                    <p>Virallinen ilmoittautumisaika on päättynyt!
+                                    Voit kysyä jälki-ilmoittautumisista osoitteesta:
+                                    <a href="mailto:kilpailut@dancing.fi">kilpailut@dancing.fi</a>
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+    </section>
+    
+    {% addtoblock "js" %}
+      <!-- Maps -->
+        <script type="text/javascript" src="{% if request.is_secure %}https{% else %}http{% endif %}://maps.google.com/maps/api/js?sensor=true"></script>
+        <script src="{% static "theme/js/maps/gmap3.min.js" %}"></script>
+
+        <script type="text/javascript">
+
+        // Map Markers
+        var mapMarkers = [{
+        address: "{{ competition.address }}",
+        html: "<strong>{{ competition.name }}</strong>",
+        //lat: 60.98451,
+        //lon: 25.6556818 ,
+        icon: {
+            image: "img/img-theme/pin.png",
+            iconsize: [26, 46],
+            iconanchor: [12, 46]
+            }
+        }];
+
+        // Map Initial Location
+        //var initLatitude = 60.985634;
+        //var initLongitude = 25.66581;
+
+        // Map Extended Settings
+        var mapSettings = {
+            controls: {
+                panControl: true,
+                zoomControl: true,
+                mapTypeControl: true,
+                scaleControl: true,
+                streetViewControl: true,
+                overviewMapControl: true
+            },
+            marker: { address: "{{ competition.address }}", options: { icon: "{% static "theme/img/img-theme/pin.png" %}" } },
+            map: {
+                options: {
+                    //center: [initLatitude, initLongitude],
+                    zoom: 14,
+                    scrollwheel: false,
+                }
+            }
+        };
+
+        $("#map").gmap3(mapSettings);
+        </script>
+    {% endaddtoblock %}
+{% endblock %}

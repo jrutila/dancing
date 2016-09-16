@@ -28,14 +28,13 @@
         <section class="container padding-top-mini">
             <div class="row">
                 {% get_placeholder "page_sidebar" as sidebar %}
+                {% get_placeholder "page_subtitle" as subtitle_ph %}
+                {% if subtitle_ph %}
                 <div class="{% if sidebar %}col-md-8{% else %}col-md-12{% endif %}">
                     <div class="panel-box">
-                        {% get_placeholder "page_subtitle" as subtitle_ph %}
-                        {% if subtitle_ph %}
                         <div class="titles">
                             <h4>{% placeholder page_subtitle %}</h4>
                         </div>
-                        {% endif %}
                         <div class="row">
                             <div class="col-md-12">
                                 {% placeholder text %}
@@ -43,6 +42,9 @@
                         </div>
                     </div>
                 </div>
+                {% else %}
+                    {% placeholder text %}
+                {% endif %}
                 {% if sidebar %}
                 <div class="col-md-4">
                     {% placeholder page_sidebar %}

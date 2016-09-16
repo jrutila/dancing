@@ -12,6 +12,7 @@ import re
 from django.shortcuts import render
 from .forms import ParticipationForm, CancelForm, LostLinkForm, MassTransactionForm, DanceEventParticipationForm
 from .models import Member, Transaction, ReferenceNumber, ActivityParticipation, Season, AlreadyExists, DanceEvent, Dancer, Couple, DanceEventParticipation
+from .models import OwnCompetition
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
@@ -308,3 +309,13 @@ class MassTransactionView(FormView):
         messages.add_message(self.request, messages.SUCCESS, '%d transactions uploaded!' % succeeded)
 
         return super().form_valid(form)
+
+class CompetitionView(TemplateView):
+    template_name = 'danceclub/competition.html'
+    
+    def get_context_data(self, slug):
+        ctx = super().get_context_data()
+        competition = get_object_or_404(OwnCompetition, slug=slug)
+        ctx["competition"] = competition
+        ctx["now"] = timezone.now();
+        return ctx

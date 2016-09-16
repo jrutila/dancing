@@ -56,3 +56,11 @@ def get_random_color():
 class NameColor(models.Model):
     name = models.CharField(max_length=200)
     color = models.CharField(max_length=10, default=get_random_color)
+
+from danceclub.models import OwnCompetition
+from cms.models.fields import PlaceholderField
+
+class CompetitionPage(models.Model):
+    competition = models.ForeignKey(OwnCompetition)
+    tickets = PlaceholderField('tickets', related_name="competition_tickets")
+    description = PlaceholderField('description', related_name="competition_description")
