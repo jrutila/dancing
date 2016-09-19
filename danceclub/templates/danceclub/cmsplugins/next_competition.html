@@ -1,12 +1,12 @@
-{% load sekizai_tags %}
+{% load sekizai_tags cms_tags %}
 {% addtoblock "js" %}
 <script type="text/javascript">
 $('#event-one').countdown('{{ own.date|date:"Y-m-d" }} {{ own.start|time:"H:i" }}', function(event) {
   var $this = $(this).html(event.strftime(''
-  + '<span>%D <br> <small>days</small></span>  '
-  + '<span>%H <br> <small>hr</small> </span>  '
-  + '<span>%M <br> <small>min</small> </span>  '
-  + '<span>%S <br> <small>sec</small></span> '));
+  + '<span>%D <br> <small>pv</small></span>  '
+  + '<span>%H <br> <small>h</small> </span>  '
+  + '<span>%M <br> <small>m</small> </span>  '
+  + '<span>%S <br> <small>s</small></span> '));
 });
 </script>
 {% endaddtoblock %}
@@ -31,8 +31,8 @@ $('#event-one').countdown('{{ own.date|date:"Y-m-d" }} {{ own.start|time:"H:i" }
             {{ own.start }}
         </li>
     </ul>
-    <p>Lorem ipsum solor damet...</p>
-    <a class="btn btn-primary" href="#">
+    <p>{% render_placeholder instance.description %}</p>
+    <a class="btn btn-primary" href="{{ own.get_absolute_url }}">
         Kilpailusivulle...
         <i class="fa fa-trophy"></i>
     </a>

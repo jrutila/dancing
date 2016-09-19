@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from .models import DanceEvent, Dancer
 from .models import OwnCompetition
 from django.utils import timezone
+from django.db import models
 import datetime
 from django.db.models import Count, Q, BooleanField, ExpressionWrapper
 
@@ -37,18 +38,21 @@ class PossibleEventsPlugin(CMSPluginBase):
 
 plugin_pool.register_plugin(PossibleEventsPlugin)
 
+from cms.models.fields import PlaceholderField
+
+class NextCompetitionPlugin(CMSPlugin):
+    description = PlaceholderField('description', related_name="nextcompetition_description")
+    competition = models.ForeignKey(OwnCompetition)
+
 class NextCompetitionLink(CMSPluginBase):
-    model = CMSPlugin
+    model = NextCompetitionPlugin
     render_template = "danceclub/cmsplugins/next_competition.html"
     name = _("Next Competition")
     cache = False
 
     def render(self, context, instance, placeholder):
-        request = context['request']
-        context['instance'] = instance
-        
-        own = OwnCompetition.objects.filter(date__gte=timezone.now())
-        context['own'] = own[0] if own else None
+        context["own"] = instance.competition
+        context["instance"] = instance
         
         return context
 

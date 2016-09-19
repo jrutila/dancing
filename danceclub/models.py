@@ -15,6 +15,7 @@ from django.core.exceptions import ValidationError
 import datetime
 import uuid
 from collections import defaultdict
+from django.core.urlresolvers import reverse
 
 LEVELS = (('F', 'F'), ('E', 'E'), ('D', 'D'), ('C','C'), ('B','B'), ('A', 'A'))
 COMP_LEVELS = (('CUP', 'C-A Cup'), ('BA', 'B-A'))
@@ -501,3 +502,6 @@ class OwnCompetition(Competition):
     
     place_name = models.CharField(max_length=50, help_text="Paikan nimi")
     address = models.CharField(max_length=50, help_text="Osoite")
+    
+    def get_absolute_url(self):
+        return reverse('competition_info', kwargs={"slug":self.slug})
