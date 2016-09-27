@@ -21,6 +21,12 @@
         <section class="container padding-top-mini">
             <div class="row">
                 <div class="col-md-8">
+                    
+{% if messages %}
+    {% for message in messages %}
+    <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message|safe }}</div>
+    {% endfor %}
+{% endif %}
                     <div class="panel-box">
                         <div class="titles">
                             <h4>{{ competition.date }}</h4>
@@ -60,11 +66,38 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <ul class="list">
+                                {% if show_info %}
+                                <small>Klikkaa osallistujat luokan oikealta puolelta</small>
+                                {% endif %}
+                                <ul class="icons list-unstyled">
                                     {% for al in competition.agelevels %}
                                     <li>
                                         <i class="fa fa-check"></i>
                                         {{ al|agelevel }}
+                                        {% if show_info %}
+                                        (
+                                        {% if counts|lookup:al > 0 %}
+                                        <a href="#collapse-{{ al }}" data-toggle="collapse">
+                                        {% endif %}
+                                        {{ counts|lookup:al }} osallistuja{%if counts|lookup:al != 1 %}a{% endif %}
+                                        {% if counts|lookup:al > 0 %}
+                                        </a>
+                                        {% endif %}
+                                        )
+                                        {% else %}
+                                            {% if counts|lookup:al <= 7 %}
+                                            (Suora finaali)
+                                            {% else %}
+                                            (Välierät)
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if show_info %}
+                                        <ul class="collapse" id="collapse-{{ al }}">
+                                            {% for p in participations|lookup:al %}
+                                                <li><strong>{{ p.man }} - {{ p.woman }}</strong><br/>{{ p.club }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                        {% endif %}
                                     </li>
                                     {% endfor %}
                                 </ul>
@@ -120,16 +153,17 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                {% if competition.deadline > now %}
-                                    <p>Ilmoittautuminen kisoihin tapahtuu tämän
-                                    linkin takaa. <strong>Jokaisella osallistujalla
-                                    pitää olla sähköpostiosoite tiedossa!</strong></p>
-                                    <p>Ilmoittaudu ennen {{ competition.deadline }}</p>
-                                {% else %}
+                                {% if show_info %}
                                     <p>Virallinen ilmoittautumisaika on päättynyt!
                                     Voit kysyä jälki-ilmoittautumisista osoitteesta:
                                     <a href="mailto:kilpailut@dancing.fi">kilpailut@dancing.fi</a>
                                     </p>
+                                {% else %}
+                                    <p>Ilmoittautuminen kisoihin tapahtuu tämän
+                                    <a href="{% url 'competition_enroll' slug=competition.slug %}">linkin</a>
+                                    takaa. <strong>Jokaisella osallistujalla
+                                    pitää olla sähköpostiosoite tiedossa!</strong></p>
+                                    <p>Ilmoittaudu ennen {{ competition.deadline }}</p>
                                 {% endif %}
                             </div>
                         </div>

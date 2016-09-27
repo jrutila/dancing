@@ -505,3 +505,22 @@ class OwnCompetition(Competition):
     
     def get_absolute_url(self):
         return reverse('competition_info', kwargs={"slug":self.slug})
+        
+    def __str__(self):
+        return "%s (%s)" % (self.name, self.date)
+
+class CompetitionParticipation(models.Model):
+    competition = models.ForeignKey(OwnCompetition, related_name="participations")
+    level = models.CharField(max_length=10, choices=OwnCompetition._meta.get_field('agelevels').choices)
+    club = models.CharField(max_length=60)
+    man = models.CharField(max_length=60)
+    woman = models.CharField(max_length=60)
+    
+    def __str__(self):
+        return "%s %s: %s - %s" % (
+            self.competition,
+            [c[1] for c in OwnCompetition._meta.get_field('agelevels').choices if c[0] == self.level][0],
+            self.man,
+            self.woman
+            )
+        

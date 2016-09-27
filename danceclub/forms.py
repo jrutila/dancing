@@ -3,6 +3,7 @@ from .models import Activity, ActivityParticipation, Season
 from django.utils import timezone
 from .models import Member, Dancer, Couple, DanceEvent, DanceEventParticipation
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 import datetime
 
 class CancelForm(forms.Form):
@@ -128,3 +129,67 @@ class ParticipationForm(forms.Form):
 
 class MassTransactionForm(forms.Form):
     file = forms.FileField()
+    
+from .models import CompetitionParticipation
+class CompetitionEnrollForm(forms.Form):
+    club = forms.CharField(max_length=60, required=True)
+    captcha = forms.CharField(max_length=60, required=True, help_text="Kirjoita seurasi nimi tähän uudestaan, jotta tiedämme ettet ole botti")
+    
+    enroller_name = forms.CharField(max_length=60, required=True)
+    enroller_email = forms.EmailField(max_length=60, required=True)
+        
+    def __init__(self, competition, *args, **kwargs):
+        self.enrolls = 5
+        super().__init__(*args, **kwargs)
+        choices = competition._meta.get_field('agelevels').choices
+        als = [c for c in choices if c[0] in competition.agelevels]
+        self.competition = competition
+        als.insert(0,('-', '--'))
+        for x in range(1,self.enrolls+1):
+            self.fields['level_%d'%x] = forms.ChoiceField(
+                choices=als
+                )
+            self.fields['man_%d'%x] = forms.CharField(max_length=60, required=False)
+            self.fields['woman_%d'%x] = forms.CharField(max_length=60, required=False)
+            self.fields['email_%d'%x] = forms.EmailField(required=False)
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        for x in range(1,self.enrolls+1):
+            level = cleaned_data['level_%d'%x]
+            man = cleaned_data['man_%d'%x]
+            woman = cleaned_data['woman_%d'%x]
+            errors = []
+            failed = False
+            if level != '-' and man == '':
+                self.add_error('man_%d'%x, 'Pakollinen')
+                failed = True
+            if level != '-' and woman == '':
+                self.add_error('woman_%d'%x, 'Pakollinen')
+                failed = True
+            if level == '-' and (man != '' or woman != ''):
+                self.add_error('level_%d'%x, 'Pakollinen')
+                failed = True
+            if level == '-' and not failed:
+                del cleaned_data['level_%d'%x]
+                del cleaned_data['woman_%d'%x]
+                del cleaned_data['man_%d'%x]
+                del cleaned_data['email_%d'%x]
+        return cleaned_data
+        
+    def save(self):
+        cd = self.cleaned_data
+        self.parts = []
+        for x in range(1,self.enrolls+1):
+            if 'level_%d'%x in cd:
+                level = cd['level_%d'%x]
+                man = cd['man_%d'%x]
+                woman = cd['woman_%d'%x]
+                part = CompetitionParticipation.objects.create(
+                    competition=self.competition,
+                    level=level,
+                    club=cd['club'],
+                    man=man,
+                    woman=woman
+                    )
+                self.parts.append(part)

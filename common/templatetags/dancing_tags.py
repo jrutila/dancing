@@ -64,3 +64,7 @@ class CompetitionPlaceholder(RenderPlaceholder):
 		return super()._get_value(context, editable, **kwargs)
 
 register.tag(CompetitionPlaceholder)
+
+@register.filter(name='lookup')
+def cut(value, arg):
+    return value[arg]

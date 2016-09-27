@@ -16,8 +16,9 @@ from .models import OwnCompetition
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum, Max, Q
+from django.db.models import Sum, Max, Q, Count
 from django.utils import timezone
+from django.shortcuts import redirect
 import django_settings
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
@@ -309,6 +310,16 @@ class MassTransactionView(FormView):
         messages.add_message(self.request, messages.SUCCESS, '%d transactions uploaded!' % succeeded)
 
         return super().form_valid(form)
+        
+class CompetitionIndex(TemplateView):
+    template_name = 'danceclub/competition_index.html'
+    
+    def dispatch(self, request, *args, **kwargs):
+        curr = OwnCompetition.objects.get(date__gte=timezone.now())
+        if curr:
+            return redirect(curr.get_absolute_url())
+    
+        return super().dispatch(request, *args, **kwargs)
 
 class CompetitionView(TemplateView):
     template_name = 'danceclub/competition.html'
@@ -318,4 +329,41 @@ class CompetitionView(TemplateView):
         competition = get_object_or_404(OwnCompetition, slug=slug)
         ctx["competition"] = competition
         ctx["now"] = timezone.now();
+        ctx["show_info"] = competition.deadline < ctx["now"]
+        if ctx["show_info"]:
+            ctx["participations"] = dict([(x,[c for c in competition.participations.all() if c.level == x]) for x in competition.agelevels])
+        counts = competition.participations.values("level").annotate(amount=Count("competition"))
+        counts = dict([ (c["level"], c["amount"]) for c in counts])
+        for al in competition.agelevels:
+            if not al in counts:
+                counts[al] = 0
+        ctx["counts"] = counts
         return ctx
+        
+from .forms import CompetitionEnrollForm
+class CompetitionEnrollView(FormView):
+    template_name = "danceclub/generic_form.html"
+    form_class = CompetitionEnrollForm
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        self.competition = OwnCompetition.objects.get(slug='default')
+        kwargs['competition'] = self.competition
+        return kwargs
+        
+    def get_success_url(self):
+        als = dict(OwnCompetition._meta.get_field('agelevels').choices)
+        msg = '''
+        <p>Seuraavat osallistujat rekisteröity:</p>
+        <ul>
+        '''
+        for p in self.saved:
+            msg = msg + "<li>%s - %s, %s</li>" % (p.man, p.woman, als[p.level])
+        
+        messages.add_message(self.request, messages.SUCCESS, msg + '</ul>')
+        return self.competition.get_absolute_url()
+        
+    def form_valid(self, form):
+        form.save()
+        self.saved = form.parts
+        return super().form_valid(form)
