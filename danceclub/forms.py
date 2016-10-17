@@ -132,8 +132,8 @@ class MassTransactionForm(forms.Form):
     
 from .models import CompetitionParticipation
 class CompetitionEnrollForm(forms.Form):
-    club = forms.CharField(max_length=60, required=True)
-    captcha = forms.CharField(max_length=60, required=True, help_text="Kirjoita seurasi nimi tähän uudestaan, jotta tiedämme ettet ole botti")
+    club = forms.CharField(max_length=60, required=True, label="Seuran nimi")
+    captcha = forms.CharField(max_length=60, required=True, label="Seuran nimi", help_text="Kirjoita seurasi nimi kahdesti, jotta tiedämme ettet ole botti")
     
     enroller_name = forms.CharField(max_length=60, required=True)
     enroller_email = forms.EmailField(max_length=60, required=True)
@@ -155,6 +155,8 @@ class CompetitionEnrollForm(forms.Form):
         
     def clean(self):
         cleaned_data = super().clean()
+        if 'club' not in cleaned_data or 'captcha' not in cleaned_data or cleaned_data['club'] != cleaned_data['captcha']:
+            self.add_error('captcha', "Seuran nimi pitää olla sama molemmissa kentissä")
         for x in range(1,self.enrolls+1):
             level = cleaned_data['level_%d'%x]
             man = cleaned_data['man_%d'%x]
