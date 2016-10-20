@@ -342,7 +342,7 @@ class CompetitionView(TemplateView):
         
 from .forms import CompetitionEnrollForm
 class CompetitionEnrollView(FormView):
-    template_name = "danceclub/generic_form.html"
+    template_name = "danceclub/competition_form.html"
     form_class = CompetitionEnrollForm
     
     def get_form_kwargs(self):

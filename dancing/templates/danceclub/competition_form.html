@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load settings_tags %}
+{% load cms_tags menu_tags %}
+{% load bootstrap3 %}
+
+{% block base_content %}
+<section class="section-title img-feature" >
+    <div class="overlay-bg"></div>
+    <div class="container">
+        <h1>Ilmoittaudu kilpailuun</h1>
+    </div>
+</section>
+
+<section class="content-info">
+    
+{% if messages %}
+    {% for message in messages %}
+    <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<section class="container padding-top-mini">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel-box">
+                <div class="titles">
+                    <h4>Ilmoita pareja kisoihin</h4>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    {% bootstrap_form form %}
+    {% buttons %}
+        <button type="submit" class="btn btn-primary">
+            {% bootstrap_icon "star" %} Ilmoita parit
+        </button>
+    {% endbuttons %}
+</form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</section>
+{% endblock %}

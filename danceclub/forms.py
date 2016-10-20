@@ -135,8 +135,8 @@ class CompetitionEnrollForm(forms.Form):
     club = forms.CharField(max_length=60, required=True, label="Seuran nimi")
     captcha = forms.CharField(max_length=60, required=True, label="Seuran nimi", help_text="Kirjoita seurasi nimi kahdesti, jotta tiedämme ettet ole botti")
     
-    enroller_name = forms.CharField(max_length=60, required=True)
-    enroller_email = forms.EmailField(max_length=60, required=True)
+    enroller_name = forms.CharField(max_length=60, required=True, label="Ilmoittajan nimi")
+    enroller_email = forms.EmailField(max_length=60, required=True, label="Ilmoittajan sähköposti")
         
     def __init__(self, competition, *args, **kwargs):
         self.enrolls = 5
@@ -147,11 +147,12 @@ class CompetitionEnrollForm(forms.Form):
         als.insert(0,('-', '--'))
         for x in range(1,self.enrolls+1):
             self.fields['level_%d'%x] = forms.ChoiceField(
-                choices=als
+                choices=als,
+                label="Luokka"
                 )
-            self.fields['man_%d'%x] = forms.CharField(max_length=60, required=False)
-            self.fields['woman_%d'%x] = forms.CharField(max_length=60, required=False)
-            self.fields['email_%d'%x] = forms.EmailField(required=False)
+            self.fields['man_%d'%x] = forms.CharField(max_length=60, required=False, label="Mies")
+            self.fields['woman_%d'%x] = forms.CharField(max_length=60, required=False, label="Nainen")
+            self.fields['email_%d'%x] = forms.EmailField(required=False, label="Sähköpostiosoite")
         
     def clean(self):
         cleaned_data = super().clean()
