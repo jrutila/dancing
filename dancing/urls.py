@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 from common.views import ProfileRedirectView
 from .forms import EmailAuthenticationForm
 
+urlpatterns = []
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns = [
