@@ -17,7 +17,7 @@ import uuid
 from collections import defaultdict
 from django.core.urlresolvers import reverse
 
-LEVELS = (('F', 'F'), ('E', 'E'), ('D', 'D'), ('C','C'), ('B','B'), ('A', 'A'))
+LEVELS = (('lek', 'lek'), ('F', 'F'), ('E', 'E'), ('D', 'D'), ('C','C'), ('B','B'), ('A', 'A'))
 COMP_LEVELS = (('CUP', 'C-A Cup'), ('BA', 'B-A'))
 AGES = (('L1', 'Lapsi I'), ('L2', 'Lapsi II'), ('J1', 'Juniori I'), ('J2','Juniori II'), ('N','Nuoriso'), ('Y', 'Yleinen'), ('S1', 'Seniori I'),
         ('S2', 'Seniori II'), ('S3', 'Seniori III'), ('S4', 'Seniori IV'))
@@ -424,8 +424,12 @@ class AgeLevelField(models.Field):
         c=[]
         for ak,ad in AGES:
             for lk, ld in LEVELS+COMP_LEVELS:
-                if lk not in ['F', 'E', 'D']:
-                    for sk,sd in [('ltn', 'Latin'), ('std', 'Vakio'), ('all', '10-tanssi')]:
+                if lk == 'lek' and ak not in ['L1', 'L2']:
+                    continue
+                if (lk not in ['lek','F', 'E', 'D']) or \
+                   (lk == 'D' and ak in ['S1', 'S2']) or \
+                   (lk in ['E','D'] and ak in ['S3', 'S4']):
+                    for sk,sd in [('ltn', 'Latin'), ('std', 'Vakio'), ('all', '10-tanssi' if lk not in ['lek','F','E','D'] else 'Kaikki')]:
                         c.append(("%s-%s-%s" % (sk,ak,lk), "%s %s %s" % (ad, ld, sd)))
                 else:
                     c.append(("all-%s-%s" % (ak,lk), "%s %s" % (ad, ld)))
