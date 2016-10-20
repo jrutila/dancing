@@ -188,11 +188,15 @@ class CompetitionEnrollForm(forms.Form):
                 level = cd['level_%d'%x]
                 man = cd['man_%d'%x]
                 woman = cd['woman_%d'%x]
+                email = cd['email_%d'%x]
                 part = CompetitionParticipation.objects.create(
                     competition=self.competition,
                     level=level,
                     club=cd['club'],
                     man=man,
-                    woman=woman
+                    woman=woman,
+                    email=email,
+                    enroller_name=cd['enroller_name'],
+                    enroller_email=cd['enroller_email']
                     )
                 self.parts.append(part)

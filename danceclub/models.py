@@ -516,6 +516,12 @@ class CompetitionParticipation(models.Model):
     man = models.CharField(max_length=60)
     woman = models.CharField(max_length=60)
     
+    email = models.EmailField()
+    reference_number = models.ForeignKey(ReferenceNumber, blank=True, null=True)
+    
+    enroller_name = models.CharField(max_length=60)
+    enroller_email = models.EmailField(max_length=60)
+    
     def __str__(self):
         return "%s %s: %s - %s" % (
             self.competition,
@@ -523,4 +529,12 @@ class CompetitionParticipation(models.Model):
             self.man,
             self.woman
             )
+            
+@receiver(post_save, sender=CompetitionParticipation)
+def create_refnumber(instance, created, **kwargs):
+    if created:
+        rf = ReferenceNumber.objects.create(
+            object=instance)
+        instance.reference_number = rf
+        instance.save()
         
