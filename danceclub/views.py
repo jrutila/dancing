@@ -345,9 +345,14 @@ class CompetitionEnrollView(FormView):
     template_name = "danceclub/competition_form.html"
     form_class = CompetitionEnrollForm
     
+    def dispatch(self, request, *args, **kwargs):
+        self.competition = get_object_or_404(OwnCompetition, slug=kwargs['slug'])
+        if (self.competition.deadline < timezone.now()):
+            raise Http404("Ilmoittautumisaika on päättynyt")
+        return super(CompetitionEnrollView,self).dispatch(request, *args, **kwargs)
+    
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        self.competition = OwnCompetition.objects.get(slug='default')
         kwargs['competition'] = self.competition
         return kwargs
         
