@@ -161,8 +161,8 @@
                                 {% else %}
                                     <p>Ilmoittautuminen kisoihin tapahtuu tämän
                                     <a href="{% url 'competition_enroll' slug=competition.slug %}">linkin</a>
-                                    takaa. <strong>Jokaisella osallistujalla
-                                    pitää olla sähköpostiosoite tiedossa!</strong></p>
+                                    takaa.</p>
+                                    {% competition_placeholder "enroll_help" %}
                                     <p>Ilmoittaudu ennen {{ competition.deadline }}</p>
                                 {% endif %}
                             </div>
