@@ -64,3 +64,4 @@ class CompetitionPage(models.Model):
     competition = models.ForeignKey(OwnCompetition)
     tickets = PlaceholderField('tickets', related_name="competition_tickets")
     description = PlaceholderField('description', related_name="competition_description")
+    enroll_help = PlaceholderField('enroll_help', related_name="competition_enroll_help")
