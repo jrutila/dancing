@@ -139,7 +139,7 @@ class CompetitionEnrollForm(forms.Form):
     enroller_email = forms.EmailField(max_length=60, required=True, label="Ilmoittajan sähköposti")
         
     def __init__(self, competition, *args, **kwargs):
-        self.enrolls = 5
+        self.enrolls = 10
         super().__init__(*args, **kwargs)
         choices = competition._meta.get_field('agelevels').choices
         als = [c for c in choices if c[0] in competition.agelevels]
