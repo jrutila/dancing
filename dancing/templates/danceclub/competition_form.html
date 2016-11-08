@@ -30,8 +30,13 @@
                     <div class="col-md-12">
                         
                         <p>Voit ilmoittaa kerralla kymmenen paria. Jos haluat ilmoittaa useamman, ole hyvä ja täytä lomake uudellen lähettämisen jälkeen. Parin sähköpostiosoite ei ole pakollinen.</p>
+                        <p>Varmista, että näet vahvistuksen ilmoittautumisista kisasivulla.</p>
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
+    
+    {% if form.errors %}
+    <div class="alert alert-danger"><strong>Lomakkeen syötössä oli virheitä! Korjaa virheet. Jos et onnistu lähettämään ilmoittautumista tämän lomakkeen avulla, käytä sähköpostia.</strong></div>
+    {% endif %}
     
     {% bootstrap_form form %}
     {% buttons %}
