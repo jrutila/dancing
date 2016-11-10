@@ -520,12 +520,15 @@ class CompetitionParticipation(models.Model):
     man = models.CharField(max_length=60)
     woman = models.CharField(max_length=60)
     
-    email = models.EmailField()
+    email = models.EmailField(blank=True, null=True)
     reference_number = models.ForeignKey(ReferenceNumber, blank=True, null=True)
     
     enroller_name = models.CharField(max_length=60)
     enroller_email = models.EmailField(max_length=60)
     
+    paid = models.BooleanField(default=False)
+    number = models.IntegerField(blank=True,null=True)
+
     def __str__(self):
         return "%s %s: %s - %s" % (
             self.competition,
@@ -534,6 +537,19 @@ class CompetitionParticipation(models.Model):
             self.woman
             )
             
+    @staticmethod
+    def post_save(sender, **kwargs):
+        instance = kwargs.get('instance')
+        created = kwargs.get('created')
+        if instance.number:
+            CompetitionParticipation.objects.extra(where=[
+                "LOWER(REPLACE(man, ' ', '')) = '%s'" % instance.man.replace(" ","").lower(),
+                "LOWER(REPLACE(woman, ' ', '')) = '%s'" % instance.woman.replace(" ","").lower(),
+                "LOWER(REPLACE(club, ' ', '')) = '%s'" % instance.club.replace(" ","").lower(),
+                ]).update(number=instance.number)
+
+post_save.connect(CompetitionParticipation.post_save, sender=CompetitionParticipation)
+
 @receiver(post_save, sender=CompetitionParticipation)
 def create_refnumber(instance, created, **kwargs):
     if created:

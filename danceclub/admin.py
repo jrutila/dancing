@@ -176,15 +176,46 @@ class ActivitiesList(admin.RelatedFieldListFilter):
 def member_saldo(obj):
     return Transaction.objects.filter(owner=obj.member).aggregate(Sum('amount'))['amount__sum']
 
+class NextCompetition(admin.SimpleListFilter):
+    title = "Viimeisin kilpailu"
+    parameter_name = "competition"
+
+    def lookups(self, request, model_admin):
+        return (
+            ('all', "Myös vanhat kilpailut"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'all':
+            return queryset
+        latest = OwnCompetition.objects.order_by('start')[0]
+        return queryset.filter(competition=latest)
+
 class ActivityParticipationAdmin(VersionAdmin):
     list_filter = (CurrentActivities, ('activity', ActivitiesList),)
     list_display = ('activity', 'member', member_saldo)
+
+def comparts(obj):
+    return obj.man + ' - ' + obj.woman
+
+class CompetitionParticipationAdmin(VersionAdmin):
+    list_filter = (NextCompetition,)
+    list_display = (comparts, 'club', 'level', 'number', 'paid')
+    list_editable = ['paid']
+
+    def get_changelist_formset(self, request, **kwargs):
+        if (request.GET.get('e', None)):
+            self.list_editable = ['paid', 'club', 'number']
+        else:
+            self.list_editable = ['paid']
+        formset = super().get_changelist_formset(request, **kwargs)
+        return formset
 
 admin.site.register(Member, MemberAdmin)
 admin.site.register(Dancer, DancerAdmin)
 admin.site.register(DanceEvent, DanceEventAdmin)
 admin.site.register(DanceEventParticipation)
-admin.site.register(CompetitionParticipation)
+admin.site.register(CompetitionParticipation, CompetitionParticipationAdmin)
 admin.site.register(Couple)
 admin.site.register(Activity)
 admin.site.register(ActivityParticipation, ActivityParticipationAdmin)
