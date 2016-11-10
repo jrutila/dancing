@@ -65,3 +65,4 @@ class CompetitionPage(models.Model):
     tickets = PlaceholderField('tickets', related_name="competition_tickets")
     description = PlaceholderField('description', related_name="competition_description")
     enroll_help = PlaceholderField('enroll_help', related_name="competition_enroll_help")
+    sponsors = PlaceholderField('sponsors', related_name="competition_sponsors")

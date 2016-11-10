@@ -147,6 +147,18 @@
                     </div>
                     <div class="panel-box">
                         <div class="titles">
+                            <h4>Yhteistyökumppanit</h4>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul id="sponsors" class="tooltip-hover">
+                                    {% competition_placeholder "sponsors" %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-box">
+                        <div class="titles">
                             <h4>Ilmoittautuminen</h4>
                         </div>
                         <div class="row">
@@ -176,6 +188,19 @@
         <script type="text/javascript" src="{% if request.is_secure %}https{% else %}http{% endif %}://maps.google.com/maps/api/js?sensor=true"></script>
         <script src="{% static "theme/js/maps/gmap3.min.js" %}"></script>
 
+        <script type="text/javascript">
+$("#sponsors").owlCarousel({
+   autoPlay: 2500,
+   items : 1,
+   navigation: false,
+    autoHeight: false,
+   itemsDesktop : [1199,5],
+   itemsDesktopSmall : [1024,4],
+   itemsTablet : [768,3],
+   itemsMobile : [500,2],
+   pagination: true
+});
+</script>
         <script type="text/javascript">
 
         // Map Markers
