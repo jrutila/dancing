@@ -365,17 +365,21 @@ class CompetitionEnrollView(FormView):
         '''
         for p in self.saved:
             msg = msg + "<li>%s - %s, %s</li>" % (p.man, p.woman, als[p.level])
+        msg = msg + "</ul>"
         
-        messages.add_message(self.request, messages.SUCCESS, msg + '</ul>')
-
         msg_email = ""
         for p in self.saved:
-            msg_email = msg_email + "  %s - %s, %s" % (p.man, p.woman, als[p.level])
-        send_mail(
+            msg_email = msg_email + "  %s - %s, %s\n" % (p.man, p.woman, als[p.level])
+        email_succ = send_mail(
             'Ilmoittautuminen kisaan %s' % formats.date_format(self.competition.date, "SHORT_DATE_FORMAT"),
             'Hei,\nkiitos ilmoittautumisista.\nSeuraavat ilmoittautumiset rekisteröity:\n\n%s\n%s\n\nTervetuloa kisaamaan,\nTanssiklubi Dancing\nkilpailut@dancing.fi' % (self.club, msg_email),
             'kilpailut@dancing.fi',
             ["kilpailut@dancing.fi", self.enroll_email], fail_silently=True)
+        if email_succ:
+            msg = msg + "<p>Sähköpostiviesti lähetetty osoitteeseen: %s</p>" % self.enroll_email
+
+        messages.add_message(self.request, messages.SUCCESS, msg)
+
         return self.competition.get_absolute_url()
         
     def form_valid(self, form):
