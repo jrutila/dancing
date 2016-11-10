@@ -341,6 +341,7 @@ class CompetitionView(TemplateView):
         return ctx
         
 from .forms import CompetitionEnrollForm
+from django.utils import formats
 class CompetitionEnrollView(FormView):
     template_name = "danceclub/competition_form.html"
     form_class = CompetitionEnrollForm
@@ -366,9 +367,20 @@ class CompetitionEnrollView(FormView):
             msg = msg + "<li>%s - %s, %s</li>" % (p.man, p.woman, als[p.level])
         
         messages.add_message(self.request, messages.SUCCESS, msg + '</ul>')
+
+        msg_email = ""
+        for p in self.saved:
+            msg_email = msg_email + "  %s - %s, %s" % (p.man, p.woman, als[p.level])
+        send_mail(
+            'Ilmoittautuminen kisaan %s' % formats.date_format(self.competition.date, "SHORT_DATE_FORMAT"),
+            'Hei,\nkiitos ilmoittautumisista.\nSeuraavat ilmoittautumiset rekisteröity:\n\n%s\n%s\n\nTervetuloa kisaamaan,\nTanssiklubi Dancing\nkilpailut@dancing.fi' % (self.club, msg_email),
+            'kilpailut@dancing.fi',
+            ["kilpailut@dancing.fi", self.enroll_email], fail_silently=True)
         return self.competition.get_absolute_url()
         
     def form_valid(self, form):
         form.save()
         self.saved = form.parts
+        self.enroll_email = form.cleaned_data['enroller_email']
+        self.club = form.cleaned_data['club']
         return super().form_valid(form)
