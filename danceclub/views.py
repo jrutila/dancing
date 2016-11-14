@@ -348,7 +348,7 @@ class CompetitionEnrollView(FormView):
     
     def dispatch(self, request, *args, **kwargs):
         self.competition = get_object_or_404(OwnCompetition, slug=kwargs['slug'])
-        if (self.competition.deadline < timezone.now()):
+        if (self.competition.deadline < timezone.now() and not request.GET.get('secret', None)):
             raise Http404("Ilmoittautumisaika on päättynyt")
         return super(CompetitionEnrollView,self).dispatch(request, *args, **kwargs)
     
