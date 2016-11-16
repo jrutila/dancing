@@ -197,11 +197,19 @@ class ActivityParticipationAdmin(VersionAdmin):
 
 def comparts(obj):
     return obj.man + ' - ' + obj.woman
+    
+from django.http import HttpResponseRedirect
+from django.core import serializers
+from django.shortcuts import redirect
+
+def list_classes(modeladmin, request, queryset):
+    return redirect("list-classes")
 
 class CompetitionParticipationAdmin(VersionAdmin):
     list_filter = (NextCompetition,)
     list_display = (comparts, 'club', 'level', 'number', 'paid')
     list_editable = ['paid']
+    #actions = [list_classes]
 
     def get_changelist_formset(self, request, **kwargs):
         if (request.GET.get('e', None)):

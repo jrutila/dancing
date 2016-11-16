@@ -1,0 +1,67 @@
+{% load danceclub_tags dancing_tags %}
+
+<h1>{{ competition.name }}</h1>
+
+{% regroup participations by level as parts %}
+
+    <table>
+{% for p in parts %}
+                    <tr>
+                        <th>Kars.</th>
+                        <th>Semi</th>
+                        <th>Final</th>
+                        <th></th>
+                        <th>
+    <h2>{{ p.grouper|agelevel }}</h2>
+                        </th>
+                        <th></th>
+                    </tr>
+    {% with amnt=p.list|length %}
+    {% for pp in p.list %}
+        <tr>
+            <td
+            style="width: 50px;
+            {% if amnt > 13 %}
+            border: 1px solid black
+            {% endif %}
+            "></td>
+            <td
+            style="width: 50px;
+            {% if amnt > 7 %}
+            border: 1px solid black
+            {% endif %}
+            "></td>
+            <td style="border: 1px solid black;width: 50px"></td>
+            <td style="text-align: right; padding-right: 10px">{{ pp.number }}</td>
+            <td>{{ pp.man }} - {{ pp.woman }}</td>
+            <td>{{ pp.club }}</td>
+        </tr>
+    {% endfor %}
+    {% for nn in p.list|extra_space %}
+        <tr>
+            <td
+            style="width: 50px;
+            {% if amnt > 13 %}
+            border: 1px solid black
+            {% endif %}
+            "></td>
+            <td
+            style="width: 50px;
+            {% if amnt > 7 %}
+            border: 1px solid black
+            {% endif %}
+            "></td>
+            <td style="border: 1px solid black;width: 50px"></td>
+            <td style="text-align: right; padding-right: 10px">&nbsp;</td>
+            <td></td>
+            <td></td>
+        </tr>
+    {% endfor %}
+        <tr>
+            <td colspan="5"></td>
+            <td style="font-style: italic">Pareja yhteensä {{ amnt }} kpl</td>
+        </tr>
+    {% endwith %}
+    <tr><td style="height: 40px"></td></tr>
+{% endfor %}
+    </table>

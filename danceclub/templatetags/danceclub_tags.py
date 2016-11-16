@@ -20,3 +20,16 @@ def own_competition(parser, token):
 @register.filter
 def agelevel(al):
     return [x[1] for x in OwnCompetition._meta.get_field('agelevels').choices if x[0] == al][0]
+    
+@register.filter
+def extra_space(ll):
+    ll = len(ll)
+    if ll < 7:
+        return range(0, 7-ll if ll > 5 else 2)
+    elif ll == 7:
+        return range(0,0)
+    elif ll < 13:
+        return range(0, 13-ll if ll > 10 else 2)
+    elif ll == 13:
+        return range(0,0)
+    return range(0, 2)

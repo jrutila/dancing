@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 from .views import ParticipationView, MemberView, CancelView, LostLinkView, MassTransactionView, DanceEventsView, DanceEventParticipationView
 from django.shortcuts import redirect
 from django.contrib.admin.views.decorators import staff_member_required
+from danceclub.views import CompetitionListView
 
 urlpatterns = [
     #url(r'$', redirect('participate')),
@@ -34,4 +35,5 @@ urlpatterns = [
 
     # Admin urls
     url(r'upload/$', staff_member_required(MassTransactionView.as_view()), name='upload-transaction'),
+    url(r'listclasses/$', staff_member_required(CompetitionListView.as_view()), name='list-classes'),
 ]

@@ -12,7 +12,7 @@ import re
 from django.shortcuts import render
 from .forms import ParticipationForm, CancelForm, LostLinkForm, MassTransactionForm, DanceEventParticipationForm
 from .models import Member, Transaction, ReferenceNumber, ActivityParticipation, Season, AlreadyExists, DanceEvent, Dancer, Couple, DanceEventParticipation
-from .models import OwnCompetition
+from .models import OwnCompetition, CompetitionParticipation
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
@@ -388,3 +388,14 @@ class CompetitionEnrollView(FormView):
         self.enroll_email = form.cleaned_data['enroller_email']
         self.club = form.cleaned_data['club']
         return super().form_valid(form)
+
+class CompetitionListView(TemplateView):
+    template_name = "danceclub/admin/competition_list.html"
+    
+    def get_context_data(self):
+        competition = OwnCompetition.objects.order_by('start')[0]
+        participations = CompetitionParticipation.objects.filter(competition=competition).order_by('level')
+        ctx = super().get_context_data()
+        ctx['competition'] = competition
+        ctx['participations'] = participations
+        return ctx
