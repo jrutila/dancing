@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 
 SITE_ID = 1
 
+ADMINS = (('Juho Rutila', 'juho.rutila@gmail.com'))
+
 # Application definition
 
 INSTALLED_APPS = [
