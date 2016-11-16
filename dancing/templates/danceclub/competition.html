@@ -70,7 +70,7 @@
                                 <small>Klikkaa osallistujat luokan oikealta puolelta</small>
                                 {% endif %}
                                 <ul class="icons list-unstyled">
-                                    {% for al in competition.agelevels %}
+                                    {% for al in competition.agelevels|agesort %}
                                     <li>
                                         <i class="fa fa-check"></i>
                                         {{ al|agelevel }}

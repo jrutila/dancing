@@ -17,6 +17,8 @@ import uuid
 from collections import defaultdict
 from django.core.urlresolvers import reverse
 
+# DO NOT TOUCH THESE without migration!!
+# You will mess the ordering!
 LEVELS = (('lek', 'lek'), ('F', 'F'), ('E', 'E'), ('D', 'D'), ('C','C'), ('B','B'), ('A', 'A'))
 COMP_LEVELS = (('CUP', 'C-A Cup'), ('BA', 'B-A'))
 AGES = (('L1', 'Lapsi I'), ('L2', 'Lapsi II'), ('J1', 'Juniori I'), ('J2','Juniori II'), ('N','Nuoriso'), ('Y', 'Yleinen'), ('S1', 'Seniori I'),
@@ -422,6 +424,9 @@ class AgeLevelField(models.Field):
     
     def __init__(self, *args, **kwargs):
         c=[]
+        i=0
+        # DO NOT TOUCH THESE without migration!!
+        # You will mess the ordering!
         for ak,ad in AGES:
             for lk, ld in LEVELS+COMP_LEVELS:
                 if lk == 'lek' and ak not in ['L1', 'L2']:
@@ -430,9 +435,10 @@ class AgeLevelField(models.Field):
                    (lk == 'D' and ak in ['S1', 'S2']) or \
                    (lk in ['E','D'] and ak in ['S3', 'S4']):
                     for sk,sd in [('ltn', 'Latin'), ('std', 'Vakio'), ('all', '10-tanssi' if lk not in ['lek','F','E','D'] else 'Kaikki')]:
-                        c.append(("%s-%s-%s" % (sk,ak,lk), "%s %s %s" % (ad, ld, sd)))
+                        c.append(("%03d-%s-%s-%s" % (i,sk,ak,lk), "%s %s %s" % (ad, ld, sd)))
                 else:
-                    c.append(("all-%s-%s" % (ak,lk), "%s %s" % (ad, ld)))
+                    c.append(("%03d-all-%s-%s" % (i,ak,lk), "%s %s" % (ad, ld)))
+                i=i+1
         kwargs["choices"] = c
         super(AgeLevelField, self).__init__(*args, **kwargs)
 
@@ -515,7 +521,7 @@ class OwnCompetition(Competition):
 
 class CompetitionParticipation(models.Model):
     competition = models.ForeignKey(OwnCompetition, related_name="participations")
-    level = models.CharField(max_length=10, choices=OwnCompetition._meta.get_field('agelevels').choices)
+    level = models.CharField(max_length=20, choices=OwnCompetition._meta.get_field('agelevels').choices)
     club = models.CharField(max_length=60)
     man = models.CharField(max_length=60)
     woman = models.CharField(max_length=60)

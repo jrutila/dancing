@@ -394,7 +394,7 @@ class CompetitionListView(TemplateView):
     
     def get_context_data(self):
         competition = OwnCompetition.objects.order_by('start')[0]
-        participations = CompetitionParticipation.objects.filter(competition=competition).order_by('level')
+        participations = CompetitionParticipation.objects.filter(competition=competition).order_by('level','number')
         ctx = super().get_context_data()
         ctx['competition'] = competition
         ctx['participations'] = participations

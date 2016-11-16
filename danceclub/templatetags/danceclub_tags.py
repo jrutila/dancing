@@ -18,8 +18,13 @@ def own_competition(parser, token):
     return SetVarNode(own, "own")
     
 @register.filter
+def agesort(als):
+    return sorted(als)
+    
+@register.filter
 def agelevel(al):
-    return [x[1] for x in OwnCompetition._meta.get_field('agelevels').choices if x[0] == al][0]
+    choices = OwnCompetition._meta.get_field('agelevels').choices
+    return [x[1] for x in choices if x[0] == al][0]
     
 @register.filter
 def extra_space(ll):
