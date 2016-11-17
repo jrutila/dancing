@@ -273,3 +273,21 @@ else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    }
+}
