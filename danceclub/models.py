@@ -549,9 +549,13 @@ class CompetitionParticipation(models.Model):
         created = kwargs.get('created')
         if instance.number:
             CompetitionParticipation.objects.extra(where=[
-                "LOWER(REPLACE(man, ' ', '')) = '%s'" % instance.man.replace(" ","").lower(),
-                "LOWER(REPLACE(woman, ' ', '')) = '%s'" % instance.woman.replace(" ","").lower(),
-                "LOWER(REPLACE(club, ' ', '')) = '%s'" % instance.club.replace(" ","").lower(),
+                "LOWER(REPLACE(man, ' ', '')) = %s",
+                "LOWER(REPLACE(woman, ' ', '')) = %s",
+                "LOWER(REPLACE(club, ' ', '')) = %s",
+                ], params=[
+                    instance.man.replace(" ","").lower(),
+                    instance.woman.replace(" ","").lower(),
+                    instance.club.replace(" ","").lower()
                 ]).update(number=instance.number)
 
 post_save.connect(CompetitionParticipation.post_save, sender=CompetitionParticipation)
