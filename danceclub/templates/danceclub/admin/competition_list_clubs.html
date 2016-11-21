@@ -1,0 +1,27 @@
+{% load danceclub_tags dancing_tags %}
+
+<h1>{{ competition.name }}</h1>
+
+{% regroup participations by club as parts %}
+
+<table>
+    
+{% for p in parts %}
+    <tr>
+    <th style="text-align: left;" colspan="2">
+    <strong>{{ p.grouper }}</strong>
+    </th>
+    
+    <th style="padding-left: 10px">{% with amnt=p.list|length %}{{ amnt }}</th>
+    </tr>
+    
+    {% for pp in p.list %}
+        <tr>
+            <td style="text-align: right; padding-right: 10px">{{ pp.number }}</td>
+            <td>{{ pp.man }} - {{ pp.woman }}</td>
+        </tr>
+    {% endfor %}
+    {% endwith %}
+    
+{% endfor %}
+</table>

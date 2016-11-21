@@ -389,12 +389,28 @@ class CompetitionEnrollView(FormView):
         self.club = form.cleaned_data['club']
         return super().form_valid(form)
 
-class CompetitionListView(TemplateView):
-    template_name = "danceclub/admin/competition_list.html"
+class CompetitionListClassesView(TemplateView):
+    template_name = "danceclub/admin/competition_list_classes.html"
     
     def get_context_data(self):
         competition = OwnCompetition.objects.order_by('start')[0]
         participations = CompetitionParticipation.objects.filter(competition=competition).order_by('level','number')
+        ctx = super().get_context_data()
+        ctx['competition'] = competition
+        ctx['participations'] = participations
+        return ctx
+        
+class CompetitionListClubsView(TemplateView):
+    template_name = "danceclub/admin/competition_list_clubs.html"
+    
+    def get_context_data(self):
+        competition = OwnCompetition.objects.order_by('start')[0]
+        try:
+            participations = list(CompetitionParticipation.objects.filter(competition=competition).order_by('club','number').distinct('man','woman','club'))
+        except NotImplementedError:
+            seen = set()
+            participations = list(CompetitionParticipation.objects.filter(competition=competition).order_by('club','number'))
+            participations = [ p for p in participations if (p.man, p.woman, p.club) not in seen and not seen.add((p.man, p.woman, p.club))]
         ctx = super().get_context_data()
         ctx['competition'] = competition
         ctx['participations'] = participations
