@@ -7,18 +7,36 @@
     <table>
 {% for p in parts %}
                     <tr>
+                        {% if request.GET.manual %}
                         <th>Kars.</th>
                         <th>Semi</th>
                         <th>Final</th>
                         <th></th>
-                        <th>
-    <h2>{{ p.grouper|agelevel }}</h2>
+                        {% endif %}
+                        <th {% if not request.GET.manual %} colspan="2" style="text-align: left" {% endif %}>
+    {% if request.GET.manual %}
+    <h2>
+    {% else %}
+    <strong>
+    {% endif %}
+        {{ p.grouper|agelevel }}
+    {% if request.GET.manual %}
+    </h2>
+    {% else %}
+    </strong>
+    {% endif %}
                         </th>
-                        <th></th>
+                        <th>
+                            
+    {% if not request.GET.manual %}
+    {{ amnt }}
+    {% endif %}
+                        </th>
                     </tr>
     {% with amnt=p.list|length %}
     {% for pp in p.list %}
         <tr>
+            {% if request.GET.manual %}
             <td
             style="width: 50px;
             {% if amnt > 13 %}
@@ -33,10 +51,14 @@
             "></td>
             <td style="border: 1px solid black;width: 50px"></td>
             <td style="text-align: right; padding-right: 10px">{{ pp.number }}</td>
-            <td>{{ pp.man }} - {{ pp.woman }}</td>
+            {% else %}
+            <td style="padding-right: 10px">{{ pp.number }}</td>
+            {% endif %}
+            <td style="padding-right: 10px">{{ pp.man }} - {{ pp.woman }}</td>
             <td>{{ pp.club }}</td>
         </tr>
     {% endfor %}
+    {% if request.GET.manual %}
     {% for nn in p.list|extra_space %}
         <tr>
             <td
@@ -61,6 +83,7 @@
             <td colspan="5"></td>
             <td style="font-style: italic">Pareja yhteensä {{ amnt }} kpl</td>
         </tr>
+    {% endif %}
     {% endwith %}
     <tr><td style="height: 40px"></td></tr>
 {% endfor %}
