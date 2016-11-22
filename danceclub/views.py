@@ -409,11 +409,18 @@ class CompetitionListClubsView(TemplateView):
             #participations = list(CompetitionParticipation.objects.filter(competition=competition).order_by('club','number').distinct('man','woman','club'))
         #except NotImplementedError:
         
-        seen = set()
+        seen = dict()
         participations = list(CompetitionParticipation.objects.filter(competition=competition).order_by('club','number'))
-        participations = [ p for p in participations if (p.man, p.woman, p.club) not in seen and not seen.add((p.man, p.woman, p.club))]
+        parts = []
+        for p in participations:
+            if (p.man, p.woman, p.club) not in seen:
+                seen[(p.man, p.woman, p.club)] = p
+                setattr(p, 'levels', [p.level])
+                parts.append(p)
+            else:
+                seen[(p.man, p.woman, p.club)].levels.append(p.level)
             
         ctx = super().get_context_data()
         ctx['competition'] = competition
-        ctx['participations'] = participations
+        ctx['participations'] = parts
         return ctx
