@@ -438,7 +438,9 @@ class CompetitionListClubsView(TemplateView):
                 setattr(p, 'levels', [p.level])
                 parts.append(p)
             else:
-                seen[(p.man, p.woman, p.club)].levels.append(p.level)
+                pp = seen[(p.man, p.woman, p.club)]
+                pp.levels.append(p.level)
+                pp.paid = pp.paid or p.paid
             
         ctx = super().get_context_data()
         ctx['competition'] = competition

@@ -4,8 +4,7 @@
 
 {% regroup participations by club as parts %}
 
-<table>
-    
+<table style="border-collapse: collapse; ">
 {% for p in parts %}
     <tr>
     <th style="text-align: left;" colspan="2">
@@ -17,9 +16,18 @@
     
     {% if not request.GET.manual %}
     {% for pp in p.list %}
-        <tr>
+        <tr style="
+        {% if request.GET.paid %}
+        border-bottom: 1px solid black;
+        {% endif %}
+        {% if request.GET.paid == 'strike' and pp.paid %}
+        text-decoration: line-through;
+        {% endif %}
+        ">
             <td style="text-align: right; padding-right: 10px">{{ pp.number }}</td>
-            <td style="padding-right: 40px">{{ pp.man }} - {{ pp.woman }}</td>
+            <td style="padding-right: 40px;">
+            {{ pp.man }} - {{ pp.woman }}</td>
+            
             <td>
             {% for l in pp.levels %}
                 {% if not forloop.first %}
@@ -28,6 +36,9 @@
                 {{ l|agelevel }}
             {% endfor %}
             </td>
+            {% if request.GET.paid and request.GET.paid != 'strike' %}
+            <td>{% if pp.paid %}MAKSANUT!{% endif %}</td>
+            {% endif %}
         </tr>
     {% endfor %}
     {% endif %}
