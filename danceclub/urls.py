@@ -21,6 +21,7 @@ from .views import ParticipationView, MemberView, CancelView, LostLinkView, Mass
 from django.shortcuts import redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from danceclub.views import CompetitionListClassesView, CompetitionListClubsView
+from danceclub.views import competition_tps7_view
 
 urlpatterns = [
     #url(r'$', redirect('participate')),
@@ -36,6 +37,7 @@ urlpatterns = [
     # Reports
     url(r'listclasses/$', CompetitionListClassesView.as_view(), name='list-classes'),
     url(r'listclubs/$', CompetitionListClubsView.as_view(), name='list-clubs'),
+    url(r'tps7/$', competition_tps7_view, name='list-tps7'),
 
     # Admin urls
     url(r'upload/$', staff_member_required(MassTransactionView.as_view()), name='upload-transaction'),

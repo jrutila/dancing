@@ -34,6 +34,13 @@ youth_costs = {
     '*': [Decimal("5.00"), Decimal("10.00"), Decimal("5.00")],
     }
     
+def age_code(level):
+    l = level.split('-')
+    f = (l[2] if l[2] != "Y" else "YL")+l[3]
+    if l[1] == 'all': f = f + "-"
+    if l[1] == 'ltn': f = f + "L"
+    if l[1] == 'std': f = f + "V"
+    return f
     
 def get_max_ref():
     m = ReferenceNumber.objects.all().aggregate(Max('number'))['number__max']

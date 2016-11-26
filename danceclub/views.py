@@ -400,6 +400,26 @@ class CompetitionListClassesView(TemplateView):
         ctx['participations'] = participations
         return ctx
         
+import csv
+from django.http import HttpResponse
+from .models import age_code
+def competition_tps7_view(request):
+    split_names = request.GET.get('split_names', False)
+    # Create the HttpResponse object with the appropriate CSV header.
+    competition = OwnCompetition.objects.order_by('start')[0]
+    participations = CompetitionParticipation.objects.filter(competition=competition).order_by('level','number')
+    response = HttpResponse(content_type='text/cvs')
+    response['Content-Disposition'] = 'attachment; filename="'+competition.slug+'.csv"'
+
+    writer = csv.writer(response)
+    for p in participations:
+        if not split_names:
+            writer.writerow([age_code(p.level), p.number, p.man, p.woman, p.club])
+        else:
+            writer.writerow([age_code(p.level), p.number] + p.man.split(" ") + p.woman.split(" ") + [p.club])
+
+    return response
+
 class CompetitionListClubsView(TemplateView):
     template_name = "danceclub/admin/competition_list_clubs.html"
     
