@@ -177,7 +177,8 @@ class ActivityManager(models.Manager):
         next_season = Season.objects.next_season()
         if not curr_season and not next_season:
             return self.filter(start__gte=timezone.now())
-        f = self.filter(
+        f = self.filter(end__gte=timezone.now())
+        f = f.filter(
             start__gte=curr_season.start if curr_season else next_season.start,
             end__lte=next_season.end if next_season else curr_season.end)
         if (not also_disabled):
