@@ -5,7 +5,8 @@ from datetime import date
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_save
+from django.core.signals import request_finished
 from django.db.models import Sum, Max, Q
 from django.dispatch import receiver
 from decimal import *
@@ -16,6 +17,8 @@ import datetime
 import uuid
 from collections import defaultdict
 from django.core.urlresolvers import reverse
+import logging
+logger = logging.getLogger(__name__)
 
 # DO NOT TOUCH THESE without migration!!
 # You will mess the ordering!
@@ -79,16 +82,21 @@ class ReferenceNumber(models.Model):
         
 class MemberManager(models.Manager):
     def get_or_create(self, email, first_name, last_name, defaults={'young': False}):
+        first_name = first_name.strip()
+        last_name = last_name.strip()
+        email = email.strip()
+        
         member = None
         created = False
-        if email:
-            try:
-                member = self.get(user__email=email)
-                member.user.first_name = first_name
-                member.user.last_name = last_name
-                member.user.save()
-            except Member.DoesNotExist:
-                member = None
+        try:
+            member = self.get(user__email=email,
+                user__first_name=first_name,
+                user__last_name=last_name)
+        except Member.DoesNotExist:
+            member = None
+            
+        # No member with given email and name combination
+        # Try to get the member with null email
         if not member:
             try:
                 member = self.get(
@@ -100,12 +108,15 @@ class MemberManager(models.Manager):
                     member.user.save()
             except Member.DoesNotExist:
                 member = None
+                
+        # Create a new member
         if not member:
             # Member does not exist! Create one!
             user = User.objects.create(
                 first_name=first_name,
                 last_name=last_name,
-                email=email)
+                email=email,
+                username='%s-%s' % (email, first_name.replace(' ', '')))
             member = self.create(user=user,**defaults)
             created = True
         return member,created
@@ -130,12 +141,6 @@ class Member(models.Model):
         from .views import get_member_url
         return get_member_url(self)
         
-@receiver(post_save, sender=Member)
-def create_refnumber(instance, created, **kwargs):
-    if created:
-        ReferenceNumber.objects.create(
-            object=instance)
-
 class Dancer(Member):
     license = models.CharField(max_length=20, null=True, blank=True)
     
@@ -194,6 +199,8 @@ class Activity(models.Model):
     who = models.CharField(max_length=200, help_text="Kuka vetää?")
     active = models.BooleanField(default=True, help_text="Ota täppä pois jos haluat pois päältä")
     message = models.TextField(help_text="Teksti, joka näytetään ilmoittautumisen yhteydessä", null=True, blank=True)
+    cost = models.DecimalField(help_text="Hinta ilman jäsenmaksua %s" % season_cost, max_digits=4, decimal_places=2)
+    young = models.BooleanField(help_text="Onko tämä tunti lapsille?")
 
     objects = ActivityManager()
     

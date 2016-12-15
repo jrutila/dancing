@@ -201,18 +201,21 @@ class LostLinkView(FormView):
     
     def form_valid(self, form):
         self.failed = None
-        try:
-            self.member = Member.objects.get(user__email=form.cleaned_data['email'])
-        except Member.DoesNotExist:
+        members = Member.objects.filter(user__email=form.cleaned_data['email'])
+        if not members.count():
             self.failed = "Antamaasi sähköpostiosoitetta ei löytynyt"
             return super().form_valid(form)
         
-        self.lostlink = "Maksutietolinkki lähetetty osoitteeseen "+self.member.user.email
+        
+        self.lostlink = "Maksutietolinkki lähetetty osoitteeseen "+form.cleaned_data['email']
+        links = ""
+        for m in members:
+            links = links + "\t%s - %s\n" % (m, self.request.build_absolute_uri(get_member_url(m)))
         send_mail(
             'Maksutietosi Dancingille',
-            'Hei,\nTarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing' % self.request.build_absolute_uri(get_member_url(self.member)),
+            'Hei,\nTarkista maksutietosi osoitteesta:\n%s\n\nTerveisin,\nTanssiklubi Dancing' % links,
             'sihteeri@dancing.fi',
-            [self.member.user.email], fail_silently=False)
+            [form.cleaned_data['email']], fail_silently=False)
         return super().form_valid(form)
         
     def get_success_url(self):

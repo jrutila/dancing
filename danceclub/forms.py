@@ -100,7 +100,7 @@ class ParticipationForm(forms.Form):
     first_name = forms.CharField(label="Etunimi")
     last_name = forms.CharField(label="Sukunimi")
     email = forms.EmailField(label="Sähköpostiosoite", required=False, help_text="Saat sähköpostiisi maksamiseen liittyvät ohjeet. Jos sinulla ei ole sähköpostia, ilmoittaudu ilman sähköpostia.")
-    young = forms.BooleanField(label="Olen alle 18-vuotias",required=False)
+    #young = forms.BooleanField(label="Olen alle 18-vuotias",required=False)
     
     activities = forms.ModelMultipleChoiceField(
         label="Tunnit (%s)" % str(Season.objects.current_or_next_season()),
@@ -111,15 +111,14 @@ class ParticipationForm(forms.Form):
         first_name = self.cleaned_data['first_name']
         last_name = self.cleaned_data['last_name']
         email = self.cleaned_data['email']
-        young = self.cleaned_data['young']
+        #young = self.cleaned_data['young']
         member, created = Member.objects.get_or_create(
-            email, first_name, last_name, {'young': young })
+            email, first_name, last_name)
         
-        if not created and member.young != young:
-            member.young = young
+        for act in self.cleaned_data['activities']:
+            member.young = act.young
             member.save()
             
-        for act in self.cleaned_data['activities']:
             ActivityParticipation.objects.get_or_create(
                 member=member,
                 activity=act)
