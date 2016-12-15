@@ -68,3 +68,12 @@ register.tag(CompetitionPlaceholder)
 @register.filter(name='lookup')
 def cut(value, arg):
     return value[arg]
+
+@register.filter
+def form_man(o,index):
+    try:
+        bf = o["man_"+index]
+        print(bf)
+        return bf
+    except:
+        return settings.TEMPLATE_STRING_IF_INVALID

@@ -278,38 +278,34 @@ else:
     
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        },
+BOOTSTRAP3 = {
+    'formset_renderers':{
+        'default': 'danceclub.renderers.ConcordiaFormsetRenderer',
     },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        }
+    'form_renderers': {
+        'default': 'bootstrap3.renderers.FormRenderer',
     },
-    'loggers': {
-        'django': {
-            'handlers': ['mail_admins', 'console'],
-            'level': 'ERROR',
-            'propagate': True,
+    'field_renderers': {
+        'default': 'danceclub.renderers.ConcordiaFieldRenderer',
+        'inline': 'bootstrap3.renderers.InlineFieldRenderer',
+    },
+}
+
+if ON_PAAS:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'mail_admins': {
+                'level': 'ERROR',
+                'class': 'django.utils.log.AdminEmailHandler'
+            }
         },
-        'danceclub': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
+        'loggers': {
+            'django.request': {
+                'handlers': ['mail_admins'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
         }
     }
-}

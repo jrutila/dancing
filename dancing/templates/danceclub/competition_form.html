@@ -2,6 +2,7 @@
 {% load settings_tags %}
 {% load cms_tags menu_tags %}
 {% load bootstrap3 %}
+{% load dancing_tags %}
 
 {% block base_content %}
 <section class="section-title img-feature" >
@@ -38,7 +39,12 @@
     <div class="alert alert-danger"><strong>Lomakkeen syötössä oli virheitä! Korjaa virheet. Jos et onnistu lähettämään ilmoittautumista tämän lomakkeen avulla, käytä sähköpostia.</strong></div>
     {% endif %}
     
-    {% bootstrap_form form %}
+    {% bootstrap_field form.club %}
+    {% bootstrap_field form.captcha %}
+    {% bootstrap_field form.enroller_name %}
+    {% bootstrap_field form.enroller_email %}
+    
+    {% bootstrap_formset formset layout="tabular" %}
     {% buttons %}
         <button type="submit" class="btn btn-primary">
             {% bootstrap_icon "star" %} Ilmoita parit

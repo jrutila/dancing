@@ -362,7 +362,8 @@ class CompetitionView(TemplateView):
         ctx["counts"] = counts
         return ctx
         
-from .forms import CompetitionEnrollForm
+from django.forms import formset_factory
+from .forms import CompetitionEnrollForm, CompetitionEnrollPairForm
 from django.utils import formats
 class CompetitionEnrollView(FormView):
     template_name = "danceclub/competition_form.html"
@@ -370,9 +371,15 @@ class CompetitionEnrollView(FormView):
     
     def dispatch(self, request, *args, **kwargs):
         self.competition = get_object_or_404(OwnCompetition, slug=kwargs['slug'])
+        self.formset = formset_factory(CompetitionEnrollPairForm, extra=2, form_kwargs={'competition': self.competition})
         if (self.competition.deadline < timezone.now() and not request.GET.get('secret', None)):
             raise Http404("Ilmoittautumisaika on päättynyt")
         return super(CompetitionEnrollView,self).dispatch(request, *args, **kwargs)
+        
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args,**kwargs)
+        ctx['formset'] = self.formset
+        return ctx
     
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
