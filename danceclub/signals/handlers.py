@@ -34,15 +34,17 @@ def set_activity_transactions(instance, **kwargs):
     ).delete()
     
     if 'created' in kwargs:
-        Transaction.objects.get_or_create(
-            source_type=ContentType.objects.get_for_model(season),
-            source_id=season.id,
-            owner=owner,
-            defaults={
-            'amount':-1*season_cost,
-            'created_at':instance.created_at,
-            'title':"Jäsenmaksu %s" % str(season)
-            })
+        # Do not add season cost to young children
+        if not instance.activity.young:
+            Transaction.objects.get_or_create(
+                source_type=ContentType.objects.get_for_model(season),
+                source_id=season.id,
+                owner=owner,
+                defaults={
+                'amount':-1*season_cost,
+                'created_at':instance.created_at,
+                'title':"Jäsenmaksu %s" % str(season)
+                })
         Transaction.objects.create(
             source=instance.activity,
             owner=instance.member,

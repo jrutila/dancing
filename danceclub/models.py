@@ -200,7 +200,7 @@ class Activity(models.Model):
     active = models.BooleanField(default=True, help_text="Ota täppä pois jos haluat pois päältä")
     message = models.TextField(help_text="Teksti, joka näytetään ilmoittautumisen yhteydessä", null=True, blank=True)
     cost = models.DecimalField(help_text="Hinta ilman jäsenmaksua %s" % season_cost, max_digits=4, decimal_places=2)
-    young = models.BooleanField(help_text="Onko tämä tunti lapsille?")
+    young = models.BooleanField(help_text="Onko tämä tunti lapsille? Ei lisää jäsenmaksua, eli laita koko hinta yläpuolelle!")
 
     objects = ActivityManager()
     
@@ -293,66 +293,6 @@ def create_event_transaction(instance, **kwargs):
                     'amount': cost,
                     'created_at': created_at,
                     'title': "%s" % str(event)})
-
-@receiver(post_save, sender=ActivityParticipation)
-@receiver(post_delete, sender=ActivityParticipation)
-def set_activity_transactions(instance, **kwargs):
-    season = Season.objects.get_season(instance.activity)
-    owner = instance.member
-    acts = ActivityParticipation.objects.filter(
-        member=instance.member,
-        activity__start__gte=season.start,
-        activity__end__lte=season.end).order_by('-activity__type')
-    Transaction.objects.filter(
-        owner=instance.member,
-        source_type=ContentType.objects.get_for_model(Activity),
-        source_id=instance.activity.id
-    ).delete()
-    
-    if 'created' in kwargs:
-        Transaction.objects.get_or_create(
-            source_type=ContentType.objects.get_for_model(season),
-            source_id=season.id,
-            owner=owner,
-            defaults={
-            'amount':-1*season_cost,
-            'created_at':instance.created_at,
-            'title':"Jäsenmaksu %s" % str(season)
-            })
-        Transaction.objects.create(
-            source=instance.activity,
-            owner=instance.member,
-            amount = Decimal('0.00'),
-            created_at = instance.created_at,
-            title = "%s (%s)" % (instance.activity.name, str(season)))
-        
-    if len(acts) == 0 and not 'created' in kwargs:
-        # If all deleted
-        Transaction.objects.filter(
-            owner=instance.member,
-            source_type=ContentType.objects.get_for_model(season),
-            source_id=season.id).delete()
-    else:
-        trans = Transaction.objects.filter(
-            owner=instance.member,
-            source_type=ContentType.objects.get_for_model(Activity),
-            source_id__in=[x.activity.id for x in acts])
-        ids = [x.activity.id for x in acts]
-        trans = sorted(trans, key=lambda x: ids.index(x.source.id))
-        
-        i = 0
-        cost = normal_costs
-        if owner.young:
-            cost = youth_costs
-            
-        for t in trans:
-            key = t.source.type
-            if key not in cost:
-                key = '*'
-            t.amount = -1*cost[key][i]
-            if i < len(cost):
-                i = i + 1;
-            t.save()
 
 class AlreadyExists(BaseException):
     pass
