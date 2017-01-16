@@ -112,11 +112,12 @@ class MemberManager(models.Manager):
         # Create a new member
         if not member:
             # Member does not exist! Create one!
+            username = ('%s-%s-%s' % (email.split('@')[0][:6], email.split('@')[1].replace('.', '')[:6], first_name.replace(' ', '')))[:30]
             user = User.objects.create(
                 first_name=first_name,
                 last_name=last_name,
                 email=email,
-                username='%s-%s' % (email, first_name.replace(' ', '')))
+                username=username)
             member = self.create(user=user,**defaults)
             created = True
         return member,created
