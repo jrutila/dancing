@@ -85,10 +85,10 @@ class DanceEventParticipationView(FormView):
     def dispatch(self, *args, **kwargs):
         self.event_id = kwargs['event_id']
         self.event = get_object_or_404(DanceEvent, id=self.event_id)
-        if self.event.start <= timezone.now():
-            raise Http404()
         if self.request.user.is_authenticated():
             pass
+        if self.event.start <= timezone.now():
+            raise Http404()
         elif 'lastpart' in self.request.session and self.request.session['lastpart'] == self.event.id:
             pass
         elif self.event.public_since == None or self.event.public_since > timezone.now():
