@@ -20,7 +20,7 @@ class DanceEventParticipationForm(forms.Form):
         super().__init__(*args,**kwargs)
         last_change = timezone.now()-datetime.timedelta(hours=2)
         self.event = event
-        if user.is_authenticated():
+        if user.is_authenticated() and Dancer.objects.filter(user=user):
             dancer = Dancer.objects.get(user=user)
             couple = Couple.objects.get_couple(dancer)
             choices = [(str(d.id),str(d)) for d in couple]

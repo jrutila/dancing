@@ -92,6 +92,12 @@
 </form>
                                 </div>
                                 {% endif %}
+
+                                {% if not e.participations.count or e.cost_per_participant %}
+                                <div class="row">
+<a href="{% url 'dance_participate' e.id %}">Ilmoita joku muu</a>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     {% endfor %}

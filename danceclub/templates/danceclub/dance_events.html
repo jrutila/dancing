@@ -40,8 +40,10 @@ ilmoittaudu:<br/>
     <button>Ilmoita</button>
 </form>
 
+
 {% endif %}
 {% endif %}
+<a href="{% url 'dance_participate' e.id %}">Ilmoita joku muu</a>
 
 {% endfor %}
 

@@ -86,7 +86,7 @@ class DanceEventParticipationView(FormView):
         self.event_id = kwargs['event_id']
         self.event = get_object_or_404(DanceEvent, id=self.event_id)
         if self.request.user.is_authenticated():
-            pass
+            return super().dispatch(*args, **kwargs)
         if self.event.start <= timezone.now():
             raise Http404()
         elif 'lastpart' in self.request.session and self.request.session['lastpart'] == self.event.id:
@@ -104,6 +104,9 @@ class DanceEventParticipationView(FormView):
         
     def get_form(self, *args, **kwargs):
         form = DanceEventParticipationForm(self.request.user, self.event, **self.get_form_kwargs())
+        # Group events can be attended always
+        if self.event.cost_per_participant:
+            return form
         if 'participant' in form.fields and 'cancel' in form.fields:
             # Logged in user
             if form.fields['participant'].choices == [] and form.fields['cancel'].choices == []:
@@ -115,7 +118,7 @@ class DanceEventParticipationView(FormView):
     def form_valid(self, form):
         parts, created = form.update_parts()
         self.created = created
-        if not self.request.user.is_authenticated():
+        if parts:
             self.member = parts[0].member
             self.request.session['lastpart'] = self.event.id
             try:
@@ -124,10 +127,12 @@ class DanceEventParticipationView(FormView):
                 messages.add_message(self.request, messages.SUCCESS, 'Maksutiedot lähetetty osoitteeseen %s' % self.member.user.email)
             except smtplib.SMTPException:
                 messages.add_message(self.request, messages.ERROR, 'Sähköpostin lähetys epäonnistui!')
+        else:
+            self.member = None
         return super().form_valid(form)
         
     def get_success_url(self):
-        if self.created:
+        if self.created and self.member:
             # Message not sent to email or this is a new user
             return get_member_url(self.member)
         if self.request.user.is_authenticated():

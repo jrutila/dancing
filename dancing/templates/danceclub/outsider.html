@@ -41,7 +41,7 @@
                             <li><i class="fa fa-euro"></i>{{ event.cost }}</li>
                         </ul>
                         
-                        {% if event.participations.count %}
+                        {% if not form %}
                             <h5>Tunti on jo varattu</h5>
                             <ul>
                             {% for p in event.participations.all %}
