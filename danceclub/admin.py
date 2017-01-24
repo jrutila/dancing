@@ -15,6 +15,13 @@ from django.conf.urls import url, include
 from datetime import datetime
 import time
 from django.utils import timezone
+from danceclub.views import send_payment_email
+
+def member_saldo(obj):
+    return Transaction.objects.filter(owner=obj.member).aggregate(Sum('amount'))['amount__sum']
+
+def saldo(obj):
+    return Transaction.objects.filter(owner=obj).aggregate(Sum('amount'))['amount__sum']
 
 class RefNumberInlineForm(forms.ModelForm):
     def has_changed(self):
@@ -30,9 +37,15 @@ class ReferenceNumberInline(GenericTabularInline):
 class TransactionInline(admin.TabularInline):
     model = Transaction
 
+def send_payment_link(modeladmin, request, queryset):
+    for m in queryset:
+        send_payment_email(request,m)
+
 class MemberAdmin(admin.ModelAdmin):
     model = Member
     inlines = [ ReferenceNumberInline, TransactionInline ]
+    list_display = ('__str__', saldo)
+    actions = [send_payment_link]
     
 class DancerCreateForm(forms.ModelForm):
     class Meta:
@@ -172,9 +185,6 @@ class ActivitiesList(admin.RelatedFieldListFilter):
         super(ActivitiesList, self).__init__(field, request, *args, **kwargs)
         acts = Activity.objects.current_or_next(also_disabled=True)
         self.lookup_choices = [ (x.id, x) for x in acts ]
-
-def member_saldo(obj):
-    return Transaction.objects.filter(owner=obj.member).aggregate(Sum('amount'))['amount__sum']
 
 class NextCompetition(admin.SimpleListFilter):
     title = "Viimeisin kilpailu"
