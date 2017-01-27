@@ -28,7 +28,11 @@
                 <div class="row">
                     <div class="col-md-12">
 {% if transactions %}
-{{saldo}} &euro; <small>(viitemaksut tarkistettu: {{ last_check }})</small>
+{% if saldo < 0 %}
+{{saldo}} &euro;
+{% else %}
+Ei maksettavaa
+{% endif %} <small>(viitemaksut tarkistettu: {{ last_check }})</small>
 <table class="table">
     {% for tr in transactions %}
     <tr>
@@ -36,13 +40,15 @@
         {{ tr.created_at }}
         </td>
         <td>
+            {% if saldo < 0 %}
         {{ tr.amount }} &euro;
+            {% endif %}
         </td>
         <td>
         {{ tr.title }}
         </td>
         <td>
-        {% if tr.cancel %}
+        {% if tr.cancel and saldo < 0 %}
         <form method="POST" action="{% url 'cancel' %}">
             {% csrf_token %}
             {{ tr.cancel.as_p }}
@@ -54,14 +60,15 @@
     {% endfor %}
 </table>
 
-{% if saldo < 0 %}
-<p class="alert alert-info">
-    Maksa tilille: {% settings "bank_account" %}<br/>
-    Käytä viitettä: {{ member.reference_numbers.first.number }}
-   <br/><br/> 
-    Virtuaaliviivakoodi: {{ barcode }}
-</p>
-{% endif %}
+    {% if saldo < 0 %}
+    <p class="alert alert-info">
+        Maksa tilille: {% settings "bank_account" %}<br/>
+        Käytä viitettä: {{ member.reference_numbers.first.number }}
+       <br/><br/> 
+        Virtuaaliviivakoodi: {{ barcode }}
+    </p>
+    {% endif %}
+
 {% else %}
 Ei ilmoittautumisia kaudelle {{ season }}.
 Ole hyvä ja <a href="{% page_url "participate" %}">ilmoittaudu</a>.

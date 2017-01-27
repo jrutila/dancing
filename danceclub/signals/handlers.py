@@ -21,12 +21,11 @@ def create_refnumber(instance, created, **kwargs):
 @receiver(post_save, sender=ActivityParticipation)
 @receiver(post_delete, sender=ActivityParticipation)
 def set_activity_transactions(instance, **kwargs):
-    season = Season.objects.get_season(instance.activity)
+    season = instance.activity.season
     owner = instance.member
     acts = ActivityParticipation.objects.filter(
         member=instance.member,
-        activity__start__gte=season.start,
-        activity__end__lte=season.end).order_by('-activity__type')
+        activity__season=season).order_by('-activity__type')
     Transaction.objects.filter(
         owner=instance.member,
         source_type=ContentType.objects.get_for_model(Activity),

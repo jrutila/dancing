@@ -36,10 +36,11 @@ def get_member_url(member):
         'member_id': member.token
         })
         
-def send_payment_email(request, member):
+def send_payment_email(request, member, message):
+    message = message or 'Hei,\nkiitos osallistumisestasi.\nTarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing'
     send_mail(
         'Maksutietosi Dancingille',
-        'Hei,\nkiitos osallistumisestasi.\nTarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing' % request.build_absolute_uri(get_member_url(member)),
+        message % request.build_absolute_uri(get_member_url(member)),
         'sihteeri@dancing.fi',
         [member.user.email], fail_silently=False)
     
@@ -154,7 +155,7 @@ class ParticipationView(FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['season'] = Season.objects.current_or_next_season()
-        context['disabled'] = Activity.objects.current_or_next(True).filter(active=False)
+        context['disabled'] = Activity.objects.filter(season=context['season'],active=False)
         return context
         
     def get_initial(self):
@@ -174,8 +175,11 @@ class ParticipationView(FormView):
         self.created = created
         self.mail_sent = False
         if self.member.user.email:
+            message = None
+            for act in form.cleaned_data['activities']:
+                message = act.mail_message or None
             try:
-                send_payment_email(self.request, self.member)
+                send_payment_email(self.request, self.member, message)
                 self.mail_sent = True
                 messages.add_message(self.request, messages.SUCCESS, 'Maksutiedot lähetetty osoitteeseen %s' % self.member.user.email)
             except smtplib.SMTPException:
@@ -241,12 +245,22 @@ class MemberView(TemplateView):
         # Limit transactions to only show the latest
         ctx["transactions"] = []
         sld = 0
-        for tr in list(transactions.order_by('created_at')):
-            sld = sld + tr.amount
-            if sld >= Decimal('0.00'):
-                ctx["transactions"] = []
-            if sld != Decimal('0.00'):
-                ctx["transactions"].append(tr)
+        if saldo != None and saldo < 0:
+            for tr in list(transactions.order_by('created_at')):
+                sld = sld + tr.amount
+                if sld >= Decimal('0.00'):
+                    ctx["transactions"] = []
+                if sld != Decimal('0.00'):
+                    ctx["transactions"].append(tr)
+        else:
+            season_type = ContentType.objects.get_for_model(ctx["season"])
+            act_type = ContentType.objects.get_for_model(Activity)
+            acts = Activity.objects.filter(
+                season=ctx["season"]
+            ).values_list('id', flat=True)
+            ctx["transactions"] = transactions.filter(
+                Q(source_type=season_type.id, source_id=ctx["season"].id) |
+                Q(source_type=act_type.id, source_id__in=acts))
 
         ctx['acts'] = ActivityParticipation.objects.filter_canceable(member=member)
         for a in ctx['acts']:

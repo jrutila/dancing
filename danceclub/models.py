@@ -181,34 +181,33 @@ class ActivityManager(models.Manager):
     def current_or_next(self, also_disabled=False):
         curr_season = Season.objects.current_season()
         next_season = Season.objects.next_season()
-        if not curr_season and not next_season:
-            return self.filter(start__gte=timezone.now())
-        f = self.filter(end__gte=timezone.now())
-        f = f.filter(
-            start__gte=curr_season.start if curr_season else next_season.start,
-            end__lte=next_season.end if next_season else curr_season.end)
+
+        f = self.filter(season=curr_season or next_season)
+        f = f.filter(Q(end__isnull=True) | Q(end__gt=timezone.now()))
         if (not also_disabled):
             f = f.filter(active=True)
-        return f.order_by('start')
+        return f.order_by('name')
 
 class Activity(models.Model):
     type = models.CharField(max_length=10,help_text="Tekninen nimi, joka kertoo minkä otsikon alle tapahtumat tulevat")
     name = models.CharField(max_length=200, help_text="Nimi, joka näytetään ilmoittautujille")
     start = models.DateField()
     end = models.DateField()
+    season = models.ForeignKey("Season")
     when = models.CharField(max_length=50, help_text="Milloin tapahtuu. Esim (To klo 15:00 - 16:00)")
     who = models.CharField(max_length=200, help_text="Kuka vetää?")
     active = models.BooleanField(default=True, help_text="Ota täppä pois jos haluat pois päältä")
     message = models.TextField(help_text="Teksti, joka näytetään ilmoittautumisen yhteydessä", null=True, blank=True)
+    mail_message = models.TextField(help_text="Teksti, joka lähetetään sähköpostiviestillä ilmoittautumisen yhteydessä", null=True, blank=True)
     cost = models.DecimalField(help_text="Hinta ilman jäsenmaksua %s" % season_cost, max_digits=4, decimal_places=2)
     young = models.BooleanField(help_text="Onko tämä tunti lapsille? Ei lisää jäsenmaksua, eli laita koko hinta yläpuolelle!")
 
     objects = ActivityManager()
     
     def __str__(self):
-        s = "%s %s" % (self.name, self.when)
-        if self.end < date.today():
-            s = s + " (päättynyt: %s)" % self.end
+        s = "%s %s (%s)" % (self.name, self.when, self.season)
+        if self.season.end < date.today():
+            s = s + " (päättynyt: %s)" % self.season.end
         return s
         
 class ActivityParticipationManager(models.Manager):
@@ -340,7 +339,7 @@ class SeasonManager(models.Manager):
         return self.filter(end__gte=timezone.now()).order_by("start").first()
 
     def get_season(self, act):
-        return self.get(start__lte=act.start, end__gte=act.end)
+        return act.season
         
 class Season(models.Model):
     name = models.CharField(max_length=300)
