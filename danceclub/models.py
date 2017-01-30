@@ -124,6 +124,7 @@ class MemberManager(models.Manager):
 
 class Member(models.Model):
     user = models.ForeignKey(User)
+    locality = models.CharField(max_length=50)
     reference_numbers = GenericRelation(ReferenceNumber, content_type_field='object_type')
     token = models.UUIDField(unique=True,blank=False,null=False,default=uuid.uuid4, editable=False)
     young = models.BooleanField(help_text="Olen alle 16-vuotias",blank=True)
