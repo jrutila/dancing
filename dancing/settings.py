@@ -72,6 +72,8 @@ INSTALLED_APPS = [
     'cmsplugin_iframe',
     'cmsplugin_contact_plus',
     
+    'phonenumber_field',
+    
     'danceclub',
 ]
 
@@ -217,6 +219,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+PHONENUMBER_DEFAULT_REGION='FI'
+PHONENUMBER_DEFAULT_FORMAT='NATIONAL'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/

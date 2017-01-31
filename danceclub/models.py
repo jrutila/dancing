@@ -18,6 +18,7 @@ import uuid
 from collections import defaultdict
 from django.core.urlresolvers import reverse
 import logging
+from phonenumber_field.modelfields import PhoneNumberField
 logger = logging.getLogger(__name__)
 
 # DO NOT TOUCH THESE without migration!!
@@ -127,6 +128,7 @@ class Member(models.Model):
     locality = models.CharField(max_length=50)
     reference_numbers = GenericRelation(ReferenceNumber, content_type_field='object_type')
     token = models.UUIDField(unique=True,blank=False,null=False,default=uuid.uuid4, editable=False)
+    phone_number = PhoneNumberField(blank=True)
     young = models.BooleanField(help_text="Olen alle 16-vuotias",blank=True)
     
     objects = MemberManager()

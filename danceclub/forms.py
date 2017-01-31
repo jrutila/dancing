@@ -4,6 +4,7 @@ from django.utils import timezone
 from .models import Member, Dancer, Couple, DanceEvent, DanceEventParticipation
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from phonenumber_field.formfields import PhoneNumberField
 import datetime
 
 class CancelForm(forms.Form):
@@ -101,6 +102,7 @@ class ParticipationForm(forms.Form):
     last_name = forms.CharField(label="Sukunimi")
     locality = forms.CharField(label="Kotipaikkakunta")
     email = forms.EmailField(label="Sähköpostiosoite", required=False, help_text="Saat sähköpostiisi maksamiseen liittyvät ohjeet. Jos sinulla ei ole sähköpostia, ilmoittaudu ilman sähköpostia.")
+    phone_number = PhoneNumberField(label="Puhelinnumero", required=False, help_text="Vapaaehtoinen tieto. Jätä puhelinnumerosi niin voimme tarvittaessa ottaa sinuun yhteyttä kiireellisissä tapauksissa.")
     #young = forms.BooleanField(label="Olen alle 18-vuotias",required=False)
     
     activities = forms.ModelMultipleChoiceField(
@@ -117,6 +119,7 @@ class ParticipationForm(forms.Form):
         member, created = Member.objects.get_or_create(
             email, first_name, last_name)
         member.locality = locality
+        member.phone_number = self.cleaned_data['phone_number']
         
         for act in self.cleaned_data['activities']:
             member.young = act.young
