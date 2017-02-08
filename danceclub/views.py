@@ -362,16 +362,33 @@ class CompetitionView(TemplateView):
         ctx["counts"] = counts
         return ctx
         
-from django.forms import formset_factory
+from django.forms import formset_factory, BaseFormSet
 from .forms import CompetitionEnrollForm, CompetitionEnrollPairForm
 from django.utils import formats
+from django.utils.functional import cached_property
+
+class CompetitionEnrollFormSet(BaseFormSet):
+    @cached_property
+    def forms(self):
+        """
+        Instantiate forms at first property access.
+        """
+        # DoS protection is included in total_form_count()
+        forms = [self._construct_form(i, competition=self.competition) for i in range(self.total_form_count())]
+        return forms
+
 class CompetitionEnrollView(FormView):
     template_name = "danceclub/competition_form.html"
     form_class = CompetitionEnrollForm
     
     def dispatch(self, request, *args, **kwargs):
         self.competition = get_object_or_404(OwnCompetition, slug=kwargs['slug'])
-        self.formset = formset_factory(CompetitionEnrollPairForm, extra=2, form_kwargs={'competition': self.competition})
+        self.formset = formset_factory(
+            CompetitionEnrollPairForm,
+            formset=CompetitionEnrollFormSet,
+            extra=2)
+        self.formset.competition = self.competition
+        #(competition = self.competition)
         if (self.competition.deadline < timezone.now() and not request.GET.get('secret', None)):
             raise Http404("Ilmoittautumisaika on päättynyt")
         return super(CompetitionEnrollView,self).dispatch(request, *args, **kwargs)

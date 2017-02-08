@@ -164,11 +164,13 @@ class CompetitionEnrollPairForm(forms.Form):
     email = forms.EmailField(required=False, label="Sähköpostiosoite")
     
     def __init__(self, *args, **kwargs):
+        competition = kwargs.pop('competition')
+        super().__init__(*args, **kwargs)
         choices = competition._meta.get_field('agelevels').choices
         als = [c for c in choices if c[0] in competition.agelevels]
         self.competition = competition
         als.insert(0,('-', '--'))
-        self.fields['level']._meta.choices = als
+        self.fields['level'].choices = als
     
 class CompetitionEnrollForm(forms.Form):
     #club = forms.CharField(max_length=60, required=True, label="Seuran nimi")
