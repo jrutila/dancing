@@ -153,7 +153,8 @@ def couples():
         spamreader = csv.reader(daatta, delimiter=',', quotechar='"')
         pairs = defaultdict(lambda: [])
         for row in spamreader:
-            pairs[row[3]+", "+row[4]].append(row)
+            key = "%s, %s" % (row[3].strip(), row[4].strip())
+            pairs[key].append(row)
         couples = pairs
     return couples
 
