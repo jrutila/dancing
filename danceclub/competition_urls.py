@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^$', CompetitionIndex.as_view(), name='competition_index'),
     url(r'(?P<slug>[^/]+)/$', CompetitionView.as_view(), name='competition_info'),
     url(r'(?P<slug>[^/]+)/enroll/$', CompetitionEnrollView.as_view(), name='competition_enroll'),
+    url(r'(?P<slug>[^/]+)/enroll/(?P<club>\d+)/$', CompetitionEnrollView.as_view(), name='competition_enroll'),
 ]

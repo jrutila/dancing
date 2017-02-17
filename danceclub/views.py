@@ -11,6 +11,7 @@ import re
 
 from django.shortcuts import render
 from .forms import ParticipationForm, CancelForm, LostLinkForm, MassTransactionForm, DanceEventParticipationForm
+from .forms import couples
 from .models import Member, Transaction, ReferenceNumber, ActivityParticipation, Season, AlreadyExists, DanceEvent, Dancer, Couple, DanceEventParticipation
 from .models import OwnCompetition, CompetitionParticipation
 from django.views.generic.edit import FormView
@@ -374,7 +375,7 @@ class CompetitionEnrollFormSet(BaseFormSet):
         Instantiate forms at first property access.
         """
         # DoS protection is included in total_form_count()
-        forms = [self._construct_form(i, competition=self.competition) for i in range(self.total_form_count())]
+        forms = [self._construct_form(i, competition=self.competition, club=self.club) for i in range(self.total_form_count())]
         return forms
 
 class CompetitionEnrollView(FormView):
@@ -382,16 +383,34 @@ class CompetitionEnrollView(FormView):
     form_class = CompetitionEnrollForm
     
     def dispatch(self, request, *args, **kwargs):
+        if 'club' in kwargs:
+            self.club = int(kwargs['club'])
+        else:
+            self.club = None
         self.competition = get_object_or_404(OwnCompetition, slug=kwargs['slug'])
+        
+        if (self.competition.deadline < timezone.now() and not request.GET.get('secret', None)):
+            raise Http404("Ilmoittautumisaika on päättynyt")
+            
         self.formset = formset_factory(
             CompetitionEnrollPairForm,
             formset=CompetitionEnrollFormSet,
-            extra=2)
+            extra=10)
         self.formset.competition = self.competition
+        if self.club:
+            field = self.form_class(self.competition).fields['club']
+            choice = field.choices[self.club]
+            self.formset.club = choice[0]
         #(competition = self.competition)
-        if (self.competition.deadline < timezone.now() and not request.GET.get('secret', None)):
-            raise Http404("Ilmoittautumisaika on päättynyt")
         return super(CompetitionEnrollView,self).dispatch(request, *args, **kwargs)
+        
+    def get_initial(self, *args, **kwargs):
+        initial = super().get_initial(*args, **kwargs)
+        if self.club:
+            field = self.form_class(self.competition).fields['club']
+            choice = field.choices[self.club]
+            initial['club'] = choice[0]
+        return initial
         
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args,**kwargs)

@@ -165,16 +165,20 @@ class CompetitionEnrollPairForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
         competition = kwargs.pop('competition')
+        club = kwargs.pop('club')
         super().__init__(*args, **kwargs)
         choices = competition._meta.get_field('agelevels').choices
         als = [c for c in choices if c[0] in competition.agelevels]
         self.competition = competition
         als.insert(0,('-', '--'))
         self.fields['level'].choices = als
+        cpls = [(x[0], x[2]) for x in couples()[club]]
+        cpls.insert(0, (0, '--'))
+        self.fields['couple'].choices = cpls
     
 class CompetitionEnrollForm(forms.Form):
     #club = forms.CharField(max_length=60, required=True, label="Seuran nimi")
-    captcha = forms.CharField(max_length=60, required=True, label="Seuran nimi", help_text="Kirjoita seurasi nimi uudestaan, niin kuin se yläpuolella näkyy, jotta tiedämme ettet ole botti")
+    #captcha = forms.CharField(max_length=60, required=True, label="Seuran nimi", help_text="Kirjoita seurasi nimi uudestaan, niin kuin se yläpuolella näkyy, jotta tiedämme ettet ole botti")
     
     enroller_name = forms.CharField(max_length=60, required=True, label="Ilmoittajan nimi")
     enroller_email = forms.EmailField(max_length=60, required=True, label="Ilmoittajan sähköposti")
@@ -187,8 +191,8 @@ class CompetitionEnrollForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        if 'club' not in cleaned_data or 'captcha' not in cleaned_data or cleaned_data['club'] != cleaned_data['captcha']:
-            self.add_error('captcha', "Seuran nimi pitää olla sama molemmissa kentissä")
+        #if 'club' not in cleaned_data or 'captcha' not in cleaned_data or cleaned_data['club'] != cleaned_data['captcha']:
+            #self.add_error('captcha', "Seuran nimi pitää olla sama molemmissa kentissä")
         for x in range(1,self.enrolls+1):
             level = cleaned_data['level_%d'%x]
             man = cleaned_data['man_%d'%x]
