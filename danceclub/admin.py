@@ -38,8 +38,9 @@ class TransactionInline(admin.TabularInline):
     model = Transaction
 
 def send_payment_link(modeladmin, request, queryset):
+    message = 'Hei,\nOlemme tarkastaneet saatuja maksuja ja näyttää siltä, että sinulla on jotain maksuja edelleen suorittamatta.\nOle hyvä ja tarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing'
     for m in queryset:
-        send_payment_email(request,m)
+        send_payment_email(request, m, message)
 
 class MemberAdmin(admin.ModelAdmin):
     model = Member
