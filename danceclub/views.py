@@ -50,8 +50,9 @@ class DanceEventsView(TemplateView):
     
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data()
+        since = self.request.GET.get('since', timezone.now())
         events = DanceEvent.objects.filter(
-            end__gte=timezone.now()
+            end__gte=since
             ).order_by('start')
         ctx['events'] = events
         ctx['dancer'] = None
