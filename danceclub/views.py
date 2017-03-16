@@ -26,6 +26,7 @@ import datetime
 from django.core.mail import send_mail
 from django.http import Http404
 import re
+import smtplib
 
 from functools import wraps
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
@@ -36,7 +37,7 @@ def get_member_url(member):
         'member_id': member.token
         })
         
-def send_payment_email(request, member, message):
+def send_payment_email(request, member, message=None):
     message = message or 'Hei,\nkiitos osallistumisestasi.\nTarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing'
     send_mail(
         'Maksutietosi Dancingille',
