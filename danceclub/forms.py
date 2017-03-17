@@ -22,45 +22,49 @@ class DanceEventParticipationForm(forms.Form):
         last_change = timezone.now()-datetime.timedelta(hours=2)
         self.event = event
         self.user = user
-        if user.is_authenticated() and Dancer.objects.filter(user=user):
-            dancer = Dancer.objects.get(user=user)
-            couple = Couple.objects.get_couple(dancer)
-            choices = [(str(d.id),str(d)) for d in couple]
-            # List participation ids. Only those within 2 hours
-            #part_member_ids = dict(event.participations.values_list('member__id','created_at'))
-            part_member_ids = [d.id for d in couple]
-            cancel_member_ids = []
-            for p in event.participations.all():
-                if p.member.id not in [c.id for c in couple]:
-                    if not event.cost_per_participant:
-                        part_member_ids = []
-                else:
-                    cancel_member_ids.append(p.member.id)
-                    part_member_ids = [c for c in part_member_ids if c != p.member.id]
-            #.filter(created_at__gte=)
-            self.fields['participant'] = forms.MultipleChoiceField(
-                choices=[c for c in choices if int(c[0]) in part_member_ids],
-                required=False,
-                widget=forms.CheckboxSelectMultiple,
-                label="Ilmoita seuraavat osallistujat")
-            self.fields['cancel'] = forms.MultipleChoiceField(
-                choices=[c for c in choices if int(c[0]) in cancel_member_ids],
-                required=False,
-                widget=forms.CheckboxSelectMultiple,
-                label="Peru seuraavat osallistujat")
-        elif user.is_authenticated():
-            dancers = Dancer.objects.all()
-            part_member_ids = [d.id for d in dancers]
-            choices = [(str(d.id), str(d)) for d in dancers]
-            self.fields['participant'] = forms.MultipleChoiceField(
-                choices=[c for c in choices if int(c[0]) in part_member_ids],
-                required=False,
-                widget=forms.CheckboxSelectMultiple,
-                label="Ilmoita seuraavat osallistujat")
+        if user.is_authenticated():
+            if user.has_perm("danceclub.add_danceeventparticipation"):
+                # Admin can add any dancer
+                dancers = Dancer.objects.all()
+                part_member_ids = [d.id for d in dancers]
+                choices = [(str(d.id), str(d)) for d in dancers]
+                self.fields['participant'] = forms.MultipleChoiceField(
+                    choices=[c for c in choices if int(c[0]) in part_member_ids],
+                    required=False,
+                    widget=forms.CheckboxSelectMultiple,
+                    label="Ilmoita seuraavat osallistujat")
+            elif Dancer.objects.filter(user=user):
+                dancer = Dancer.objects.get(user=user)
+                couple = Couple.objects.get_couple(dancer)
+                choices = [(str(d.id),str(d)) for d in couple or [dancer]]
+                # List participation ids. Only those within 2 hours
+                #part_member_ids = dict(event.participations.values_list('member__id','created_at'))
+                part_member_ids = [d.id for d in couple or [dancer]]
+                cancel_member_ids = []
+                for p in event.participations.all():
+                    if p.member.id not in [c.id for c in couple or [dancer]]:
+                        if not event.cost_per_participant:
+                            part_member_ids = []
+                    else:
+                        cancel_member_ids.append(p.member.id)
+                        part_member_ids = [c for c in part_member_ids if c != p.member.id]
+                self.fields['participant'] = forms.MultipleChoiceField(
+                    choices=[c for c in choices if int(c[0]) in part_member_ids],
+                    required=False,
+                    widget=forms.CheckboxSelectMultiple,
+                    label="Ilmoita seuraavat osallistujat")
+                self.fields['cancel'] = forms.MultipleChoiceField(
+                    choices=[c for c in choices if int(c[0]) in cancel_member_ids],
+                    required=False,
+                    widget=forms.CheckboxSelectMultiple,
+                    label="Peru seuraavat osallistujat")
+
+            # Authenticated user can also add any outsider but is not required
             self.fields['email'] = forms.EmailField(required=False)
             self.fields['first_name'] = forms.CharField(required=False)
             self.fields['last_name'] = forms.CharField(required=False)
         else:
+            # Only outsider participants
             self.fields['email'] = forms.EmailField(required=True)
             self.fields['first_name'] = forms.CharField(required=True)
             self.fields['last_name'] = forms.CharField(required=True)
