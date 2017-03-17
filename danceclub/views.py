@@ -26,6 +26,7 @@ import datetime
 from django.core.mail import send_mail
 from django.http import Http404
 import re
+import smtplib
 
 from functools import wraps
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
@@ -36,7 +37,7 @@ def get_member_url(member):
         'member_id': member.token
         })
         
-def send_payment_email(request, member, message):
+def send_payment_email(request, member, message=None):
     message = message or 'Hei,\nkiitos osallistumisestasi.\nTarkista maksutietosi osoitteesta: %s\n\nTerveisin,\nTanssiklubi Dancing'
     send_mail(
         'Maksutietosi Dancingille',
@@ -49,8 +50,9 @@ class DanceEventsView(TemplateView):
     
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data()
+        since = self.request.GET.get('since', timezone.now())
         events = DanceEvent.objects.filter(
-            end__gte=timezone.now()
+            end__gte=since
             ).order_by('start')
         ctx['events'] = events
         ctx['dancer'] = None
@@ -62,11 +64,14 @@ class DanceEventsView(TemplateView):
                 ctx['dancer'] = dancer = Dancer.objects.get(user=self.request.user)
                 ctx['couple'] = couple = Couple.objects.filter(Q(man=dancer) | Q(woman=dancer)).filter(ended__isnull=True).first()
                 for e in events:
-                    setattr(e, 'possible', [couple.man, couple.woman])
+                    if couple:
+                        setattr(e, 'possible', [couple.man, couple.woman])
+                    else:
+                        setattr(e, 'possible', [dancer])
                     if e.deadline and e.deadline < timezone.now():
                         e.possible = []
                     for p in e.participations.all():
-                        if p.member.id in [c.id for c in couple]:
+                        if p.member.id in [c.id for c in e.possible]:
                             ctx['mye'].append(e.id)
                             ctx['myp'].append(p.id)
                             e.possible = [c for c in e.possible if c.id != p.member.id]
