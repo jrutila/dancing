@@ -19,6 +19,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from common.views import ProfileRedirectView
 from .forms import EmailAuthenticationForm
+from django.contrib.auth.views import password_reset
+from .forms import NonPasswordResetForm
 
 urlpatterns = []
 if settings.DEBUG:
@@ -32,6 +34,8 @@ urlpatterns += [
     url(r'^admin/', admin.site.urls),
     url(r'^admin/', include('loginas.urls')),
     url(r'^filer/', include('filer.urls')),
+    #url(r'^password_reset/$', password_reset, {'password_reset_form': NonPasswordResetForm}, name='password_reset'),
+    url(r'^password_reset/$', password_reset, {'password_reset_form': NonPasswordResetForm}, name='password_reset'),
     url('^', include('django.contrib.auth.urls')),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', { 'authentication_form': EmailAuthenticationForm }, name='login'),
     url(r'^', include('cms.urls')),
