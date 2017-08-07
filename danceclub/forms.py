@@ -123,7 +123,7 @@ class ParticipationForm(forms.Form):
     locality = forms.CharField(label="Kotipaikkakunta")
     email = forms.EmailField(label="Sähköpostiosoite", required=False, help_text="Saat sähköpostiisi maksamiseen liittyvät ohjeet. Jos sinulla ei ole sähköpostia, ilmoittaudu ilman sähköpostia.")
     phone_number = PhoneNumberField(label="Puhelinnumero", required=False, help_text="Vapaaehtoinen tieto. Jätä puhelinnumerosi niin voimme tarvittaessa ottaa sinuun yhteyttä kiireellisissä tapauksissa.")
-    #young = forms.BooleanField(label="Olen alle 18-vuotias",required=False)
+    birth_year = forms.models.fields_for_model(Member)['birth_year']
     
     activities = forms.ModelMultipleChoiceField(
         label="Tunnit (%s)" % str(Season.objects.current_or_next_season()),
@@ -140,6 +140,7 @@ class ParticipationForm(forms.Form):
             email, first_name, last_name)
         member.locality = locality
         member.phone_number = self.cleaned_data['phone_number']
+        member.birth_year = self.cleaned_data['birth_year']
         
         for act in self.cleaned_data['activities']:
             member.young = act.young

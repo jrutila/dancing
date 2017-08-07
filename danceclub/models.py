@@ -27,6 +27,7 @@ LEVELS = (('lek', 'lek'), ('F', 'F'), ('E', 'E'), ('D', 'D'), ('C','C'), ('B','B
 COMP_LEVELS = (('CUP', 'C-A Cup'), ('BA', 'B-A'))
 AGES = (('L1', 'Lapsi I'), ('L2', 'Lapsi II'), ('J1', 'Juniori I'), ('J2','Juniori II'), ('N','Nuoriso'), ('Y', 'Yleinen'), ('S1', 'Seniori I'),
         ('S2', 'Seniori II'), ('S3', 'Seniori III'), ('S4', 'Seniori IV'))
+YEAR_CHOICES = [(r,r) for r in range(1900, datetime.date.today().year+1)]
         
 season_cost = Decimal("20.00")
 normal_costs = {
@@ -129,6 +130,7 @@ class Member(models.Model):
     reference_numbers = GenericRelation(ReferenceNumber, content_type_field='object_type')
     token = models.UUIDField(unique=True,blank=False,null=False,default=uuid.uuid4, editable=False)
     phone_number = PhoneNumberField(blank=True)
+    birth_year = models.IntegerField('Syntymävuosi', blank=True, null=True, choices=YEAR_CHOICES, default=datetime.datetime.now().year)
     young = models.BooleanField(help_text="Olen alle 16-vuotias",blank=True)
     
     objects = MemberManager()

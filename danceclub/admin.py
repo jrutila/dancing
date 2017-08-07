@@ -44,10 +44,14 @@ def send_payment_link(modeladmin, request, queryset):
 
 class MemberAdmin(admin.ModelAdmin):
     model = Member
+    readonly_fields = ('email',)
     inlines = [ ReferenceNumberInline, TransactionInline ]
     list_display = ('__str__', saldo)
     actions = [send_payment_link]
     
+    def email(self, obj):
+        return obj.user.email
+
 class DancerCreateForm(forms.ModelForm):
     class Meta:
         exclude = ['user', 'young']
