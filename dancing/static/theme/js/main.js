@@ -40,8 +40,8 @@ $("#support").owlCarousel({
    items : 3,
    navigation: false,
     autoHeight: true,
-   itemsDesktop : [1199,5],
-   itemsDesktopSmall : [1024,4],
+   itemsDesktop : [1199,4],
+   itemsDesktopSmall : [1024,3],
    itemsTablet : [768,3],
    itemsMobile : [500,2],
    pagination: true
