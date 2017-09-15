@@ -61,12 +61,30 @@ Ei maksettavaa
 </table>
 
     {% if saldo < 0 %}
-    <p class="alert alert-info">
+<div class="accrodation alert alert-info">
+    <span class="acc-trigger active">
+        <a href="#">Tilisiirto</a>
+    </span>
+    <span class="acc-container">
         Maksa tilille: {% settings "bank_account" %}<br/>
         Käytä viitettä: {{ member.reference_numbers.first.number }}
-       <br/><br/> 
+       <br/><br/>
         Virtuaaliviivakoodi: {{ barcode }}
-    </p>
+    </span>
+    <span class="acc-trigger">
+        <a href="#">E-Passi</a>
+    </span>
+    <span class="acc-container">
+        <ul>
+            <li>Kirjaudu sisään omilla tunnuksillasi <a target="_blank" href="https://services.epassi.fi/">www.epassi.fi</a></li>
+            <li>Valitse verkkomaksut</li>
+            <li>Aloita kirjoittamalla valikkoon "Tanssiklubi DANCING ry". Kun järjestelmä löytää sen, valitse toimipiste ja paina "Seuraava"</li>
+            <li>Kirjoita summa euroissa: {% widthratio saldo 1 -1 %}</li>
+            <li>Kirjoita viitteeksi: {{ member.reference_numbers.first.number }}</li>
+            <li>Paina "Maksa"</li>
+        </ul>
+    </span>
+</div>
     {% endif %}
 
 {% else %}
