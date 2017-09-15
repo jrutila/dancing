@@ -1,0 +1,8 @@
+{% load thumbnail %}
+<!-- Action Item - Caption -->
+<li style="text-align: center" data-toggle="tooltip" title data-original-title="instance.title">
+    <a href="{{ link }}">
+        <img src="{% thumbnail instance.image '400x100' %}" />
+    </a>
+</li>
+<!-- End Item - Caption  -->

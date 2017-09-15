@@ -34,10 +34,19 @@ plugin_pool.register_plugin(ActivityPlugin)
 
 class SponsorPlugin(FilerImagePlugin):
     name = "Sponsori"
+    render_template = "sponsor.html"
+    TEMPLATE_NAME = "sponsor.html"
+    cache = False
 
     def render(self, context, instance, placeholder):
-        # causes to render with sponsor.html
-        instance.style = "sponsor"
-        return super().render(context, instance, placeholder)
+        options = self._get_thumbnail_options(context, instance)
+        context.update({
+            'instance': instance,
+            'link': instance.link,
+            'opts': options,
+            'size': options.get('size', None),
+            'placeholder': placeholder
+        })
+        return context
 
 plugin_pool.register_plugin(SponsorPlugin)
