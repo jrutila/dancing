@@ -162,6 +162,8 @@ import csv
 import urllib3
 from django.core.cache import cache
 from collections import defaultdict
+from django.forms import formset_factory, BaseFormSet
+from django.utils.functional import cached_property
 
 def couples():
     couples = cache.get('couples', False)
@@ -178,16 +180,30 @@ def couples():
             pairs[key].append(row)
         couples = pairs
     return couples
+    
+'''
+class CompetitionEnrollFormSet(BaseFormSet):
+    @cached_property
+    def forms(self):
+        """
+        Instantiate forms at first property access.
+        """
+        # DoS protection is included in total_form_count()
+        #forms = [self._construct_form(i, competition=self.competition, club=self.club, **self.kwargs) for i in range(self.total_form_count())]
+        forms = [self._construct_form(i, competition=self.competition, **self.kwargs) for i in range(self.total_form_count())]
+        return forms
+'''
 
 class CompetitionEnrollPairForm(forms.Form):
-    level = forms.ChoiceField()
-    couple = forms.ChoiceField()
+    level = forms.ChoiceField(required=True)
+    couple = forms.ChoiceField(required=True)
     email = forms.EmailField(required=False, label="Sähköpostiosoite")
     
     def __init__(self, *args, **kwargs):
         competition = kwargs.pop('competition')
         club = kwargs.pop('club')
         super().__init__(*args, **kwargs)
+        '''
         choices = competition._meta.get_field('agelevels').choices
         als = [c for c in choices if c[0] in competition.agelevels]
         self.competition = competition
@@ -196,63 +212,52 @@ class CompetitionEnrollPairForm(forms.Form):
         cpls = [(x[0], x[2]) for x in couples()[club]]
         cpls.insert(0, (0, '--'))
         self.fields['couple'].choices = cpls
+        '''
+        
+class CompetitionEnrollFormOnlyClub(forms.Form):
+    club =  forms.ChoiceField(required=True, label="Seura")
     
-class CompetitionEnrollForm(forms.Form):
+    def __init__(self, competition, *args, **kwargs):
+        self.couples = couples()
+        self.competition = competition
+        super().__init__(*args, **kwargs)
+        self.fields['club'].choices = [(k,k) for k in sorted(self.couples.keys())]
+    
+class CompetitionEnrollForm(CompetitionEnrollFormOnlyClub):
     #club = forms.CharField(max_length=60, required=True, label="Seuran nimi")
     #captcha = forms.CharField(max_length=60, required=True, label="Seuran nimi", help_text="Kirjoita seurasi nimi uudestaan, niin kuin se yläpuolella näkyy, jotta tiedämme ettet ole botti")
     
-    enroller_name = forms.CharField(max_length=60, required=True, label="Ilmoittajan nimi")
-    enroller_email = forms.EmailField(max_length=60, required=True, label="Ilmoittajan sähköposti")
+    enroller_name = forms.CharField(max_length=60, required=False, label="Ilmoittajan nimi")
+    enroller_email = forms.EmailField(max_length=60, required=False, label="Ilmoittajan sähköposti")
         
-    def __init__(self, competition, *args, **kwargs):
-        self.couples = couples()
+    def __init__(self, competition, club, *args, **kwargs):
         self.enrolls = 10
-        super().__init__(*args, **kwargs)
-        self.fields['club'] = forms.ChoiceField(required=True, label="Seura", choices=[(k,k) for k in sorted(self.couples.keys())])
-
-    def clean(self):
-        cleaned_data = super().clean()
-        #if 'club' not in cleaned_data or 'captcha' not in cleaned_data or cleaned_data['club'] != cleaned_data['captcha']:
-            #self.add_error('captcha', "Seuran nimi pitää olla sama molemmissa kentissä")
-        for x in range(1,self.enrolls+1):
-            level = cleaned_data['level_%d'%x]
-            man = cleaned_data['man_%d'%x]
-            woman = cleaned_data['woman_%d'%x]
-            errors = []
-            failed = False
-            if level != '-' and man == '':
-                self.add_error('man_%d'%x, 'Pakollinen')
-                failed = True
-            if level != '-' and woman == '':
-                self.add_error('woman_%d'%x, 'Pakollinen')
-                failed = True
-            if level == '-' and (man != '' or woman != ''):
-                self.add_error('level_%d'%x, 'Pakollinen')
-                failed = True
-            if level == '-' and not failed:
-                del cleaned_data['level_%d'%x]
-                del cleaned_data['woman_%d'%x]
-                del cleaned_data['man_%d'%x]
-                del cleaned_data['email_%d'%x]
-        return cleaned_data
         
-    def save(self):
-        cd = self.cleaned_data
-        self.parts = []
-        for x in range(1,self.enrolls+1):
-            if 'level_%d'%x in cd:
-                level = cd['level_%d'%x]
-                man = cd['man_%d'%x]
-                woman = cd['woman_%d'%x]
-                email = cd['email_%d'%x]
-                part = CompetitionParticipation.objects.create(
-                    competition=self.competition,
-                    level=level,
-                    club=cd['club'],
-                    man=man,
-                    woman=woman,
-                    email=email,
-                    enroller_name=cd['enroller_name'],
-                    enroller_email=cd['enroller_email']
-                    )
-                self.parts.append(part)
+        self.formset = formset_factory(
+            CompetitionEnrollPairForm,
+            #formset=CompetitionEnrollFormSet,
+            extra=10,
+            form_kwargs={'competition': competition, 'club': club})
+        self.formset.competition = competition
+        self.formset.club = club
+        if 'data' in kwargs:
+            self.formset.kwargs = kwargs['data']
+            self.formset = self.formset(kwargs['data'])
+        super().__init__(competition, *args, **kwargs)
+        self.fields['enroller_name'].required=True
+        self.fields['enroller_email'].required=True
+        
+    def clean(self):
+        mycl = super().clean() 
+        fs = self.formset
+        fscl = self.formset.clean()
+        nerr = self.formset.non_form_errors()
+        err = self.formset.errors
+        Kekkonen
+        
+    def is_valid(self):
+        return super().is_valid() and self.formset.is_valid()
+        
+    def save(self, commit=True):
+        fs = self.formset
+        Apron

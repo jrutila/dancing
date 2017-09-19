@@ -40,15 +40,24 @@
     {% endif %}
     
     {% bootstrap_field form.club %}
-    {% bootstrap_field form.enroller_name %}
-    {% bootstrap_field form.enroller_email %}
     
-    {% bootstrap_formset formset layout="tabular" %}
-    {% buttons %}
-        <button type="submit" class="btn btn-primary">
-            {% bootstrap_icon "star" %} Ilmoita parit
-        </button>
-    {% endbuttons %}
+    {% if form.enrolls %}
+        {% bootstrap_field form.enroller_name %}
+        {% bootstrap_field form.enroller_email %}
+    
+        {% bootstrap_formset form.formset layout="tabular" %}
+        {% buttons %}
+            <button type="submit" class="btn btn-primary">
+                {% bootstrap_icon "star" %} Ilmoita parit
+            </button>
+        {% endbuttons %}
+    {% else %}
+        {% buttons %}
+            <button type="submit" class="btn btn-primary">
+                {% bootstrap_icon "star" %} Valitse seura
+            </button>
+        {% endbuttons %}
+    {% endif %}
 </form>
                     </div>
                 </div>

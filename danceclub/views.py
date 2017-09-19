@@ -368,71 +368,77 @@ class CompetitionView(TemplateView):
         ctx["counts"] = counts
         return ctx
         
-from django.forms import formset_factory, BaseFormSet
-from .forms import CompetitionEnrollForm, CompetitionEnrollPairForm
 from django.utils import formats
-from django.utils.functional import cached_property
 
-class CompetitionEnrollFormSet(BaseFormSet):
-    @cached_property
-    def forms(self):
-        """
-        Instantiate forms at first property access.
-        """
-        # DoS protection is included in total_form_count()
-        forms = [self._construct_form(i, competition=self.competition, club=self.club) for i in range(self.total_form_count())]
-        return forms
+from .forms import CompetitionEnrollForm, CompetitionEnrollFormOnlyClub
 
-class CompetitionEnrollView(FormView):
+class CompetitionEnrollClubSelectView(FormView):
     template_name = "danceclub/competition_form.html"
-    form_class = CompetitionEnrollForm
+    form_class = CompetitionEnrollFormOnlyClub
     
     def dispatch(self, request, *args, **kwargs):
-        if 'club' in kwargs:
-            self.club = int(kwargs['club'])
-        else:
-            self.club = None
         self.competition = get_object_or_404(OwnCompetition, slug=kwargs['slug'])
+        self.slug = kwargs['slug']
         
         if (self.competition.deadline < timezone.now() and not request.GET.get('secret', None)):
             raise Http404("Ilmoittautumisaika on päättynyt")
-            
-        self.formset = formset_factory(
-            CompetitionEnrollPairForm,
-            formset=CompetitionEnrollFormSet,
-            extra=10)
-        self.formset.competition = self.competition
-        if self.club:
-            field = self.form_class(self.competition).fields['club']
-            choice = field.choices[self.club]
-            self.formset.club = choice[0]
-        #(competition = self.competition)
-        return super(CompetitionEnrollView,self).dispatch(request, *args, **kwargs)
+
+        ret = super().dispatch(request, *args, **kwargs)
+        return ret
         
-    def get_initial(self, *args, **kwargs):
-        initial = super().get_initial(*args, **kwargs)
-        if self.club:
-            field = self.form_class(self.competition).fields['club']
-            choice = field.choices[self.club]
-            initial['club'] = choice[0]
-        return initial
-        
-    def get_context_data(self, *args, **kwargs):
-        ctx = super().get_context_data(*args,**kwargs)
-        ctx['formset'] = self.formset
-        return ctx
-    
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['competition'] = self.competition
         return kwargs
         
+    def form_valid(self, form):
+        if form.cleaned_data['club']:
+            return redirect('competition_enroll', slug=self.slug, club=form.cleaned_data['club'])
+
+class CompetitionEnrollView(CompetitionEnrollClubSelectView):
+    template_name = "danceclub/competition_form.html"
+    form_class = CompetitionEnrollForm
+    
+    def dispatch(self, request, *args, **kwargs):
+        self.club = kwargs['club']
+        ret = super().dispatch(request, *args, **kwargs)
+        '''
+        if self.club:
+            self.formset = formset_factory(
+                CompetitionEnrollPairForm,
+                formset=CompetitionEnrollFormSet,
+                extra=10)
+            self.formset.competition = self.competition
+            field = self.form_class(self.competition).fields['club']
+            choice = field.choices[self.club]
+            self.formset.club = choice[0]
+            ret = super(CompetitionEnrollView,self).dispatch(request, *args, **kwargs)
+            ret.formset = self.formset
+        else:
+            ret = super(CompetitionEnrollView,self).dispatch(request, *args, **kwargs)
+        '''
+        return ret
+        
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['club'] = self.club
+        return kwargs
+        
+    def get_initial(self, *args, **kwargs):
+        initial = super().get_initial(*args, **kwargs)
+        initial['club'] = self.club
+        return initial
+        
+    '''
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args,**kwargs)
+        if hasattr(self, 'formset'):
+            ctx['formset'] = self.formset
+        return ctx
+    
     def get_success_url(self):
         als = dict(OwnCompetition._meta.get_field('agelevels').choices)
-        msg = '''
-        <p>Seuraavat osallistujat rekisteröity:</p>
-        <ul>
-        '''
+        msg = '<p>Seuraavat osallistujat rekisteröity:</p> <ul>'
         for p in self.saved:
             msg = msg + "<li>%s - %s, %s</li>" % (p.man, p.woman, als[p.level])
         msg = msg + "</ul>"
@@ -453,11 +459,19 @@ class CompetitionEnrollView(FormView):
         return self.competition.get_absolute_url()
         
     def form_valid(self, form):
-        form.save()
-        self.saved = form.parts
-        self.enroll_email = form.cleaned_data['enroller_email']
+        club = self.club
+        fs = self.formset
+        EKKEO
         self.club = form.cleaned_data['club']
+        if hasattr(self, formset):
+            form.save()
+            self.saved = form.parts
+            self.enroll_email = form.cleaned_data['enroller_email']
+        else:
+            if self.club != None:
+                return True
         return super().form_valid(form)
+    '''
 
 class CompetitionListClassesView(TemplateView):
     template_name = "danceclub/admin/competition_list_classes.html"
