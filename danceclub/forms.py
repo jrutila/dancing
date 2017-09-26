@@ -203,7 +203,6 @@ class CompetitionEnrollPairForm(forms.Form):
         competition = kwargs.pop('competition')
         club = kwargs.pop('club')
         super().__init__(*args, **kwargs)
-        '''
         choices = competition._meta.get_field('agelevels').choices
         als = [c for c in choices if c[0] in competition.agelevels]
         self.competition = competition
@@ -212,7 +211,6 @@ class CompetitionEnrollPairForm(forms.Form):
         cpls = [(x[0], x[2]) for x in couples()[club]]
         cpls.insert(0, (0, '--'))
         self.fields['couple'].choices = cpls
-        '''
         
 class CompetitionEnrollFormOnlyClub(forms.Form):
     club =  forms.ChoiceField(required=True, label="Seura")
@@ -236,24 +234,14 @@ class CompetitionEnrollForm(CompetitionEnrollFormOnlyClub):
         self.formset = formset_factory(
             CompetitionEnrollPairForm,
             #formset=CompetitionEnrollFormSet,
-            extra=10,
-            form_kwargs={'competition': competition, 'club': club})
-        self.formset.competition = competition
-        self.formset.club = club
+            extra=10)
         if 'data' in kwargs:
-            self.formset.kwargs = kwargs['data']
-            self.formset = self.formset(kwargs['data'])
+            self.formset = self.formset(kwargs['data'], form_kwargs={'competition': competition, 'club': club})
+        else:
+            self.formset = self.formset(form_kwargs={'competition': competition, 'club': club})
         super().__init__(competition, *args, **kwargs)
         self.fields['enroller_name'].required=True
         self.fields['enroller_email'].required=True
-        
-    def clean(self):
-        mycl = super().clean() 
-        fs = self.formset
-        fscl = self.formset.clean()
-        nerr = self.formset.non_form_errors()
-        err = self.formset.errors
-        Kekkonen
         
     def is_valid(self):
         return super().is_valid() and self.formset.is_valid()

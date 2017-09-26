@@ -21,6 +21,7 @@ from common.views import ProfileRedirectView
 from .forms import EmailAuthenticationForm
 from django.contrib.auth.views import password_reset
 from .forms import NonPasswordResetForm
+from django.contrib.auth.views import login
 
 urlpatterns = []
 if settings.DEBUG:
@@ -37,6 +38,6 @@ urlpatterns += [
     #url(r'^password_reset/$', password_reset, {'password_reset_form': NonPasswordResetForm}, name='password_reset'),
     url(r'^password_reset/$', password_reset, {'password_reset_form': NonPasswordResetForm}, name='password_reset'),
     url('^', include('django.contrib.auth.urls')),
-    url(r'^accounts/login/$', 'django.contrib.auth.views.login', { 'authentication_form': EmailAuthenticationForm }, name='login'),
+    url(r'^accounts/login/$', login, name='login'),
     url(r'^', include('cms.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

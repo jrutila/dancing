@@ -1,54 +1,56 @@
 Babel==2.3.4
-Django==1.8.8
+Django==1.11.5
 Django-Select2==4.3.2
-Pillow==3.1.0
+Pillow==4.2.1
 Unidecode==0.04.18
 beautifulsoup4==4.4.1
 boto==2.38.0
 botocore==1.3.17
--e git+https://github.com/jrutila/cmsplugin-contact-plus.git#egg=cmsplugin_contact_plus
+cmsplugin-contact-plus==1.3.12
 cmsplugin-filer==1.0.0
--e git+https://github.com/jrutila/cmsplugin-iframe.git#egg=cmsplugin_iframe
--e git+https://github.com/jrutila/cmsplugin-image-gallery.git#egg=cmsplugin_image_gallery
--e git+https://github.com/jrutila/cmsplugin-newsplus.git#egg=cmsplugin_newsplus
--e git+https://github.com/jrutila/cmsplugin-plaintext#egg=cmsplugin_plaintext_djangocms3
+-e git+https://github.com/jrutila/cmsplugin-iframe.git@aadb21d9fb9c61489217f2f2338ecf6f7331ee14#egg=cmsplugin_iframe-origin/HEAD
+-e git+git@github.com:jrutila/cmsplugin-image-gallery.git@9dab462d366392d2459d19931e1dc43c197738fb#egg=cmsplugin_image_gallery-master
+-e git+git@github.com:jrutila/cmsplugin-newsplus.git@334bd7a8645f8d87137991f7fdbce8a17a916830#egg=cmsplugin_newsplus-origin/HEAD
+-e git+https://github.com/jrutila/cmsplugin-plaintext@59af39514df0e9c23221451d6e0d73f7cef3e830#egg=cmsplugin_plaintext_djangocms3-master
 dj-database-url==0.3.0
 dj-static==0.0.6
 django-admin-jqueryui==1.8.22
+django-admin-sortable==2.1
 django-appconf==1.0.1
-django-bootstrap3==6.2.2
-django-classy-tags==0.7.0
-django-cms==3.2.0
+django-bootstrap3==9.0.0
+django-classy-tags==0.8.0
+django-cms==3.4.4
 django-debug-toolbar==1.5
 django-filer==1.2.4
-django-formtools==1.0
+django-formtools==2.0
 django-inline-ordering==1.0.2
 django-loginas==0.1.9
-django-mptt==0.8.0
+django-mptt==0.8.7
 django-phonenumber-field==1.1.0
-django-polymorphic==0.8.1
-django-recaptcha==1.0.5
-django-reversion==1.9.3
-django-sekizai==0.9.0
--e git+https://github.com/jrutila/django-settings.git#egg=django_settings
+django-polymorphic==1.3
+django-recaptcha==1.3.1
+django-reversion==2.0.10
+django-sekizai==0.10.0
+-e git+https://github.com/jrutila/django-settings.git@3d8288ddb1386bcb1af8ec1cf0480b5a8869e749#egg=django_settings-origin/HEAD
 django-simple-math-captcha==1.0.7
 django-storages-redux==1.3
 django-toolbelt==0.0.1
-django-treebeard==3.0
-djangocms-admin-style==1.0.8
+django-treebeard==4.1.2
+djangocms-admin-style==1.2.7
 djangocms-link==1.7.1
 djangocms-text-ckeditor==2.8.1
 docutils==0.12
-easy-thumbnails==2.3
+easy-thumbnails==2.4.2
 gunicorn==19.4.5
 html5lib==0.9999999
 jmespath==0.9.0
-jsonfield==1.0.3
+jsonfield==2.0.2
+olefile==0.44
 phonenumberslite==8.1.0
 psycopg2==2.6.1
 python-dateutil==2.4.2
-pytz==2015.7
-six==1.10.0
+pytz==2017.2
+six==1.11.0
 sqlparse==0.2.0
 static3==0.6.1
 urllib3==1.19.1
