@@ -23,6 +23,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from danceclub.views import CompetitionListClassesView, CompetitionListClubsView
 from danceclub.views import competition_tps7_view
 
+app_name = 'danceclub'
 urlpatterns = [
     #url(r'$', redirect('participate')),
     url(r'$', ParticipationView.as_view(), name='participate'),

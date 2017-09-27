@@ -34,7 +34,7 @@ from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
 from .models import Activity
 
 def get_member_url(member):
-    return reverse('member_info', kwargs={
+    return reverse('danceclub:member_info', kwargs={
         'member_id': member.token
         })
         
@@ -143,8 +143,8 @@ class DanceEventParticipationView(FormView):
             # Message not sent to email or this is a new user
             return get_member_url(self.member)
         if self.request.user.is_authenticated():
-            return reverse('dance_events')
-        return reverse('dance_participate', kwargs={'event_id': self.event.id})
+            return reverse('danceclub:dance_events')
+        return reverse('danceclub:dance_participate', kwargs={'event_id': self.event.id})
 
 class ParticipationView(FormView):
     template_name = 'danceclub/participate.html'
@@ -155,7 +155,7 @@ class ParticipationView(FormView):
             dancer = Dancer.objects.filter(user=self.request.user)
             if dancer or self.request.user.has_perm("danceclub.view_danceeventparticipation"):
                 if 'no_redirect' not in self.request.GET:
-                    return HttpResponseRedirect(reverse('dance_events'))
+                    return HttpResponseRedirect(reverse('danceclub:dance_events'))
         return super().dispatch(*args, **kwargs)
         
     def get_context_data(self, **kwargs):
@@ -196,7 +196,7 @@ class ParticipationView(FormView):
         if not self.mail_sent or self.created:
             # Message not sent to email or this is a new user
             return get_member_url(self.member)
-        return reverse('participate')
+        return reverse('danceclub:participate')
             
 class CancelView(FormView):
     form_class = CancelForm
@@ -235,8 +235,8 @@ class LostLinkView(FormView):
         
     def get_success_url(self):
         if self.failed:
-            return reverse('participate')+"?failed="+self.failed
-        return reverse('participate')+"?lostlink="+self.lostlink
+            return reverse('danceclub:participate')+"?failed="+self.failed
+        return reverse('danceclub:participate')+"?lostlink="+self.lostlink
         
 class MemberView(TemplateView):
     template_name = 'danceclub/member.html'
@@ -294,7 +294,7 @@ class MassTransactionView(FormView):
     form_class = MassTransactionForm
 
     def get_success_url(self):
-        return reverse('upload-transaction')
+        return reverse('danceclub:upload-transaction')
 
     def form_valid(self, form):
         file = TextIOWrapper(self.request.FILES['file'].file, encoding='ascii', errors='replace')
