@@ -206,11 +206,33 @@ class CompetitionEnrollPairForm(forms.Form):
         choices = competition._meta.get_field('agelevels').choices
         als = [c for c in choices if c[0] in competition.agelevels]
         self.competition = competition
-        als.insert(0,('-', '--'))
+        self.club = club
+        als.insert(0,('', '--'))
         self.fields['level'].choices = als
+        #self.fields['level'].initial = als[0]
         cpls = [(x[0], x[2]) for x in couples()[club]]
-        cpls.insert(0, (0, '--'))
+        cpls.insert(0, ('', '--'))
+        self.couples = dict(cpls)
         self.fields['couple'].choices = cpls
+        #self.fields['couple'].initial = cpls[0]
+        
+    def save(self, enroller, commit=True):
+        level = self.cleaned_data['level']
+        couple = self.cleaned_data['couple']
+        email = self.cleaned_data['email']
+        man = self.couples[couple].split('-')[0].strip()
+        woman = self.couples[couple].split('-')[1].strip()
+        cp = CompetitionParticipation(**{
+            'competition': self.competition,
+            'club': self.club,
+            'level': level,
+            'email': email,
+            'man': man,
+            'woman': woman,
+            'enroller_name': enroller[0],
+            'enroller_email': enroller[1],
+        })
+        cp.save()
         
 class CompetitionEnrollFormOnlyClub(forms.Form):
     club =  forms.ChoiceField(required=True, label="Seura")
@@ -229,8 +251,6 @@ class CompetitionEnrollForm(CompetitionEnrollFormOnlyClub):
     enroller_email = forms.EmailField(max_length=60, required=False, label="Ilmoittajan sähköposti")
         
     def __init__(self, competition, club, *args, **kwargs):
-        self.enrolls = 10
-        
         self.formset = formset_factory(
             CompetitionEnrollPairForm,
             #formset=CompetitionEnrollFormSet,
@@ -242,10 +262,14 @@ class CompetitionEnrollForm(CompetitionEnrollFormOnlyClub):
         super().__init__(competition, *args, **kwargs)
         self.fields['enroller_name'].required=True
         self.fields['enroller_email'].required=True
+        self.fields['club'].disabled=True
         
     def is_valid(self):
         return super().is_valid() and self.formset.is_valid()
         
     def save(self, commit=True):
+        enroller = (self.cleaned_data['enroller_name'], self.cleaned_data['enroller_email'])
         fs = self.formset
-        Apron
+        for form in fs.forms:
+            if form.is_valid() and form.has_changed():
+                form.save(enroller, commit)

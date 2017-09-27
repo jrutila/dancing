@@ -393,7 +393,7 @@ class CompetitionEnrollClubSelectView(FormView):
         
     def form_valid(self, form):
         if form.cleaned_data['club']:
-            return redirect('competition_enroll', slug=self.slug, club=form.cleaned_data['club'])
+            return redirect('danceclub_competition:competition_enroll', slug=self.slug, club=form.cleaned_data['club'])
 
 class CompetitionEnrollView(CompetitionEnrollClubSelectView):
     template_name = "danceclub/competition_form.html"
@@ -402,21 +402,6 @@ class CompetitionEnrollView(CompetitionEnrollClubSelectView):
     def dispatch(self, request, *args, **kwargs):
         self.club = kwargs['club']
         ret = super().dispatch(request, *args, **kwargs)
-        '''
-        if self.club:
-            self.formset = formset_factory(
-                CompetitionEnrollPairForm,
-                formset=CompetitionEnrollFormSet,
-                extra=10)
-            self.formset.competition = self.competition
-            field = self.form_class(self.competition).fields['club']
-            choice = field.choices[self.club]
-            self.formset.club = choice[0]
-            ret = super(CompetitionEnrollView,self).dispatch(request, *args, **kwargs)
-            ret.formset = self.formset
-        else:
-            ret = super(CompetitionEnrollView,self).dispatch(request, *args, **kwargs)
-        '''
         return ret
         
     def get_form_kwargs(self):
@@ -430,12 +415,6 @@ class CompetitionEnrollView(CompetitionEnrollClubSelectView):
         return initial
         
     '''
-    def get_context_data(self, *args, **kwargs):
-        ctx = super().get_context_data(*args,**kwargs)
-        if hasattr(self, 'formset'):
-            ctx['formset'] = self.formset
-        return ctx
-    
     def get_success_url(self):
         als = dict(OwnCompetition._meta.get_field('agelevels').choices)
         msg = '<p>Seuraavat osallistujat rekisteröity:</p> <ul>'
@@ -457,21 +436,12 @@ class CompetitionEnrollView(CompetitionEnrollClubSelectView):
         messages.add_message(self.request, messages.SUCCESS, msg)
 
         return self.competition.get_absolute_url()
+    '''
         
     def form_valid(self, form):
         club = self.club
-        fs = self.formset
-        EKKEO
-        self.club = form.cleaned_data['club']
-        if hasattr(self, formset):
-            form.save()
-            self.saved = form.parts
-            self.enroll_email = form.cleaned_data['enroller_email']
-        else:
-            if self.club != None:
-                return True
+        form.save()
         return super().form_valid(form)
-    '''
 
 class CompetitionListClassesView(TemplateView):
     template_name = "danceclub/admin/competition_list_classes.html"
