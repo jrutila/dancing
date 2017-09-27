@@ -220,8 +220,8 @@ class CompetitionEnrollPairForm(forms.Form):
         level = self.cleaned_data['level']
         couple = self.cleaned_data['couple']
         email = self.cleaned_data['email']
-        man = self.couples[couple].split('-')[0].strip()
-        woman = self.couples[couple].split('-')[1].strip()
+        man = self.couples[couple].split(' - ')[0].strip()
+        woman = self.couples[couple].split(' - ')[1].strip()
         cp = CompetitionParticipation(**{
             'competition': self.competition,
             'club': self.club,

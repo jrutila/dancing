@@ -446,8 +446,8 @@ class CompetitionEnrollView(CompetitionEnrollClubSelectView):
 class CompetitionListClassesView(TemplateView):
     template_name = "danceclub/admin/competition_list_classes.html"
     
-    def get_context_data(self):
-        competition = OwnCompetition.objects.order_by('start')[0]
+    def get_context_data(self, slug):
+        competition = OwnCompetition.objects.get(slug=slug)
         participations = CompetitionParticipation.objects.filter(competition=competition).order_by('level','number')
         ctx = super().get_context_data()
         ctx['competition'] = competition
@@ -457,12 +457,12 @@ class CompetitionListClassesView(TemplateView):
 import csv
 from django.http import HttpResponse
 from .models import age_code
-def competition_tps7_view(request):
+def competition_tps7_view(request, slug):
     split_names = request.GET.get('split_names', False)
     # Create the HttpResponse object with the appropriate CSV header.
-    competition = OwnCompetition.objects.order_by('start')[0]
+    competition = OwnCompetition.objects.get(slug=slug)
     participations = CompetitionParticipation.objects.filter(competition=competition).order_by('level','number')
-    response = HttpResponse(content_type='text/cvs')
+    response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="'+competition.slug+'.csv"'
 
     writer = csv.writer(response)
@@ -477,8 +477,8 @@ def competition_tps7_view(request):
 class CompetitionListClubsView(TemplateView):
     template_name = "danceclub/admin/competition_list_clubs.html"
     
-    def get_context_data(self):
-        competition = OwnCompetition.objects.order_by('start')[0]
+    def get_context_data(self, slug):
+        competition = OwnCompetition.objects.get(slug=slug)
         #try:
             #participations = list(CompetitionParticipation.objects.filter(competition=competition).order_by('club','number').distinct('man','woman','club'))
         #except NotImplementedError:
