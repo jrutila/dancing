@@ -229,10 +229,12 @@ class CompetitionEnrollPairForm(forms.Form):
             'email': email,
             'man': man,
             'woman': woman,
+            'couple_number': couple,
             'enroller_name': enroller[0],
             'enroller_email': enroller[1],
         })
         cp.save()
+        return cp
         
 class CompetitionEnrollFormOnlyClub(forms.Form):
     club =  forms.ChoiceField(required=True, label="Seura")
@@ -268,8 +270,10 @@ class CompetitionEnrollForm(CompetitionEnrollFormOnlyClub):
         return super().is_valid() and self.formset.is_valid()
         
     def save(self, commit=True):
+        self.saved = []
         enroller = (self.cleaned_data['enroller_name'], self.cleaned_data['enroller_email'])
         fs = self.formset
         for form in fs.forms:
             if form.is_valid() and form.has_changed():
-                form.save(enroller, commit)
+                cp = form.save(enroller, commit)
+                self.saved.append(cp)
