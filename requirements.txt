@@ -1,5 +1,5 @@
 Babel==2.3.4
-Django==1.11.5
+Django==1.10.8
 Django-Select2==4.3.2
 Pillow==4.2.1
 Unidecode==0.04.18
@@ -38,7 +38,7 @@ django-toolbelt==0.0.1
 django-treebeard==4.1.2
 djangocms-admin-style==1.2.7
 djangocms-link==1.7.1
-djangocms-text-ckeditor==2.8.1
+djangocms-text-ckeditor==3.5.0
 docutils==0.12
 easy-thumbnails==2.4.2
 gunicorn==19.4.5
