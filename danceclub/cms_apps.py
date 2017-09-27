@@ -14,5 +14,6 @@ apphook_pool.register(DanceClubApphook)
 class CompetitionAppHook(CMSApp):
     name = _("Competition app hook")
     urls = ["danceclub.competition_urls"]
+    app_name = "danceclub_competition"
     
 apphook_pool.register(CompetitionAppHook)
