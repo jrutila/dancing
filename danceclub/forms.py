@@ -166,7 +166,7 @@ from django.forms import formset_factory, BaseFormSet
 from django.utils.functional import cached_property
 
 def couples():
-    couples = cache.get('couples', False)
+    couples = cache.get('couples')
     if not couples:
         url = 'https://onedance.tanssiurheilu.fi/parit'
         http = urllib3.PoolManager()
@@ -179,6 +179,7 @@ def couples():
             key = "%s, %s" % (row[3].strip(), row[4].strip())
             pairs[key].append(row)
         couples = pairs
+        cache.set('couples', dict(couples))
     return couples
     
 '''
