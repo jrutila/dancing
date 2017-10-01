@@ -64,7 +64,7 @@
                                  <span class="col-xs-6 col-sm-12 col-md-6 col-lg-12">
         {% if p.id in myp or request.user.is_staff %}
         {% if not p.created_at|hours_ago:2 or request.user.is_staff %}
-        <form action="{% url 'dance_participate' e.id %}" method="POST" style="display: inline-block">
+        <form action="{% url 'danceclub:dance_participate' e.id %}" method="POST" style="display: inline-block">
             {% csrf_token %}
             <input type="hidden" name="event" value="{{ e.id }}"/>
             <input type="hidden" name="cancel" value="{{ p.member.id }}"/>
@@ -79,7 +79,7 @@
                                 {% if dancer and e.possible %}
                                 <div class="row">
                                     
-<form action="{% url 'dance_participate' e.id %}" method="POST">
+<form action="{% url 'danceclub:dance_participate' e.id %}" method="POST">
     {% csrf_token %}
     <input type="hidden" name="event" value="{{ e.id }}"/>
     {% for d in e.possible %}
@@ -95,7 +95,7 @@
 
                                 {% if not e.participations.count or e.cost_per_participant %}
                                 <div class="row">
-<a href="{% url 'dance_participate' e.id %}">Ilmoita joku muu</a>
+<a href="{% url 'danceclub:dance_participate' e.id %}">Ilmoita joku muu</a>
                                 </div>
                                 {% endif %}
                             </div>
@@ -107,7 +107,7 @@
                 {% endfor %}
             </ul>
             <div class="col-xs-6">
-            <a href="{% url 'participate' %}?no_redirect">Halusitko ilmoittautua toimintaan?</a>
+            <a href="{% url 'danceclub:participate' %}?no_redirect">Halusitko ilmoittautua toimintaan?</a>
             </div>
             <div class="col-xs-6">
             <a href="{% page_url 'contact' %}">Lähetä viestiä jos ei onnistu tai haluat ilmoittautua myöhässä</a>

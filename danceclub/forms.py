@@ -157,72 +157,124 @@ class MassTransactionForm(forms.Form):
     file = forms.FileField()
     
 from .models import CompetitionParticipation
-class CompetitionEnrollForm(forms.Form):
-    club = forms.CharField(max_length=60, required=True, label="Seuran nimi")
-    captcha = forms.CharField(max_length=60, required=True, label="Seuran nimi", help_text="Kirjoita seurasi nimi kahdesti, jotta tiedämme ettet ole botti")
+
+import csv
+import urllib3
+from django.core.cache import cache
+from collections import defaultdict
+from django.forms import formset_factory, BaseFormSet
+from django.utils.functional import cached_property
+
+def couples():
+    couples = cache.get('couples')
+    if not couples:
+        url = 'https://onedance.tanssiurheilu.fi/parit'
+        http = urllib3.PoolManager()
+        r = http.request('GET', url)
+        daatta = r.data
+        daatta = daatta.decode('latin-1').splitlines()
+        spamreader = csv.reader(daatta, delimiter=',', quotechar='"')
+        pairs = defaultdict(lambda: [])
+        for row in spamreader:
+            key = "%s, %s" % (row[3].strip(), row[4].strip())
+            pairs[key].append(row)
+        couples = pairs
+        cache.set('couples', dict(couples))
+    return couples
     
-    enroller_name = forms.CharField(max_length=60, required=True, label="Ilmoittajan nimi")
-    enroller_email = forms.EmailField(max_length=60, required=True, label="Ilmoittajan sähköposti")
-        
-    def __init__(self, competition, *args, **kwargs):
-        self.enrolls = 10
+'''
+class CompetitionEnrollFormSet(BaseFormSet):
+    @cached_property
+    def forms(self):
+        """
+        Instantiate forms at first property access.
+        """
+        # DoS protection is included in total_form_count()
+        #forms = [self._construct_form(i, competition=self.competition, club=self.club, **self.kwargs) for i in range(self.total_form_count())]
+        forms = [self._construct_form(i, competition=self.competition, **self.kwargs) for i in range(self.total_form_count())]
+        return forms
+'''
+
+class CompetitionEnrollPairForm(forms.Form):
+    level = forms.ChoiceField(required=True)
+    couple = forms.ChoiceField(required=True)
+    email = forms.EmailField(required=False, label="Sähköpostiosoite")
+    
+    def __init__(self, *args, **kwargs):
+        competition = kwargs.pop('competition')
+        club = kwargs.pop('club')
         super().__init__(*args, **kwargs)
         choices = competition._meta.get_field('agelevels').choices
         als = [c for c in choices if c[0] in competition.agelevels]
         self.competition = competition
-        als.insert(0,('-', '--'))
-        for x in range(1,self.enrolls+1):
-            self.fields['level_%d'%x] = forms.ChoiceField(
-                choices=als,
-                label="Luokka"
-                )
-            self.fields['man_%d'%x] = forms.CharField(max_length=60, required=False, label="Mies")
-            self.fields['woman_%d'%x] = forms.CharField(max_length=60, required=False, label="Nainen")
-            self.fields['email_%d'%x] = forms.EmailField(required=False, label="Sähköpostiosoite")
+        self.club = club
+        als.insert(0,('', '--'))
+        self.fields['level'].choices = als
+        #self.fields['level'].initial = als[0]
+        cpls = [(x[0], x[2]) for x in couples()[club]]
+        cpls.insert(0, ('', '--'))
+        self.couples = dict(cpls)
+        self.fields['couple'].choices = cpls
+        #self.fields['couple'].initial = cpls[0]
         
-    def clean(self):
-        cleaned_data = super().clean()
-        if 'club' not in cleaned_data or 'captcha' not in cleaned_data or cleaned_data['club'] != cleaned_data['captcha']:
-            self.add_error('captcha', "Seuran nimi pitää olla sama molemmissa kentissä")
-        for x in range(1,self.enrolls+1):
-            level = cleaned_data['level_%d'%x]
-            man = cleaned_data['man_%d'%x]
-            woman = cleaned_data['woman_%d'%x]
-            errors = []
-            failed = False
-            if level != '-' and man == '':
-                self.add_error('man_%d'%x, 'Pakollinen')
-                failed = True
-            if level != '-' and woman == '':
-                self.add_error('woman_%d'%x, 'Pakollinen')
-                failed = True
-            if level == '-' and (man != '' or woman != ''):
-                self.add_error('level_%d'%x, 'Pakollinen')
-                failed = True
-            if level == '-' and not failed:
-                del cleaned_data['level_%d'%x]
-                del cleaned_data['woman_%d'%x]
-                del cleaned_data['man_%d'%x]
-                del cleaned_data['email_%d'%x]
-        return cleaned_data
+    def save(self, enroller, commit=True):
+        level = self.cleaned_data['level']
+        couple = self.cleaned_data['couple']
+        email = self.cleaned_data['email']
+        man = self.couples[couple].split(' - ')[0].strip()
+        woman = self.couples[couple].split(' - ')[1].strip()
+        cp = CompetitionParticipation(**{
+            'competition': self.competition,
+            'club': self.club,
+            'level': level,
+            'email': email,
+            'man': man,
+            'woman': woman,
+            'couple_number': couple,
+            'enroller_name': enroller[0],
+            'enroller_email': enroller[1],
+        })
+        cp.save()
+        return cp
         
-    def save(self):
-        cd = self.cleaned_data
-        self.parts = []
-        for x in range(1,self.enrolls+1):
-            if 'level_%d'%x in cd:
-                level = cd['level_%d'%x]
-                man = cd['man_%d'%x]
-                woman = cd['woman_%d'%x]
-                email = cd['email_%d'%x]
-                part = CompetitionParticipation.objects.create(
-                    competition=self.competition,
-                    level=level,
-                    club=cd['club'],
-                    man=man,
-                    woman=woman,
-                    email=email,
-                    enroller_name=cd['enroller_name'],
-                    enroller_email=cd['enroller_email']
-                    )
-                self.parts.append(part)
+class CompetitionEnrollFormOnlyClub(forms.Form):
+    club =  forms.ChoiceField(required=True, label="Seura")
+    
+    def __init__(self, competition, *args, **kwargs):
+        self.couples = couples()
+        self.competition = competition
+        super().__init__(*args, **kwargs)
+        self.fields['club'].choices = [(k,k) for k in sorted(self.couples.keys())]
+    
+class CompetitionEnrollForm(CompetitionEnrollFormOnlyClub):
+    #club = forms.CharField(max_length=60, required=True, label="Seuran nimi")
+    #captcha = forms.CharField(max_length=60, required=True, label="Seuran nimi", help_text="Kirjoita seurasi nimi uudestaan, niin kuin se yläpuolella näkyy, jotta tiedämme ettet ole botti")
+    
+    enroller_name = forms.CharField(max_length=60, required=False, label="Ilmoittajan nimi")
+    enroller_email = forms.EmailField(max_length=60, required=False, label="Ilmoittajan sähköposti")
+        
+    def __init__(self, competition, club, *args, **kwargs):
+        self.formset = formset_factory(
+            CompetitionEnrollPairForm,
+            #formset=CompetitionEnrollFormSet,
+            extra=10)
+        if 'data' in kwargs:
+            self.formset = self.formset(kwargs['data'], form_kwargs={'competition': competition, 'club': club})
+        else:
+            self.formset = self.formset(form_kwargs={'competition': competition, 'club': club})
+        super().__init__(competition, *args, **kwargs)
+        self.fields['enroller_name'].required=True
+        self.fields['enroller_email'].required=True
+        self.fields['club'].disabled=True
+        
+    def is_valid(self):
+        return super().is_valid() and self.formset.is_valid()
+        
+    def save(self, commit=True):
+        self.saved = []
+        enroller = (self.cleaned_data['enroller_name'], self.cleaned_data['enroller_email'])
+        fs = self.formset
+        for form in fs.forms:
+            if form.is_valid() and form.has_changed():
+                cp = form.save(enroller, commit)
+                self.saved.append(cp)

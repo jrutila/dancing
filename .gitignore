@@ -59,6 +59,8 @@ docs/_build/
 # PyBuilder
 target/
 
+.~c9_*
+
 venv
 
 .idea

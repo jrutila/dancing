@@ -85,7 +85,7 @@
                             {{ request.GET.lostlink }}
                         </div>
                         {% else %}
-                        <form class="form" method="POST" action="{% url 'lost-link' %}">
+                        <form class="form" method="POST" action="{% url 'danceclub:lost-link' %}">
                             {% csrf_token %}
                             <div class="form-group">
                                 <label for="forgot_email" class="sr-only">Syötä sähköpostiosoitteesi</label>

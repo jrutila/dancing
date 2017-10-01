@@ -11,6 +11,7 @@ import re
 
 from django.shortcuts import render
 from .forms import ParticipationForm, CancelForm, LostLinkForm, MassTransactionForm, DanceEventParticipationForm
+from .forms import couples
 from .models import Member, Transaction, ReferenceNumber, ActivityParticipation, Season, AlreadyExists, DanceEvent, Dancer, Couple, DanceEventParticipation
 from .models import OwnCompetition, CompetitionParticipation
 from django.views.generic.edit import FormView
@@ -33,7 +34,7 @@ from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
 from .models import Activity
 
 def get_member_url(member):
-    return reverse('member_info', kwargs={
+    return reverse('danceclub:member_info', kwargs={
         'member_id': member.token
         })
         
@@ -142,8 +143,8 @@ class DanceEventParticipationView(FormView):
             # Message not sent to email or this is a new user
             return get_member_url(self.member)
         if self.request.user.is_authenticated():
-            return reverse('dance_events')
-        return reverse('dance_participate', kwargs={'event_id': self.event.id})
+            return reverse('danceclub:dance_events')
+        return reverse('danceclub:dance_participate', kwargs={'event_id': self.event.id})
 
 class ParticipationView(FormView):
     template_name = 'danceclub/participate.html'
@@ -154,7 +155,7 @@ class ParticipationView(FormView):
             dancer = Dancer.objects.filter(user=self.request.user)
             if dancer or self.request.user.has_perm("danceclub.view_danceeventparticipation"):
                 if 'no_redirect' not in self.request.GET:
-                    return HttpResponseRedirect(reverse('dance_events'))
+                    return HttpResponseRedirect(reverse('danceclub:dance_events'))
         return super().dispatch(*args, **kwargs)
         
     def get_context_data(self, **kwargs):
@@ -195,7 +196,7 @@ class ParticipationView(FormView):
         if not self.mail_sent or self.created:
             # Message not sent to email or this is a new user
             return get_member_url(self.member)
-        return reverse('participate')
+        return reverse('danceclub:participate')
             
 class CancelView(FormView):
     form_class = CancelForm
@@ -234,8 +235,8 @@ class LostLinkView(FormView):
         
     def get_success_url(self):
         if self.failed:
-            return reverse('participate')+"?failed="+self.failed
-        return reverse('participate')+"?lostlink="+self.lostlink
+            return reverse('danceclub:participate')+"?failed="+self.failed
+        return reverse('danceclub:participate')+"?lostlink="+self.lostlink
         
 class MemberView(TemplateView):
     template_name = 'danceclub/member.html'
@@ -293,7 +294,7 @@ class MassTransactionView(FormView):
     form_class = MassTransactionForm
 
     def get_success_url(self):
-        return reverse('upload-transaction')
+        return reverse('danceclub:upload-transaction')
 
     def form_valid(self, form):
         file = TextIOWrapper(self.request.FILES['file'].file, encoding='ascii', errors='replace')
@@ -367,60 +368,86 @@ class CompetitionView(TemplateView):
         ctx["counts"] = counts
         return ctx
         
-from .forms import CompetitionEnrollForm
 from django.utils import formats
-class CompetitionEnrollView(FormView):
+
+from .forms import CompetitionEnrollForm, CompetitionEnrollFormOnlyClub
+
+class CompetitionEnrollClubSelectView(FormView):
     template_name = "danceclub/competition_form.html"
-    form_class = CompetitionEnrollForm
+    form_class = CompetitionEnrollFormOnlyClub
     
     def dispatch(self, request, *args, **kwargs):
         self.competition = get_object_or_404(OwnCompetition, slug=kwargs['slug'])
+        self.slug = kwargs['slug']
+        
         if (self.competition.deadline < timezone.now() and not request.GET.get('secret', None)):
             raise Http404("Ilmoittautumisaika on päättynyt")
-        return super(CompetitionEnrollView,self).dispatch(request, *args, **kwargs)
-    
+
+        ret = super().dispatch(request, *args, **kwargs)
+        return ret
+        
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['competition'] = self.competition
         return kwargs
         
+    def form_valid(self, form):
+        if form.cleaned_data['club']:
+            return redirect('danceclub_competition:competition_enroll', slug=self.slug, club=form.cleaned_data['club'])
+
+class CompetitionEnrollView(CompetitionEnrollClubSelectView):
+    template_name = "danceclub/competition_form.html"
+    form_class = CompetitionEnrollForm
+    
+    def dispatch(self, request, *args, **kwargs):
+        self.club = kwargs['club']
+        ret = super().dispatch(request, *args, **kwargs)
+        return ret
+        
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['club'] = self.club
+        return kwargs
+        
+    def get_initial(self, *args, **kwargs):
+        initial = super().get_initial(*args, **kwargs)
+        initial['club'] = self.club
+        return initial
+        
     def get_success_url(self):
         als = dict(OwnCompetition._meta.get_field('agelevels').choices)
-        msg = '''
-        <p>Seuraavat osallistujat rekisteröity:</p>
-        <ul>
-        '''
-        for p in self.saved:
+        msg = '<p>Seuraavat osallistujat rekisteröity:</p> <ul>'
+        for p in self.form.saved:
             msg = msg + "<li>%s - %s, %s</li>" % (p.man, p.woman, als[p.level])
         msg = msg + "</ul>"
         
+        enroller_email = self.form.cleaned_data['enroller_email']
         msg_email = ""
-        for p in self.saved:
+        for p in self.form.saved:
             msg_email = msg_email + "  %s - %s, %s\n" % (p.man, p.woman, als[p.level])
         email_succ = send_mail(
             'Ilmoittautuminen kisaan %s' % formats.date_format(self.competition.date, "SHORT_DATE_FORMAT"),
             'Hei,\nkiitos ilmoittautumisista.\nSeuraavat ilmoittautumiset rekisteröity:\n\n%s\n%s\n\nTervetuloa kisaamaan,\nTanssiklubi Dancing\nkilpailut@dancing.fi' % (self.club, msg_email),
             'kilpailut@dancing.fi',
-            ["kilpailut@dancing.fi", self.enroll_email], fail_silently=True)
+            ["kilpailut@dancing.fi", enroller_email], fail_silently=True)
         if email_succ:
-            msg = msg + "<p>Sähköpostiviesti lähetetty osoitteeseen: %s</p>" % self.enroll_email
+            msg = msg + "<p>Sähköpostiviesti lähetetty osoitteeseen: %s</p>" % enroller_email
 
         messages.add_message(self.request, messages.SUCCESS, msg)
 
         return self.competition.get_absolute_url()
         
     def form_valid(self, form):
+        club = self.club
         form.save()
-        self.saved = form.parts
-        self.enroll_email = form.cleaned_data['enroller_email']
-        self.club = form.cleaned_data['club']
-        return super().form_valid(form)
+        self.form = form
+        return FormView.form_valid(self, form)
 
 class CompetitionListClassesView(TemplateView):
     template_name = "danceclub/admin/competition_list_classes.html"
     
-    def get_context_data(self):
-        competition = OwnCompetition.objects.order_by('start')[0]
+    def get_context_data(self, slug):
+        competition = OwnCompetition.objects.get(slug=slug)
         participations = CompetitionParticipation.objects.filter(competition=competition).order_by('level','number')
         ctx = super().get_context_data()
         ctx['competition'] = competition
@@ -430,12 +457,12 @@ class CompetitionListClassesView(TemplateView):
 import csv
 from django.http import HttpResponse
 from .models import age_code
-def competition_tps7_view(request):
+def competition_tps7_view(request, slug):
     split_names = request.GET.get('split_names', False)
     # Create the HttpResponse object with the appropriate CSV header.
-    competition = OwnCompetition.objects.order_by('start')[0]
+    competition = OwnCompetition.objects.get(slug=slug)
     participations = CompetitionParticipation.objects.filter(competition=competition).order_by('level','number')
-    response = HttpResponse(content_type='text/cvs')
+    response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="'+competition.slug+'.csv"'
 
     writer = csv.writer(response)
@@ -450,8 +477,8 @@ def competition_tps7_view(request):
 class CompetitionListClubsView(TemplateView):
     template_name = "danceclub/admin/competition_list_clubs.html"
     
-    def get_context_data(self):
-        competition = OwnCompetition.objects.order_by('start')[0]
+    def get_context_data(self, slug):
+        competition = OwnCompetition.objects.get(slug=slug)
         #try:
             #participations = list(CompetitionParticipation.objects.filter(competition=competition).order_by('club','number').distinct('man','woman','club'))
         #except NotImplementedError:

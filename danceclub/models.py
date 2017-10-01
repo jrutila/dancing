@@ -474,7 +474,7 @@ class OwnCompetition(Competition):
     address = models.CharField(max_length=50, help_text="Osoite")
     
     def get_absolute_url(self):
-        return reverse('competition_info', kwargs={"slug":self.slug})
+        return reverse('danceclub_competition:competition_info', kwargs={"slug":self.slug})
         
     def __str__(self):
         return "%s (%s)" % (self.name, self.date)
@@ -483,8 +483,10 @@ class CompetitionParticipation(models.Model):
     competition = models.ForeignKey(OwnCompetition, related_name="participations")
     level = models.CharField(max_length=20, choices=OwnCompetition._meta.get_field('agelevels').choices)
     club = models.CharField(max_length=60)
+    
     man = models.CharField(max_length=60)
     woman = models.CharField(max_length=60)
+    couple_number = models.IntegerField()
     
     email = models.EmailField(blank=True, null=True)
     reference_number = models.ForeignKey(ReferenceNumber, blank=True, null=True)

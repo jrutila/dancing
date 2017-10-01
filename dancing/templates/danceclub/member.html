@@ -49,7 +49,7 @@ Ei maksettavaa
         </td>
         <td>
         {% if tr.cancel and saldo < 0 %}
-        <form method="POST" action="{% url 'cancel' %}">
+        <form method="POST" action="{% url 'danceclub:cancel' %}">
             {% csrf_token %}
             {{ tr.cancel.as_p }}
             <button type="submit">Peru</button>
