@@ -8,10 +8,10 @@ boto==2.38.0
 botocore==1.3.17
 cmsplugin-contact-plus==1.3.12
 cmsplugin-filer==1.0.0
--e git+https://github.com/jrutila/cmsplugin-iframe.git@aadb21d9fb9c61489217f2f2338ecf6f7331ee14#egg=cmsplugin_iframe-origin/HEAD
--e git+git@github.com:jrutila/cmsplugin-image-gallery.git@9dab462d366392d2459d19931e1dc43c197738fb#egg=cmsplugin_image_gallery-master
--e git+git@github.com:jrutila/cmsplugin-newsplus.git@334bd7a8645f8d87137991f7fdbce8a17a916830#egg=cmsplugin_newsplus-origin/HEAD
--e git+https://github.com/jrutila/cmsplugin-plaintext@59af39514df0e9c23221451d6e0d73f7cef3e830#egg=cmsplugin_plaintext_djangocms3-master
+-e git+https://github.com/jrutila/cmsplugin-iframe.git@aadb21d9fb9c61489217f2f2338ecf6f7331ee14#egg=cmsplugin_iframe-origin/master
+-e git+git@github.com:jrutila/cmsplugin-image-gallery.git@9dab462d366392d2459d19931e1dc43c197738fb#egg=cmsplugin_image_gallery-origin/master
+-e git+git@github.com:jrutila/cmsplugin-newsplus.git@f601d977d28627e4175228e6a3940ad100e42a55#egg=cmsplugin_newsplus-master
+-e git+https://github.com/jrutila/cmsplugin-plaintext@59af39514df0e9c23221451d6e0d73f7cef3e830#egg=cmsplugin_plaintext_djangocms3-origin/master
 dj-database-url==0.3.0
 dj-static==0.0.6
 django-admin-jqueryui==1.8.22
@@ -31,7 +31,7 @@ django-polymorphic==1.3
 django-recaptcha==1.3.1
 django-reversion==2.0.10
 django-sekizai==0.10.0
--e git+https://github.com/jrutila/django-settings.git@3d8288ddb1386bcb1af8ec1cf0480b5a8869e749#egg=django_settings-origin/HEAD
+-e git+https://github.com/jrutila/django-settings.git@3d8288ddb1386bcb1af8ec1cf0480b5a8869e749#egg=django_settings-origin/master
 django-simple-math-captcha==1.0.7
 django-storages-redux==1.3
 django-toolbelt==0.0.1
