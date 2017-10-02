@@ -1,19 +1,16 @@
 Babel==2.3.4
-Django==1.10.8
-Django-Select2==4.3.2
-Pillow==4.2.1
-Unidecode==0.04.18
 beautifulsoup4==4.4.1
 boto==2.38.0
 botocore==1.3.17
 cmsplugin-contact-plus==1.3.12
 cmsplugin-filer==1.0.0
--e git+https://github.com/jrutila/cmsplugin-iframe.git@aadb21d9fb9c61489217f2f2338ecf6f7331ee14#egg=cmsplugin_iframe-master
--e git+https://github.com/jrutila/cmsplugin-image-gallery.git@9dab462d366392d2459d19931e1dc43c197738fb#egg=cmsplugin_image_gallery-master
--e git+https://github.com/jrutila/cmsplugin-newsplus.git@f601d977d28627e4175228e6a3940ad100e42a55#egg=cmsplugin_newsplus-master
--e git+https://github.com/jrutila/cmsplugin-plaintext@59af39514df0e9c23221451d6e0d73f7cef3e830#egg=cmsplugin_plaintext_djangocms3-master
+-e git+https://github.com/jrutila/cmsplugin-iframe.git@aadb21d9fb9c61489217f2f2338ecf6f7331ee14#egg=cmsplugin_iframe
+-e git+https://github.com/jrutila/cmsplugin-image-gallery.git@9dab462d366392d2459d19931e1dc43c197738fb#egg=cmsplugin_image_gallery
+-e git+https://github.com/jrutila/cmsplugin-newsplus.git@f601d977d28627e4175228e6a3940ad100e42a55#egg=cmsplugin_newsplus
+-e git+https://github.com/jrutila/cmsplugin-plaintext@59af39514df0e9c23221451d6e0d73f7cef3e830#egg=cmsplugin_plaintext_djangocms3
 dj-database-url==0.3.0
 dj-static==0.0.6
+Django==1.10.8
 django-admin-jqueryui==1.8.22
 django-admin-sortable==2.1
 django-appconf==1.0.1
@@ -31,7 +28,8 @@ django-polymorphic==1.3
 django-recaptcha==1.3.1
 django-reversion==2.0.10
 django-sekizai==0.10.0
--e git+https://github.com/jrutila/django-settings.git@3d8288ddb1386bcb1af8ec1cf0480b5a8869e749#egg=django_settings-master
+Django-Select2==4.3.2
+-e git+https://github.com/jrutila/django-settings.git@3d8288ddb1386bcb1af8ec1cf0480b5a8869e749#egg=django_settings
 django-simple-math-captcha==1.0.7
 django-storages-redux==1.3
 django-toolbelt==0.0.1
@@ -47,12 +45,13 @@ jmespath==0.9.0
 jsonfield==2.0.2
 olefile==0.44
 phonenumberslite==8.1.0
+Pillow==4.2.1
 psycopg2==2.6.1
 python-dateutil==2.4.2
 pytz==2017.2
 six==1.11.0
 sqlparse==0.2.0
 static3==0.6.1
+Unidecode==0.4.18
 urllib3==1.19.1
-wheel==0.24.0
 whitenoise==2.0.6
