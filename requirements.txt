@@ -6,7 +6,7 @@ cmsplugin-contact-plus==1.3.12
 cmsplugin-filer==1.0.0
 -e git+https://github.com/jrutila/cmsplugin-iframe.git@aadb21d9fb9c61489217f2f2338ecf6f7331ee14#egg=cmsplugin_iframe
 -e git+https://github.com/jrutila/cmsplugin-image-gallery.git@9dab462d366392d2459d19931e1dc43c197738fb#egg=cmsplugin_image_gallery
--e git+https://github.com/jrutila/cmsplugin-newsplus.git@f601d977d28627e4175228e6a3940ad100e42a55#egg=cmsplugin_newsplus
+-e git+https://github.com/jrutila/cmsplugin-newsplus.git@ed69bdf737d02db1261a0b741e17058b489388f5#egg=cmsplugin_newsplus
 -e git+https://github.com/jrutila/cmsplugin-plaintext@59af39514df0e9c23221451d6e0d73f7cef3e830#egg=cmsplugin_plaintext_djangocms3
 dj-database-url==0.3.0
 dj-static==0.0.6
