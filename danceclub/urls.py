@@ -17,7 +17,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import ParticipationView, MemberView, CancelView, LostLinkView, MassTransactionView, DanceEventsView, DanceEventParticipationView
+from .views import ParticipationView, MemberView, CancelView, LostLinkView, MassTransactionView, DanceEventsView, DanceEventParticipationView, DancerInfoView
 from django.shortcuts import redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from danceclub.views import CompetitionListClassesView, CompetitionListClubsView
@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'$', ParticipationView.as_view(), name='participate'),
     url(r'(?P<event_id>\d+)$', DanceEventParticipationView.as_view(), name='dance_participate'),
     url(r'info/(?P<member_id>[^/]+)/$', MemberView.as_view(), name='member_info'),
+    url(r'info/(?P<pk>\d+)/edit$', DancerInfoView.as_view(), name='member_edit'),
     url(r'cancel/$', CancelView.as_view(), name='cancel'),
     url(r'lostlink/$', LostLinkView.as_view(), name='lost-link'),
     

@@ -23,7 +23,11 @@
         <div class="col-md-12">
             <div class="panel-box">
                 <div class="titles">
-                    <h4>{{ member }}</h4>
+                    <h4>{{ member }}
+                    {% if member.is_dancer %}
+                    <a href="{% url 'danceclub:member_edit' pk=member.pk %}">Muokkaa tietoja</a>
+                    {% endif %}
+                    </h4>
                 </div>
                 <div class="row">
                     <div class="col-md-12">

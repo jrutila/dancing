@@ -15,6 +15,7 @@ from .forms import couples
 from .models import Member, Transaction, ReferenceNumber, ActivityParticipation, Season, AlreadyExists, DanceEvent, Dancer, Couple, DanceEventParticipation
 from .models import OwnCompetition, CompetitionParticipation
 from django.views.generic.edit import FormView
+from django.views.generic.edit import UpdateView
 from django.views.generic import TemplateView
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum, Max, Q, Count
@@ -289,6 +290,17 @@ class MemberView(TemplateView):
             ctx['barcode'] = barcode
         return ctx
         
+class DancerInfoView(UpdateView):
+    template_name = 'danceclub/generic_form.html'
+    model = Dancer
+    fields = ['phone_number', 'birth_year', 'social', 'license']
+
+    def get_queryset(self):
+        base_qs=super().get_queryset()
+        if not self.request.user.is_superuser:
+            base_qs = base_qs.filter(user=self.request.user)
+        return base_qs
+
 class MassTransactionView(FormView):
     template_name = "danceclub/generic_form.html"
     form_class = MassTransactionForm
