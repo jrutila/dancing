@@ -141,8 +141,14 @@ class Member(models.Model):
         elif self.user.email:
             return self.user.email
         return "Vierailija"
-            
-    
+
+    def is_dancer(self):
+        if isinstance(self, Dancer):
+            return True
+        if self.dancer:
+            return True
+        return False
+
     def get_absolute_url(self):
         from .views import get_member_url
         return get_member_url(self)
