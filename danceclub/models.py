@@ -129,7 +129,7 @@ class Member(models.Model):
     locality = models.CharField(max_length=50)
     reference_numbers = GenericRelation(ReferenceNumber, content_type_field='object_type')
     token = models.UUIDField(unique=True,blank=False,null=False,default=uuid.uuid4, editable=False)
-    phone_number = PhoneNumberField(blank=True)
+    phone_number = PhoneNumberField('Puhelinnumero', blank=True)
     birth_year = models.IntegerField('Syntymävuosi', blank=True, null=True, choices=YEAR_CHOICES, default=datetime.datetime.now().year)
     young = models.BooleanField(help_text="Olen alle 16-vuotias",blank=True)
     
@@ -148,7 +148,8 @@ class Member(models.Model):
         return get_member_url(self)
         
 class Dancer(Member):
-    license = models.CharField(max_length=20, null=True, blank=True)
+    license = models.CharField("Lisenssinumero", max_length=20, null=True, blank=True)
+    social = models.CharField("Hetun loppuosa", max_length=4, null=True, blank=True)
     
 class CoupleManager(models.Manager):
     def get_couple(self, dancer):
