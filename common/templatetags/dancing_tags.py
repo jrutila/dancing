@@ -61,6 +61,9 @@ class CompetitionPlaceholder(RenderPlaceholder):
 		ph = kwargs['placeholder']
 		comp = CompetitionPage.objects.get_or_create(competition=context['competition'])[0]
 		kwargs['placeholder'] = getattr(comp, ph)
+		if not kwargs['placeholder']:
+			comp.save()
+			kwargs['placeholder'] = getattr(comp, ph)
 		return super()._get_value(context, editable, **kwargs)
 
 register.tag(CompetitionPlaceholder)

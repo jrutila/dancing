@@ -66,3 +66,5 @@ class CompetitionPage(models.Model):
     description = PlaceholderField('description', related_name="competition_description")
     enroll_help = PlaceholderField('enroll_help', related_name="competition_enroll_help")
     sponsors = PlaceholderField('sponsors', related_name="competition_sponsors")
+    map_description = PlaceholderField('map_description', related_name="competition_map_description")
+    map_extra = PlaceholderField('map_extra', related_name="competition_map_extra")

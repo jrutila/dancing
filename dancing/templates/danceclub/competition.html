@@ -43,8 +43,10 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12">
+                                {% competition_placeholder "map_description" %}
                                 <p><strong>Osoite:</strong> {{ competition.address }}</p>
                                 <p><div id="map"></div></p>
+                                {% competition_placeholder "map_extra" %}
                             </div>
                         </div>
                     </div>
