@@ -392,7 +392,7 @@ class CompetitionEnrollClubSelectView(FormView):
         self.competition = get_object_or_404(OwnCompetition, slug=kwargs['slug'])
         self.slug = kwargs['slug']
         
-        if (self.competition.deadline < timezone.now() and not request.GET.get('secret', None)):
+        if (self.competition.deadline < timezone.now() and not request.user.has_perm('danceclub.add_competitionparticipation')):
             raise Http404("Ilmoittautumisaika on päättynyt")
 
         ret = super().dispatch(request, *args, **kwargs)
