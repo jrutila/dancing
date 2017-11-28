@@ -170,6 +170,10 @@
                                     Voit kysyä jälki-ilmoittautumisista osoitteesta:
                                     <a href="mailto:kilpailut@dancing.fi">kilpailut@dancing.fi</a>
                                     </p>
+                                    {% if perms.danceclub.add_competitionparticipation %}
+                                    Sinulla on käyttöoikeus lisätä osallistujia
+                                    <a href="{% url 'danceclub_competition:competition_enroll' slug=competition.slug %}">tästä</a>
+                                    {% endif %}
                                 {% else %}
                                     <p>Ilmoittautuminen kisoihin tapahtuu tämän
                                     <a href="{% url 'danceclub_competition:competition_enroll' slug=competition.slug %}">linkin</a>
