@@ -48,7 +48,7 @@ def age_code(level):
     return f
     
 def get_max_ref():
-    m = ReferenceNumber.objects.all().aggregate(Max('number'))['number__max']
+    m = ReferenceNumber.objects.filter(number__lt=17000000).aggregate(Max('number'))['number__max']
     if not m:
         m = 9000000
     m = int(m/10)
