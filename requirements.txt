@@ -45,7 +45,7 @@ jmespath==0.9.0
 jsonfield==2.0.2
 olefile==0.44
 phonenumberslite==8.1.0
-Pillow==4.2.1
+Pillow==6.2.0
 psycopg2==2.6.1
 python-dateutil==2.4.2
 pytz==2017.2
