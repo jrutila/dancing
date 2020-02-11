@@ -10,7 +10,7 @@ cmsplugin-filer==1.0.0
 -e git+https://github.com/jrutila/cmsplugin-plaintext@59af39514df0e9c23221451d6e0d73f7cef3e830#egg=cmsplugin_plaintext_djangocms3
 dj-database-url==0.3.0
 dj-static==0.0.6
-Django==1.10.8
+Django==1.11.28
 django-admin-jqueryui==1.8.22
 django-admin-sortable==2.1
 django-appconf==1.0.1
